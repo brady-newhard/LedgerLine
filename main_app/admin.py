@@ -1,3 +1,6 @@
 from django.contrib import admin
+from .models import ModeUnlock, Transaction
 
-# Register your models here.
+admin.site.register(ModeUnlock)
+admin.site.register(Transaction)
+

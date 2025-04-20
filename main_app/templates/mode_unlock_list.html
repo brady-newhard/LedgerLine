@@ -1,0 +1,386 @@
+{% extends 'base.html' %}
+{% load ansi_shadow_tags %}
+
+{% block content %}
+<div class="menu-bar">
+  File  Edit  View  Format  Options  Range  Data  Help
+</div>
+
+<pre class="ascii-title">
+<div class="ascii-terminal-style">{% ansi_shadow "PREMIUM MODES" %}</div>
+</pre>
+
+<div class="terminal-output">
+C:>ACCESS PREMIUM.DAT
+Reading mode configuration...
+</div>
+
+{% if modes %}
+  <table>
+    <thead>
+      <tr>
+        <th class="col-label"></th>
+        <th class="col-label">A</th>
+        <th class="col-label">B</th>
+        <th class="col-label">C</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="row-label">1</td>
+        <td><strong>status</strong></td>
+        <td><strong>mode name</strong></td>
+        <td><strong>description</strong></td>
+      </tr>
+      {% for mode in modes %}
+        <tr>
+          <td class="row-label">{{ forloop.counter|add:"1" }}</td>
+          <td><span class="badge badge-success">unlocked</span></td>
+          <td><strong>{{ mode.name }}</strong></td>
+          <td class="text-muted">{{ mode.description }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <div class="alert" id="mode-alert">
+    <p>ERROR 404: No modes unlocked.</p>
+    <p class="text-muted">Continue using LEDGERLINE to unlock premium features.</p>
+    <div class="loading-bar">
+      <div class="loading-bar-fill" id="progress-bar" style="width: 15%;"></div>
+    </div>
+    <p class="text-muted" id="progress-text">Mode unlock progress: 15%</p>
+  </div>
+{% endif %}
+
+<div class="function-keys">
+  <div class="function-key" onclick="showHelpInfo()">F1-Help</div>
+  <div class="function-key" onclick="refreshModes()">F2-Refresh</div>
+  <div class="function-key" onclick="window.location.href='/'">F3-Return</div>
+  <div class="function-key" onclick="showModeInfo()">F5-Info</div>
+  <div class="function-key" onclick="simulateProgress()">F7-Simulate</div>
+  <div class="function-key" onclick="unlockRandomMode()">F8-Unlock</div>
+  <div class="function-key" onclick="showModesMenu()">F10-Menu</div>
+</div>
+
+<div class="status-bar">
+  <span id="status-message">READY.</span>
+  <span class="status-bar-brand">LEDGERLINE: Beige Edition</span>
+  <span>{% now "m/d/Y" %}</span>
+  <span>MEM: 640K</span>
+</div>
+
+<script>
+// Store the current progress value
+let currentProgress = 15;
+
+// List of available modes to unlock
+const availableModes = [
+  { name: "Analytics Mode", description: "Provides advanced data visualization and reporting" },
+  { name: "Export Mode", description: "Allows exporting to various formats including CSV, PDF, and Excel" },
+  { name: "Budget Mode", description: "Enables setting and tracking budgets with alerts" },
+  { name: "Forecast Mode", description: "Predictive financial analysis based on spending patterns" },
+  { name: "Multi-User Mode", description: "Collaborate with team members on financial tracking" }
+];
+
+function showHelpInfo() {
+  const helpText = `PREMIUM MODES HELP:
+- F1: View this help information
+- F2: Refresh the mode list
+- F3: Return to the home screen
+- F5: View detailed information about modes
+- F7: Simulate progress towards unlocking modes
+- F8: Attempt to unlock a random mode
+- F10: Access the modes menu`;
+  
+  showTerminalOutput(helpText);
+  updateStatusMessage("Displaying help documentation");
+}
+
+function refreshModes() {
+  showTerminalOutput("Refreshing mode data...");
+  updateStatusMessage("Refreshing mode data");
+  
+  // Simulate a refresh by adding a loading effect
+  const loadingBar = document.createElement('div');
+  loadingBar.className = 'loading-bar';
+  const loadingFill = document.createElement('div');
+  loadingFill.className = 'loading-bar-fill';
+  loadingFill.style.width = '0%';
+  loadingBar.appendChild(loadingFill);
+  
+  const output = document.querySelector('.terminal-output');
+  output.appendChild(loadingBar);
+  
+  let width = 0;
+  const interval = setInterval(() => {
+    if (width >= 100) {
+      clearInterval(interval);
+      // Add a small delay before refreshing the page
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    } else {
+      width += 2;
+      loadingFill.style.width = width + '%';
+    }
+  }, 20);
+}
+
+function showModeInfo() {
+  const infoText = `MODE INFORMATION:
+- Analytics Mode: Provides advanced data visualization and spending trend analysis
+- Export Mode: Allows exporting to various formats (CSV, PDF, Excel, JSON)
+- Budget Mode: Enables setting and tracking budgets with customizable alerts
+- Forecast Mode: Predictive financial analysis based on historical patterns
+- Multi-User Mode: Collaborate with team members on financial tracking`;
+  
+  showTerminalOutput(infoText);
+  updateStatusMessage("Displaying mode information");
+}
+
+function simulateProgress() {
+  if (currentProgress >= 100) {
+    showTerminalOutput("ERROR: Progress already at maximum (100%)");
+    return;
+  }
+  
+  showTerminalOutput("Simulating app usage to increase unlock progress...");
+  updateStatusMessage("Simulating progress");
+  
+  // Get the progress bar
+  const progressBar = document.getElementById('progress-bar');
+  const progressText = document.getElementById('progress-text');
+  
+  if (!progressBar || !progressText) return;
+  
+  // Simulate progress increase
+  const increment = Math.floor(Math.random() * 10) + 5; // Random increment between 5-15%
+  let newProgress = Math.min(currentProgress + increment, 100);
+  
+  // Animate the progress bar
+  let animationProgress = currentProgress;
+  const progressInterval = setInterval(() => {
+    if (animationProgress >= newProgress) {
+      clearInterval(progressInterval);
+      // Update the text after animation completes
+      progressText.textContent = `Mode unlock progress: ${newProgress}%`;
+      currentProgress = newProgress;
+      
+      // Check if we've reached 100%
+      if (newProgress >= 100) {
+        setTimeout(() => {
+          unlockRandomMode();
+        }, 1000);
+      }
+    } else {
+      animationProgress++;
+      progressBar.style.width = animationProgress + '%';
+    }
+  }, 30);
+  
+  showTerminalOutput(`Progress increased by ${increment}%!`);
+}
+
+function unlockRandomMode() {
+  if (availableModes.length === 0) {
+    showTerminalOutput("ERROR: No more modes available to unlock.");
+    return;
+  }
+  
+  // Check if progress is at least 50%
+  if (currentProgress < 50) {
+    showTerminalOutput("INSUFFICIENT PROGRESS: You need at least 50% progress to attempt unlocking a mode.");
+    return;
+  }
+  
+  updateStatusMessage("Attempting to unlock mode");
+  showTerminalOutput("Attempting to unlock random mode...");
+  
+  setTimeout(() => {
+    const modeIndex = Math.floor(Math.random() * availableModes.length);
+    const unlockedMode = availableModes[modeIndex];
+    
+    // Create a table if it doesn't exist
+    let table = document.querySelector('table');
+    
+    if (!table) {
+      // Replace the alert with a table
+      const alertElement = document.getElementById('mode-alert');
+      if (alertElement) alertElement.remove();
+      
+      table = document.createElement('table');
+      
+      // Create table header
+      const thead = document.createElement('thead');
+      thead.innerHTML = `
+        <tr>
+          <th class="col-label"></th>
+          <th class="col-label">A</th>
+          <th class="col-label">B</th>
+          <th class="col-label">C</th>
+        </tr>
+      `;
+      
+      // Create table body
+      const tbody = document.createElement('tbody');
+      tbody.innerHTML = `
+        <tr>
+          <td class="row-label">1</td>
+          <td><strong>status</strong></td>
+          <td><strong>mode name</strong></td>
+          <td><strong>description</strong></td>
+        </tr>
+      `;
+      
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      
+      // Insert the table before the function keys
+      const functionKeys = document.querySelector('.function-keys');
+      functionKeys.parentNode.insertBefore(table, functionKeys);
+    }
+    
+    // Add the unlocked mode to the table
+    const tbody = table.querySelector('tbody');
+    const rowCount = tbody.querySelectorAll('tr').length;
+    
+    const newRow = document.createElement('tr');
+    newRow.innerHTML = `
+      <td class="row-label">${rowCount + 1}</td>
+      <td><span class="badge badge-success">unlocked</span></td>
+      <td><strong>${unlockedMode.name}</strong></td>
+      <td class="text-muted">${unlockedMode.description}</td>
+    `;
+    
+    tbody.appendChild(newRow);
+    
+    // Animation effect for the new row
+    newRow.style.backgroundColor = '#ffff99';
+    setTimeout(() => {
+      newRow.style.transition = 'background-color 1s';
+      newRow.style.backgroundColor = '';
+    }, 100);
+    
+    // Remove the unlocked mode from available modes
+    availableModes.splice(modeIndex, 1);
+    
+    showTerminalOutput(`SUCCESS! Unlocked: ${unlockedMode.name}\n${unlockedMode.description}`);
+    updateStatusMessage(`Mode unlocked: ${unlockedMode.name}`);
+  }, 1500);
+}
+
+function showModesMenu() {
+  const menuElement = document.createElement('div');
+  menuElement.className = 'terminal-output mode-menu';
+  menuElement.innerHTML = `MODES MENU:
+1. Check Unlock Progress (${currentProgress}%)
+2. View Available Modes (${availableModes.length})
+3. Request Mode Access
+4. Mode Documentation
+5. Exit Menu`;
+  
+  // Add interactive styling
+  menuElement.style.cursor = 'pointer';
+  menuElement.style.backgroundColor = '#0000aa';
+  menuElement.style.color = '#ffffff';
+  menuElement.style.padding = '10px';
+  menuElement.style.border = '2px solid #ffffff';
+  
+  // Insert before the status bar
+  const statusBar = document.querySelector('.status-bar');
+  statusBar.parentNode.insertBefore(menuElement, statusBar);
+  
+  // Add click event to handle menu options
+  menuElement.addEventListener('click', function(e) {
+    const text = e.target.textContent;
+    if (text.includes('1.')) {
+      showTerminalOutput(`Current unlock progress: ${currentProgress}%`);
+    } else if (text.includes('2.')) {
+      let modesText = "Available Modes:\n";
+      availableModes.forEach(mode => {
+        modesText += `- ${mode.name}: ${mode.description}\n`;
+      });
+      showTerminalOutput(modesText);
+    } else if (text.includes('3.')) {
+      showTerminalOutput("Mode access request submitted. Please wait for approval.");
+    } else if (text.includes('4.')) {
+      showTerminalOutput("Opening mode documentation... Please wait.");
+    }
+    
+    this.remove();
+  });
+  
+  updateStatusMessage("Displaying modes menu");
+}
+
+function showTerminalOutput(message) {
+  const msgElement = document.createElement('div');
+  msgElement.className = 'terminal-output';
+  msgElement.style.whiteSpace = 'pre-line';
+  msgElement.innerText = message;
+  
+  // Insert before the status bar
+  const statusBar = document.querySelector('.status-bar');
+  statusBar.parentNode.insertBefore(msgElement, statusBar);
+  
+  // Add typewriter effect
+  const text = message;
+  msgElement.innerText = '';
+  let i = 0;
+  const typeSpeed = 20;
+  
+  function typeWriter() {
+    if (i < text.length) {
+      msgElement.innerText += text.charAt(i);
+      i++;
+      setTimeout(typeWriter, typeSpeed);
+    }
+  }
+  
+  typeWriter();
+  
+  // Remove after 8 seconds
+  setTimeout(() => {
+    msgElement.classList.add('fade-out');
+    setTimeout(() => {
+      msgElement.remove();
+    }, 1000);
+  }, 8000);
+}
+
+function updateStatusMessage(message) {
+  const statusElement = document.getElementById('status-message');
+  if (statusElement) {
+    statusElement.textContent = message;
+    
+    // Reset after 3 seconds
+    setTimeout(() => {
+      statusElement.textContent = 'READY.';
+    }, 3000);
+  }
+}
+
+// Add CSS for the fade-out animation
+const style = document.createElement('style');
+style.textContent = `
+  .fade-out {
+    opacity: 0;
+    transition: opacity 1s;
+  }
+  
+  .terminal-output {
+    margin: 10px 0;
+    font-family: 'Courier New', monospace;
+  }
+  
+  .badge-success {
+    background-color: #009900;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 3px;
+  }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}
