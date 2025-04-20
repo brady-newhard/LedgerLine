@@ -1,16 +1,134 @@
 {% extends 'base.html' %} 
+{% load ansi_shadow_tags %}
+
 {% block content %}
-<h1>About LedgerLine</h1>
-<hr />
-<p class="page-content">
-    LedgerLine is a minimalist finance app built on Django, 
-    thoughtfully crafted for individuals, LLCs, and solo operators. 
-    Inspired by the clarity and calm of mid-century accounting, LedgerLine 
-    delivers a clean, practical, and serene user experience. By focusing on 
-    essential ledger functions and removing clutter, it brings back the joy 
-    of simple, effective financial management—channeling the spirit of early 
-    Mint.com, but with a distinctive, design-forward twist. LedgerLine makes 
-    tracking your finances not just easy, but genuinely enjoyable.
-</p>
+<div class="menu-bar">
+  File  Edit  View  Format  Options  Range  Data  Help
+</div>
+
+<pre class="ascii-title">
+<div class="ascii-terminal-style">{% ansi_shadow "ABOUT" %}</div>
+</pre>
+
+<div class="terminal-output">
+C:>HELP LEDGERLINE
+Loading documentation...
+</div>
+
+<div class="about-content">
+  <h2>LEDGERLINE: Beige Edition (v2.1)</h2>
+  <p class="slogan">Track. Filter. Export. Forget.</p>
+  
+  <p>
+    ledgerline: beige edition is a minimalist finance app built on django, thoughtfully crafted for individuals, llcs, and solo operators.
+  </p>
+  
+  <p>
+    inspired by the clarity and calm of mid-century accounting, ledgerline delivers a clean, practical, and serene user experience.
+  </p>
+  
+  <p>
+    by focusing on essential ledger functions and removing clutter, it brings back the joy of simple, effective financial management—channeling the spirit of early accounting software, but with a distinctive, design-forward twist.
+  </p>
+  
+  <p class="text-muted">
+    ledgerline makes tracking your finances not just easy, but genuinely enjoyable.
+  </p>
+</div>
+
+<div class="terminal-output">
+System Requirements:
+- IBM/3000 Series Compatible
+- 640K RAM Minimum
+- MS-DOS 3.0+ or IBM OS/2
+- VGA Monitor Recommended
+- Hard Disk: 20MB Free
+</div>
+
+<div class="function-keys">
+  <div class="function-key" onclick="showContents()">F1-Contents</div>
+  <div class="function-key" onclick="showIndex()">F2-Index</div>
+  <div class="function-key" onclick="window.location.href='/'">F3-Return</div>
+  <div class="function-key" onclick="printDocument()">F7-Print</div>
+  <div class="function-key" onclick="showMenu()">F10-Menu</div>
+</div>
+
+<div class="status-bar">
+  <span>SYSTEM INFO</span>
+  <span class="status-bar-brand">LEDGERLINE: Beige Edition</span>
+  <span>COPYRIGHT (C) 1981-{% now "Y" %}</span>
+</div>
+
+<script>
+function showContents() {
+  const contentsText = `TABLE OF CONTENTS:
+1. Introduction
+2. System Requirements
+3. Installation
+4. Basic Usage
+5. Ledger Management
+6. Reporting
+7. Data Export
+8. Troubleshooting
+9. Technical Support`;
+  
+  showTerminalOutput(contentsText);
+}
+
+function showIndex() {
+  const indexText = `INDEX:
+Account Management .......... 15
+Budget Creation ............. 22
+Chart of Accounts ........... 8
+Data Export ................. 31
+Financial Reporting ......... 27
+Installation Guide .......... 4
+Ledger Setup ................ 12
+Transaction Entry ........... 18
+User Management ............. 36`;
+  
+  showTerminalOutput(indexText);
+}
+
+function printDocument() {
+  const printText = `PRINT REQUEST SENT
+Preparing document for printing...
+Connecting to LPT1:
+Pages: 5
+Status: Virtual printer not connected`;
+  
+  showTerminalOutput(printText);
+}
+
+function showMenu() {
+  const menuElement = document.createElement('div');
+  menuElement.className = 'terminal-output';
+  menuElement.innerHTML = 'DOCUMENTATION MENU:<br>1. Quick Start Guide<br>2. Version History<br>3. Technical Support<br>4. License Information';
+  
+  // Insert before the status bar
+  const statusBar = document.querySelector('.status-bar');
+  statusBar.parentNode.insertBefore(menuElement, statusBar);
+  
+  // Add click event to remove
+  menuElement.addEventListener('click', function() {
+    this.remove();
+  });
+}
+
+function showTerminalOutput(message) {
+  const msgElement = document.createElement('div');
+  msgElement.className = 'terminal-output';
+  msgElement.innerText = message;
+  
+  // Insert before the status bar
+  const statusBar = document.querySelector('.status-bar');
+  statusBar.parentNode.insertBefore(msgElement, statusBar);
+  
+  // Remove after 6 seconds
+  setTimeout(() => {
+    msgElement.remove();
+  }, 6000);
+}
+</script>
 {% endblock %}
 

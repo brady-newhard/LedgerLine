@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load ansi_shadow_tags %}
+
+{% block content %}
+<div class="menu-bar">
+  File  Edit  View  Format  Options  Range  Data  Help
+</div>
+
+<pre class="ascii-title">
+{% ansi_shadow "NEW TRANSACTION" %}
+</pre>
+
+<div class="terminal-output">
+C:>TRANSACTION NEW
+Enter transaction details:
+------------------------------------
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  
+  <div class="form-group">
+    <label for="id_transaction_type">transaction type [INCOME/EXPENSE]:</label>
+    {{ form.transaction_type }}
+  </div>
+  
+  <div class="form-group">
+    <label for="id_amount">amount [$0.00]:</label>
+    {{ form.amount }}
+  </div>
+  
+  <div class="form-group">
+    <label for="id_description">description [MAX 255 CHARS]:</label>
+    {{ form.description }}
+  </div>
+  
+  <div class="form-group">
+    <label for="id_date">date [YYYY-MM-DD]:</label>
+    {{ form.date }}
+  </div>
+  
+  <input type="submit" value="save record">
+  <a href="{% url 'transaction_list' %}" class="button">cancel</a>
+</form>
+
+<div class="function-keys">
+  <div class="function-key">F1-Help</div>
+  <div class="function-key">F2-Save</div>
+  <div class="function-key">F3-Exit</div>
+  <div class="function-key">F4-Fields</div>
+  <div class="function-key">F10-Menu</div>
+</div>
+
+<div class="status-bar">
+  <span>EDIT MODE</span>
+  <span class="status-bar-brand">LEDGERLINE: Beige Edition</span>
+  <span>PRESS F2 TO SAVE</span>
+</div>
+{% endblock %} 

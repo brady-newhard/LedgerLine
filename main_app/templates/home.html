@@ -1,8 +1,110 @@
-{% extends 'base.html' %} {% load static %} {% block head %}
+{% extends 'base.html' %} {% load static %} {% load ansi_shadow_tags %}
+
+{% block head %}
 <link rel="stylesheet" href="{% static 'css/home.css' %}" />
 {% endblock %}
+
 {% block content %}
-<div class="home-container">
-    <img src="{% static 'images/LedgerLine-logo.png' %}" alt="LedgerLine Logo" />
+<div class="terminal-output">
+IBM/3000 Series - LEDGERLINE v2.1
+----------------------------------------
+User: {% if user.is_authenticated %}{{ user.username }}{% else %}████████{% endif %}
+Date: {% now "m/d/Y" %}
+
+Loading Chart of Accounts...
+<div class="loading-bar">
+  <div id="loadingProgress" class="loading-bar-fill" style="width: 0%;"></div>
+</div>
+
+<script>
+// Simple script to simulate loading progress
+document.addEventListener('DOMContentLoaded', function() {
+  const progressBar = document.getElementById('loadingProgress');
+  let width = 0;
+  
+  const interval = setInterval(function() {
+    if (width >= 72) {
+      clearInterval(interval);
+      document.getElementById('runCommand').style.display = 'block';
+    } else {
+      width += 1;
+      progressBar.style.width = width + '%';
+    }
+  }, 20);
+});
+</script>
+
+<div id="runCommand" style="display: none;">
+>> RUN LEDGERLINE
+</div>
+</div>
+
+<pre class="ascii-title">
+<div class="ascii-terminal-style">{% ansi_shadow "LEDGERLINE" %}</div>
+</pre>
+
+<p class="slogan">Track. Filter. Export. Forget.</p>
+
+<div class="home-content">
+  <p>welcome to ledgerline - a minimalist finance app.</p>
+  <p class="text-muted">inspired by early accounting software, mid-century document design, and classic unix terminal sensibilities.</p>
+  
+  <div class="command-line">
+    <input id="commandInput" type="text" placeholder="Type HELP for available commands..." onkeypress="handleCommand(event)">
+  </div>
+  <div id="commandOutput" class="terminal-output" style="display: none;"></div>
+  
+  <script>
+  function handleCommand(event) {
+    if (event.key === 'Enter') {
+      const input = document.getElementById('commandInput');
+      const command = input.value.trim().toUpperCase();
+      const output = document.getElementById('commandOutput');
+      
+      output.style.display = 'block';
+      
+      switch(command) {
+        case 'HELP':
+          output.innerHTML = 'Available commands:<br>HELP - Display this help<br>VERSION - Show version info<br>LOGIN - Go to login page<br>MODES - View unlocked modes<br>CLEAR - Clear screen';
+          break;
+        case 'VERSION':
+          output.innerHTML = 'LEDGERLINE v2.1<br>Track. Filter. Export. Forget.<br>Build date: {% now "m/d/Y" %}';
+          break;
+        case 'LOGIN':
+          window.location.href = "{% url 'login' %}";
+          break;
+        case 'MODES':
+          window.location.href = "/modes";
+          break;
+        case 'CLEAR':
+          output.style.display = 'none';
+          break;
+        default:
+          output.innerHTML = `Command not recognized: ${command}<br>Type HELP for available commands.`;
+      }
+      
+      input.value = '';
+    }
+  }
+  </script>
+  
+  {% if user.is_authenticated %}
+    <p><a href="/modes" class="button">view unlocked modes</a></p>
+  {% else %}
+    <p><a href="{% url 'login' %}" class="button">login to begin</a></p>
+  {% endif %}
+</div>
+
+<div class="function-keys">
+  <div class="function-key">F1-Help</div>
+  <div class="function-key">F2-Save</div>
+  <div class="function-key">F3-Exit</div>
+  <div class="function-key">F4-Charts</div>
+  <div class="function-key">F5-Export</div>
+  <div class="function-key">F10-Menu</div>
+</div>
+
+<div class="status-bar">
+  READY. | LEDGERLINE | ROW: 1 COL: A | INS
 </div>
 {% endblock %} 

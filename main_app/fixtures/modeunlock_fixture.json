@@ -1,0 +1,35 @@
+[
+  {
+   "model": "main_app.modeunlock",
+    "pk": 1,
+    "fields": {
+      "user": 1,
+      "name": "Lockdown Mode",
+      "description": "Triggered when expenses exceed income.",
+      "is_unlocked": false,
+      "triggered_on": null
+    }
+  },
+  {
+    "model": "main_app.modeunlock",
+    "pk": 2,
+    "fields": {
+      "user": 1,
+      "name": "Vacay Mode",
+      "description": "Unlocked after maintaining savings for 3 months.",
+      "is_unlocked": false,
+      "triggered_on": null
+    }
+  },
+  {
+    "model": "main_app.modeunlock",
+    "pk": 3,
+    "fields": {
+      "user": 1,
+      "name": "Survival Mode",
+      "description": "Triggered if budget is over 80% spent in first 10 days of the month.",
+      "is_unlocked": false,
+      "triggered_on": null
+    }
+  }
+]

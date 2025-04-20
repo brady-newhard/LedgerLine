@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load ansi_shadow_tags %}
+
+{% block content %}
+<div class="menu-bar">
+  File  Edit  View  Options  Help
+</div>
+
+<pre class="ascii-title">
+<div class="ascii-terminal-style">{% ansi_shadow "LOGIN" %}</div>
+</pre>
+
+<div class="terminal-output" id="login-prompt">
+C:>LOGIN
+Please enter your credentials to access LEDGERLINE: Beige Edition
+</div>
+
+<form method="post" action="{% url 'login' %}" class="login-form">
+  {% csrf_token %}
+  <div class="form-group">
+    <div class="form-label">Username:</div>
+    <input type="text" name="username" id="username" class="form-input" required>
+  </div>
+  <div class="form-group">
+    <div class="form-label">Password:</div>
+    <input type="password" name="password" id="password" class="form-input" required>
+  </div>
+
+  <button type="submit" class="hidden-submit">Login</button>
+</form>
+
+<div class="function-keys">
+  <div class="function-key" onclick="showHelp()">F1-Help</div>
+  <div class="function-key" onclick="clearForm()">F2-Clear</div>
+  <div class="function-key" onclick="document.querySelector('.login-form').submit()">F5-Submit</div>
+  <div class="function-key" onclick="window.location.href='/register/'">F8-Register</div>
+  <div class="function-key" onclick="toggleDemoMode()">F10-Demo</div>
+</div>
+
+<div class="status-bar">
+  <span id="message-area">READY</span>
+  <span class="status-bar-brand">LEDGERLINE: Beige Edition</span>
+  <span>LOGIN MODULE</span>
+</div>
+
+<script>
+function showHelp() {
+  const helpText = `LOGIN HELP:
+To access LEDGERLINE, enter your username and password.
+- Press TAB to navigate between fields
+- Press F5 to submit your credentials
+- Press F2 to clear the form
+- Press F8 if you need to register a new account
+- Press F10 to enter demo mode with sample data`;
+  
+  showTerminalOutput(helpText);
+  updateStatus("Help displayed");
+}
+
+function clearForm() {
+  document.getElementById('username').value = '';
+  document.getElementById('password').value = '';
+  document.getElementById('username').focus();
+  updateStatus("Form cleared");
+}
+
+function toggleDemoMode() {
+  document.getElementById('username').value = 'demo';
+  document.getElementById('password').value = 'ledgerlinedemo';
+  updateStatus("Demo credentials loaded - Press F5 to continue");
+  
+  const loginPrompt = document.getElementById('login-prompt');
+  loginPrompt.innerText = "C:>LOGIN DEMO MODE\nWARNING: Demo mode uses sample data. No changes will be saved.";
+}
+
+function updateStatus(message) {
+  document.getElementById('message-area').innerText = message;
+  
+  // Reset after 3 seconds
+  setTimeout(() => {
+    document.getElementById('message-area').innerText = 'READY';
+  }, 3000);
+}
+
+function showTerminalOutput(message) {
+  const outputDiv = document.createElement('div');
+  outputDiv.className = 'terminal-output';
+  outputDiv.innerText = message;
+  
+  // Insert before the status bar
+  const statusBar = document.querySelector('.status-bar');
+  document.querySelector('.function-keys').insertAdjacentElement('beforebegin', outputDiv);
+  
+  // Remove after 8 seconds
+  setTimeout(() => {
+    outputDiv.remove();
+  }, 8000);
+}
+
+// Add keyboard support for function keys
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'F1') {
+    e.preventDefault();
+    showHelp();
+  } else if (e.key === 'F2') {
+    e.preventDefault();
+    clearForm();
+  } else if (e.key === 'F5') {
+    e.preventDefault();
+    document.querySelector('.login-form').submit();
+  } else if (e.key === 'F8') {
+    e.preventDefault();
+    window.location.href = '/register/';
+  } else if (e.key === 'F10') {
+    e.preventDefault();
+    toggleDemoMode();
+  }
+});
+</script>
+{% endblock %} 

@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% load ansi_shadow_tags %}
+
+{% block content %}
+<pre class="ascii-title">
+{% ansi_shadow "LOGIN" %}
+</pre>
+
+<div class="terminal-output">
+IBM/3000 Series - Security Module
+-----------------------------------
+RESTRICTED ACCESS - AUTHORIZED PERSONNEL ONLY
+Enter credentials to continue...
+</div>
+
+{% if form.errors %}
+  <p class="error">ERROR 401: UNAUTHORIZED. Invalid credentials detected.</p>
+{% endif %}
+
+{% if next %}
+  {% if user.is_authenticated %}
+    <p class="alert">ACCESS DENIED: Your account doesn't have sufficient privileges for this resource.</p>
+  {% else %}
+    <p class="alert">AUTHENTICATION REQUIRED: Please login to access this resource.</p>
+  {% endif %}
+{% endif %}
+
+<form method="post" action="{% url 'login' %}">
+  {% csrf_token %}
+  <div>
+    <label for="id_username">USER ID:</label>
+    {{ form.username }}
+  </div>
+  <div>
+    <label for="id_password">PASSWORD:</label>
+    {{ form.password }}
+  </div>
+  <input type="submit" value="authenticate">
+  <input type="hidden" name="next" value="{{ next }}">
+</form>
+
+<p><a href="{% url 'password_reset' %}">password recovery utility</a></p>
+
+<div class="function-keys">
+  <div class="function-key">F1-Help</div>
+  <div class="function-key">F2-Submit</div>
+  <div class="function-key">F3-Cancel</div>
+  <div class="function-key">F8-Reset</div>
+  <div class="function-key">F10-Exit</div>
+</div>
+
+<div class="status-bar">
+  <span>SECURE LOGIN</span>
+  <span class="status-bar-brand">LEDGERLINE: Beige Edition</span>
+  <span>{% now "m/d/Y H:i" %}</span>
+</div>
+{% endblock %} 
