@@ -15,8 +15,7 @@ class ModeUnlock(models.Model):
 class Transaction(models.Model):
     TRANSACTION_TYPES = [
         ('EXPENSE', 'Expense'),
-        ('INCOME', 'Income'),
-        
+        ('INCOME', 'Income'),     
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)

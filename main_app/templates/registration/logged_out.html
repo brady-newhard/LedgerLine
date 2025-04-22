@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load ansi_shadow_tags %}
+
+{% block content %}
+<pre class="ascii-title">
+{% ansi_shadow "LOGOUT" %}
+</pre>
+
+<div class="terminal-output">
+IBM/3000 Series - Security Module
+-----------------------------------
+SESSION TERMINATED
+You have been successfully logged out.
+</div>
+
+<p><a href="{% url 'login' %}" class="btn">RE-ESTABLISH CONNECTION</a></p>
+
+<div class="function-keys">
+  <div class="function-key">F1-Help</div>
+  <div class="function-key">F2-Login</div>
+  <div class="function-key">F10-Exit</div>
+</div>
+
+<div class="status-bar">
+  <span>SESSION ENDED</span>
+  <span class="status-bar-brand">LEDGERLINE: Beige Edition</span>
+  <span>{% now "m/d/Y H:i" %}</span>
+</div>
+{% endblock %} 
