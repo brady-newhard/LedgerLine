@@ -8,4 +8,5 @@ urlpatterns = [
     path('modes/', unlocked_modes_view, name='unlocked_modes'),
     path('transactions/', TransactionList.as_view(), name='transaction_list'),
     path('transactions/create/', TransactionCreate.as_view(), name='transaction_create'),
+    path('register/', views.register, name='register'),
 ]

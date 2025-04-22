@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load ansi_shadow_tags %}
+
+{% block content %}
+<pre class="ascii-title">
+{% ansi_shadow "REGISTRATION" %}
+</pre>
+
+<div class="terminal-output">
+IBM/3000 Series - Security Module
+-----------------------------------
+NEW USER REGISTRATION
+Please complete all fields to create your account.
+</div>
+
+{% if form.errors %}
+  <p class="error">ERROR: Invalid input detected. Please correct the following:</p>
+  {% for field, errors in form.errors.items %}
+    {% for error in errors %}
+      <p class="error">- {{ error }}</p>
+    {% endfor %}
+  {% endfor %}
+{% endif %}
+
+<form method="post" action="{% url 'register' %}">
+  {% csrf_token %}
+  <div>
+    <label for="id_username">USER ID:</label>
+    {{ form.username }}
+  </div>
+  <div>
+    <label for="id_email">EMAIL:</label>
+    {{ form.email }}
+  </div>
+  <div>
+    <label for="id_password1">PASSWORD:</label>
+    {{ form.password1 }}
+  </div>
+  <div>
+    <label for="id_password2">CONFIRM PASSWORD:</label>
+    {{ form.password2 }}
+  </div>
+  <input type="submit" value="REGISTER">
+</form>
+
+<p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+
+<div class="function-keys">
+  <div class="function-key">F1-Help</div>
+  <div class="function-key">F2-Submit</div>
+  <div class="function-key">F3-Cancel</div>
+  <div class="function-key">F8-Reset</div>
+  <div class="function-key">F10-Exit</div>
+</div>
+
+<div class="status-bar">
+  <span>NEW USER REGISTRATION</span>
+  <span class="status-bar-brand">LEDGERLINE: Beige Edition</span>
+  <span>{% now "m/d/Y H:i" %}</span>
+</div>
+{% endblock %} 
