@@ -4,12 +4,28 @@ from django.utils import timezone
 
 class ModeUnlock(models.Model):
     """
-    Model tracking which financial modes each user has unlocked.
+    Model to track which modes each user has unlocked.
+    
+    Icon examples include:
+    - 💰 Money bag for general finance
+    - 📈 Chart for investment/growth
+    - 📉 Downward chart for expense reduction
+    - 💸 Flying money for spending
+    - 🔄 Recycling for recurring payments
+    - 🎯 Target for goals
+    - 🏦 Bank for savings
+    - 💳 Credit card for credit tracking
+    - 📊 Bar chart for analytics
+    - 🛒 Shopping cart for purchases
+    - 📆 Calendar for scheduled payments
+    - 🔔 Bell for reminders
+    - 🔐 Lock for security features
+    - ⚡ Lightning for quick transactions
     """
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     name = models.CharField(max_length=100)
     description = models.TextField()
-    icon = models.CharField(max_length=10, default='')
+    icon = models.CharField(max_length=10, default="💰")
     is_unlocked = models.BooleanField(default=False)
     triggered_on = models.DateTimeField(null=True, blank=True)
     progress_percentage = models.IntegerField(default=0)
