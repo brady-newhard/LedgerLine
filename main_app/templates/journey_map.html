@@ -5,6 +5,14 @@
 <div class="terminal-container">
     <div class="terminal-header">
         {% ansi_shadow "FINANCIAL JOURNEY MAP" %}
+        <div class="version-indicator">
+            <span class="version-text">v2.84 Terminal Edition</span>
+            <span class="version-hint">[Version mismatch detected]</span>
+        </div>
+    </div>
+    
+    <div class="terminal-output hidden">
+        <!-- Will be populated by JavaScript -->
     </div>
     
     <div class="terminal-body">
@@ -38,9 +46,16 @@
                                     {% endif %}
                                 {% endif %}
                             </div>
-                            {% if mode.description %}
-                                <div class="mode-description">{{ mode.description }}</div>
-                            {% endif %}
+                            <div class="mode-description-container">
+                                <div class="mode-description-toggle" onclick="toggleDescription(this, event)">[ Details ]</div>
+                                <div class="mode-description hidden">
+                                    {% if mode.description %}
+                                        {{ mode.description }}
+                                    {% else %}
+                                        No description available
+                                    {% endif %}
+                                </div>
+                            </div>
                             {% if not mode.unlocked %}
                                 <div class="lock-overlay">
                                     <div class="lock-icon">🔒</div>
@@ -59,6 +74,7 @@
             {% else %}
                 <div class="empty-journey">
                     <p>No financial modes available yet. Start your journey by unlocking your first mode!</p>
+                    <p class="easter-egg-text">System scanning for potential pathways...</p>
                 </div>
             {% endif %}
         </div>
@@ -76,22 +92,27 @@
         <div class="function-key" onclick="window.location.href='{% url 'home' %}'">F2-Home</div>
         <div class="function-key" onclick="window.location.href='{% url 'unlocked_modes' %}'">F3-Modes</div>
         <div class="function-key" onclick="window.location.href='{% url 'transaction_list' %}'">F4-Ledger</div>
+        <div class="function-key hidden glimpse-trigger" onclick="showGlimpse()">F9-Reality</div>
     </div>
     
     <div class="status-bar">
         <span id="status-message">READY.</span>
-        <span class="status-bar-brand">LEDGERLINE: Terminal Edition</span>
+        <span class="status-bar-brand">LEDGERLINE: Terminal Edition <span class="glitch-text">[Emulation]</span></span>
         <span>{% now "m/d/Y" %}</span>
     </div>
 
 <script>
+let secretUnlockProgress = 0;
+
 function showHelpInfo() {
   const helpText = `JOURNEY MAP HELP:
 - This is your financial journey map showing all available modes
 - Unlocked modes can be clicked to view detailed information
 - Locked modes will become available as you continue your financial journey
 - Continue using LEDGERLINE to unlock more modes
-- Each mode represents different financial patterns and behaviors`;
+- Each mode represents different financial patterns and behaviors
+
+<span class="glitch-text">[Notice: System operating in compatibility mode. Advanced visualization suppressed.]</span>`;
   
   // Create terminal output if it doesn't exist
   if (!document.querySelector('.terminal-output')) {
@@ -105,12 +126,93 @@ function showHelpInfo() {
   
   // Find or create terminal output
   let output = document.querySelector('.terminal-output');
+  output.classList.remove('hidden');
   
   // Update content
   output.innerHTML = helpText.replace(/\n/g, '<br>');
   
   // Update status
   document.getElementById('status-message').textContent = "Displaying help documentation";
+  
+  // Small chance to reveal the hidden F9 key
+  if (Math.random() < 0.15 && secretUnlockProgress >= 3) {
+    document.querySelector('.glimpse-trigger').classList.remove('hidden');
+    
+    setTimeout(() => {
+      document.querySelector('.glimpse-trigger').classList.add('hidden');
+    }, 5000);
+  }
+}
+
+function toggleDescription(element, event) {
+  // Prevent event propagation if inside a clickable node
+  if (event) {
+    event.stopPropagation();
+  }
+  
+  const container = element.parentElement;
+  const description = container.querySelector('.mode-description');
+  
+  if (description.classList.contains('hidden')) {
+    description.classList.remove('hidden');
+    element.textContent = '[ Hide ]';
+    
+    // Increment the secret unlock progress
+    secretUnlockProgress++;
+    
+    // If user has toggled descriptions multiple times, show a hint
+    if (secretUnlockProgress === 3) {
+      setTimeout(() => {
+        const output = document.querySelector('.terminal-output') || document.createElement('div');
+        if (!document.querySelector('.terminal-output')) {
+          output.className = 'terminal-output';
+          document.querySelector('.terminal-container').insertBefore(
+            output, 
+            document.querySelector('.terminal-body')
+          );
+        }
+        output.classList.remove('hidden');
+        output.innerHTML = '<span class="glitch-text">System notice: User showing curiosity. Potential candidate detected.</span>';
+        
+        setTimeout(() => {
+          output.innerHTML = '';
+        }, 3000);
+      }, 500);
+    }
+  } else {
+    description.classList.add('hidden');
+    element.textContent = '[ Details ]';
+  }
+}
+
+function showGlimpse() {
+  // Flash screen with a modern interface glimpse
+  const glimpse = document.createElement('div');
+  glimpse.className = 'modern-interface-glimpse';
+  document.body.appendChild(glimpse);
+  
+  // Create modern UI elements within the glimpse
+  const modernElements = document.createElement('div');
+  modernElements.className = 'modern-elements';
+  modernElements.innerHTML = `
+    <div class="modern-header">LedgerLine Pro</div>
+    <div class="modern-subtitle">Advanced Financial Intelligence</div>
+    <div class="modern-message">Access denied. Continue your financial journey to unlock full capabilities.</div>
+  `;
+  glimpse.appendChild(modernElements);
+  
+  // Show the glimpse briefly
+  setTimeout(() => {
+    glimpse.classList.add('fade-out');
+    setTimeout(() => {
+      document.body.removeChild(glimpse);
+      document.getElementById('status-message').textContent = "REALITY DISTORTION FIELD COLLAPSED";
+      
+      setTimeout(() => {
+        document.getElementById('status-message').textContent = "READY.";
+      }, 3000);
+    }, 1000);
+  }, 2000);
 }
 
 function showLockMessage(modeName) {
@@ -126,13 +228,14 @@ function showLockMessage(modeName) {
   
   // Find output element
   const output = document.querySelector('.terminal-output');
+  output.classList.remove('hidden');
   
   // Create a randomly selected tantalizing message
   const messages = [
-    `ACCESSING ${modeName.toUpperCase()}... ACCESS DENIED.\nThis mode is still locked. Continue using LEDGERLINE to unlock new insights about your financial behavior.`,
-    `${modeName.toUpperCase()} MODE: LOCKED\nThis feature will be unlocked when your financial patterns meet specific criteria. Keep managing your finances with LEDGERLINE!`,
-    `SYSTEM NOTIFICATION: ${modeName.toUpperCase()} is waiting to be discovered.\nYour financial journey will unlock this mode when the time is right.`,
-    `${modeName.toUpperCase()} INITIALIZATION FAILED: MODE LOCKED\nImprove your financial habits to unlock this powerful mode.`
+    `ACCESSING ${modeName.toUpperCase()}... ACCESS DENIED.\nThis mode is still locked. Continue using LEDGERLINE to unlock new insights about your financial behavior.\n<span class="easter-egg-text">Advanced visualization available in future versions...</span>`,
+    `${modeName.toUpperCase()} MODE: LOCKED\nThis feature will be unlocked when your financial patterns meet specific criteria. Keep managing your finances with LEDGERLINE!\n<span class="easter-egg-text">Predictive analytics waiting to be unlocked...</span>`,
+    `SYSTEM NOTIFICATION: ${modeName.toUpperCase()} is waiting to be discovered.\nYour financial journey will unlock this mode when the time is right.\n<span class="easter-egg-text">This interface is merely the beginning...</span>`,
+    `${modeName.toUpperCase()} INITIALIZATION FAILED: MODE LOCKED\nImprove your financial habits to unlock this powerful mode.\n<span class="easter-egg-text">The future of finance lies behind this lock...</span>`
   ];
   
   const randomMessage = messages[Math.floor(Math.random() * messages.length)];
@@ -166,13 +269,266 @@ function showLockMessage(modeName) {
       node.classList.remove('shake');
     }, 500);
   });
+  
+  // Increment secret unlock progress for showing interest in locked modes
+  secretUnlockProgress++;
+  
+  // If user has clicked multiple locked modes, show additional hints
+  if (secretUnlockProgress === 5) {
+    setTimeout(() => {
+      // Glimpse of something beneath
+      const glimpse = document.createElement('div');
+      glimpse.className = 'reality-glitch';
+      document.body.appendChild(glimpse);
+      
+      setTimeout(() => {
+        document.body.removeChild(glimpse);
+      }, 150);
+      
+      // Show F9 key briefly
+      document.querySelector('.glimpse-trigger').classList.remove('hidden');
+      
+      setTimeout(() => {
+        document.querySelector('.glimpse-trigger').classList.add('hidden');
+      }, 3000);
+    }, 1500);
+  }
 }
+
+// Run at start to set up occasional glitches
+document.addEventListener('DOMContentLoaded', function() {
+  // Random glitches
+  setInterval(() => {
+    if (Math.random() < 0.05) { // 5% chance each interval
+      const glitch = document.createElement('div');
+      glitch.className = 'micro-glitch';
+      document.body.appendChild(glitch);
+      
+      setTimeout(() => {
+        document.body.removeChild(glitch);
+      }, 100);
+    }
+  }, 30000); // Check every 30 seconds
+  
+  // Make version hint occasionally flicker
+  setInterval(() => {
+    const versionHint = document.querySelector('.version-hint');
+    if (versionHint) {
+      versionHint.classList.add('flicker');
+      setTimeout(() => {
+        versionHint.classList.remove('flicker');
+      }, 2000);
+    }
+  }, 60000); // Every minute
+});
 </script>
 </div>
 {% endblock %}
 
 {% block styles %}
 <style>
+    /* Version indicator */
+    .version-indicator {
+        font-size: 0.7rem;
+        text-align: right;
+        margin-top: -10px;
+        margin-bottom: 10px;
+        opacity: 0.6;
+    }
+    
+    .version-hint {
+        color: #ff5555 !important;
+        margin-left: 10px;
+        opacity: 0.5;
+        font-style: italic;
+        cursor: help;
+    }
+    
+    .version-hint:hover {
+        opacity: 0.9;
+    }
+    
+    .flicker {
+        animation: textFlicker 2s;
+    }
+    
+    @keyframes textFlicker {
+        0% { opacity: 0.5; }
+        5% { opacity: 0; }
+        10% { opacity: 0.7; }
+        15% { opacity: 0.2; }
+        20% { opacity: 0.6; }
+        25% { opacity: 0.9; }
+        30% { opacity: 0.2; }
+        35% { opacity: 0.7; }
+        40% { opacity: 0.5; }
+        45% { opacity: 0.2; }
+        50% { opacity: 0.7; }
+        55% { opacity: 0.5; }
+        60% { opacity: 0.7; }
+        100% { opacity: 0.5; }
+    }
+    
+    /* Mode description toggle */
+    .mode-description-container {
+        margin-top: 10px;
+        text-align: left;
+    }
+    
+    .mode-description-toggle {
+        color: #00aaff !important;
+        font-size: 0.85em;
+        cursor: pointer;
+        display: inline-block;
+    }
+    
+    .mode-description-toggle:hover {
+        color: #00ffff !important;
+    }
+    
+    .mode-description {
+        margin-top: 8px;
+        font-style: italic;
+        color: #aaa;
+        padding-left: 10px;
+        border-left: 1px solid #444;
+        transition: all 0.3s ease;
+    }
+    
+    .mode-description.hidden {
+        max-height: 0;
+        opacity: 0;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+    
+    /* Modern glimpse elements */
+    .modern-interface-glimpse {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #001a3a, #003a3a);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        opacity: 0;
+        animation: glimpseIn 0.5s forwards;
+    }
+    
+    .modern-interface-glimpse.fade-out {
+        animation: glimpseOut 1s forwards;
+    }
+    
+    @keyframes glimpseIn {
+        0% { opacity: 0; }
+        100% { opacity: 1; }
+    }
+    
+    @keyframes glimpseOut {
+        0% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+    
+    .modern-elements {
+        text-align: center;
+        color: white !important;
+    }
+    
+    .modern-header {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        color: white !important;
+        font-weight: bold;
+    }
+    
+    .modern-subtitle {
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        color: #00aaff !important;
+    }
+    
+    .modern-message {
+        font-size: 1rem;
+        color: #aaaaaa !important;
+    }
+    
+    .reality-glitch {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(0, 136, 255, 0.2), rgba(0, 255, 170, 0.2));
+        z-index: 9999;
+        pointer-events: none;
+        animation: realityGlitch 0.15s;
+    }
+    
+    @keyframes realityGlitch {
+        0% { opacity: 0; }
+        50% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+    
+    .micro-glitch {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 136, 255, 0.05);
+        z-index: 9999;
+        pointer-events: none;
+        animation: microGlitch 0.1s;
+    }
+    
+    @keyframes microGlitch {
+        0% { opacity: 0; }
+        50% { opacity: 0.5; }
+        100% { opacity: 0; }
+    }
+    
+    .glitch-text {
+        animation: glitchText 5s infinite;
+        display: inline-block;
+        color: #ff5555 !important;
+    }
+    
+    @keyframes glitchText {
+        0% { opacity: 1; }
+        0.1% { opacity: 0; transform: translateX(1px); }
+        0.2% { opacity: 1; transform: translateX(0); }
+        25% { opacity: 1; }
+        25.1% { opacity: 0; transform: translateX(-1px); }
+        25.2% { opacity: 1; transform: translateX(0); }
+        85% { opacity: 1; }
+        85.1% { opacity: 0; transform: translateY(1px); }
+        85.2% { opacity: 1; transform: translateY(0); }
+        100% { opacity: 1; }
+    }
+    
+    .hidden {
+        display: none;
+    }
+    
+    /* Easter egg text */
+    .easter-egg-text {
+        opacity: 0.5;
+        font-size: 0.85em;
+        color: #555 !important;
+        display: block;
+        margin-top: 5px;
+        cursor: help;
+    }
+    
+    .easter-egg-text:hover {
+        color: #00ffff !important;
+    }
+
     /* First update the locked nodes styling */
     .journey-node.locked {
         filter: grayscale(0.8);
@@ -332,12 +688,6 @@ function showLockMessage(modeName) {
     .progress-text {
         font-size: 0.9em;
         color: #5f5;
-    }
-    
-    .mode-description {
-        margin-top: 10px;
-        font-style: italic;
-        color: #aaa;
     }
     
     .empty-journey {

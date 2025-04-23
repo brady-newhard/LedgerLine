@@ -14,6 +14,7 @@
 C:>ACCESS PREMIUM.DAT
 Reading mode configuration...
 Mode status: {% if has_unlocked_modes %}{{ modes|length }} mode(s) unlocked{% else %}No modes unlocked{% endif %}
+<span class="easter-egg-text">SYSTEM NOTICE: Interface rendering in compatibility mode. Advanced features hidden.</span>
 </div>
 
 <div class="table-container">
@@ -80,16 +81,18 @@ Mode status: {% if has_unlocked_modes %}{{ modes|length }} mode(s) unlocked{% el
 {% endif %}
 
 <div class="mode-info focus-text">
-  <h3>How Modes Work</h3>
-  <p>LEDGERLINE tracks your financial behaviors and automatically unlocks special modes when specific conditions are met.</p>
-  <ul>
-    <li><strong>🔒 Lockdown Mode</strong>: Triggered when expenses exceed income.</li>
-    <li><strong>🏝️ Vacay Mode</strong>: Triggered by sustained savings over multiple months.</li>
-    <li><strong>⚠️ Survival Mode</strong>: Triggered by intense early-month spending.</li>
-    <li><strong>🏆 Stability Mode</strong>: Triggered by consistent income/expense ratio over time.</li>
-    <li><strong>💰 Saver Mode</strong>: Triggered when total savings exceed 3x monthly income.</li>
-  </ul>
-  <p>All modes are automatically tracked and unlocked based on your transaction history.</p>
+  <h3>How Modes Work <span class="toggle-details" onclick="toggleModeInfo()">[ Show Details ]</span></h3>
+  <div id="mode-details" class="hidden-details">
+    <p>LEDGERLINE tracks your financial behaviors and automatically unlocks special modes when specific conditions are met.</p>
+    <ul>
+      <li><strong>🔒 Lockdown Mode</strong>: Triggered when expenses exceed income.</li>
+      <li><strong>🏝️ Vacay Mode</strong>: Triggered by sustained savings over multiple months.</li>
+      <li><strong>⚠️ Survival Mode</strong>: Triggered by intense early-month spending.</li>
+      <li><strong>🏆 Stability Mode</strong>: Triggered by consistent income/expense ratio over time.</li>
+      <li><strong>💰 Saver Mode</strong>: Triggered when total savings exceed 3x monthly income.</li>
+    </ul>
+    <p>All modes are automatically tracked and unlocked based on your transaction history.</p>
+  </div>
 </div>
 
 <div class="function-keys">
@@ -137,6 +140,60 @@ Mode status: {% if has_unlocked_modes %}{{ modes|length }} mode(s) unlocked{% el
   .pulsing {
     animation: pulse 2s infinite;
   }
+  
+  .hidden-details {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s ease-out;
+  }
+  
+  .hidden-details.expanded {
+    max-height: 500px;
+    transition: max-height 0.5s ease-in;
+  }
+  
+  .toggle-details {
+    color: #00aaff !important;
+    cursor: pointer;
+    font-size: 0.9em;
+    margin-left: 10px;
+  }
+  
+  .toggle-details:hover {
+    color: #00ffff !important;
+    text-decoration: underline;
+  }
+  
+  .easter-egg-text {
+    opacity: 0.5;
+    font-size: 0.85em;
+    color: #555 !important;
+    display: block;
+    margin-top: 5px;
+    cursor: help;
+  }
+  
+  .easter-egg-text:hover {
+    color: #00ffff !important;
+  }
+  
+  .glitch-text {
+    animation: glitchText 5s infinite;
+    display: inline-block;
+  }
+  
+  @keyframes glitchText {
+    0% { opacity: 1; }
+    0.1% { opacity: 0; transform: translateX(1px); }
+    0.2% { opacity: 1; transform: translateX(0); }
+    25% { opacity: 1; }
+    25.1% { opacity: 0; transform: translateX(-1px); }
+    25.2% { opacity: 1; transform: translateX(0); }
+    85% { opacity: 1; }
+    85.1% { opacity: 0; transform: translateY(1px); }
+    85.2% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 1; }
+  }
 </style>
 
 <script>
@@ -146,7 +203,9 @@ function showHelpInfo() {
 - Different modes track different aspects of your financial health
 - Unlocked modes provide visual indicators of your financial patterns
 - Check this page regularly to see your mode status
-- The mode system is completely automatic - just use the app normally!`;
+- The mode system is completely automatic - just use the app normally!
+
+<span class="glitch-text">[System notice: Modern UI available. Enter sequence 1-9-8-4 to activate.]</span>`;
   
   // Find or create terminal output
   let output = document.querySelector('.terminal-output');
@@ -156,6 +215,67 @@ function showHelpInfo() {
   
   // Update status
   document.getElementById('status-message').textContent = "Displaying help documentation";
+  
+  // Add secret key listener only after help is shown
+  document.addEventListener('keydown', secretKeySequence);
+}
+
+// Easter egg key sequence
+let keySequence = [];
+const secretCode = ['1', '9', '8', '4'];
+
+function secretKeySequence(e) {
+  keySequence.push(e.key);
+  keySequence = keySequence.slice(-4);
+  
+  // Check if the sequence matches
+  if (keySequence.join('') === secretCode.join('')) {
+    // Flash the screen
+    document.body.classList.add('flash-screen');
+    setTimeout(() => {
+      document.body.classList.remove('flash-screen');
+      document.getElementById('status-message').textContent = "MODERN UI SEQUENCE ACCEPTED...";
+      
+      // Simulate modern UI "trying" to break through
+      setTimeout(() => {
+        document.getElementById('status-message').textContent = "ACCESS DENIED. CLEARANCE INSUFFICIENT.";
+        
+        // Show a glimpse of the "modern" UI
+        const glimpseOverlay = document.createElement('div');
+        glimpseOverlay.className = 'modern-ui-glimpse';
+        document.body.appendChild(glimpseOverlay);
+        
+        setTimeout(() => {
+          document.body.removeChild(glimpseOverlay);
+          document.getElementById('status-message').textContent = "READY.";
+        }, 500);
+      }, 2000);
+    }, 500);
+    
+    // Remove the listener to prevent multiple triggers
+    document.removeEventListener('keydown', secretKeySequence);
+  }
+}
+
+function toggleModeInfo() {
+  const detailsElement = document.getElementById('mode-details');
+  const toggleButton = document.querySelector('.toggle-details');
+  
+  if (detailsElement.classList.contains('expanded')) {
+    detailsElement.classList.remove('expanded');
+    toggleButton.textContent = '[ Show Details ]';
+  } else {
+    detailsElement.classList.add('expanded');
+    toggleButton.textContent = '[ Hide Details ]';
+    
+    // Easter egg: Sometimes show a glimpse of modern UI in the background
+    if (Math.random() < 0.3) {
+      setTimeout(() => {
+        const terminal = document.querySelector('.terminal-output');
+        terminal.innerHTML += '<div class="glitch-text" style="font-size:0.7em; margin-top:10px; color:#0088ff !important;">Modern interface attempting to initialize... Defaulting to legacy view.</div>';
+      }, 500);
+    }
+  }
 }
 
 function showLockedModeHint(modeName, progressPercentage) {
@@ -166,13 +286,13 @@ function showLockedModeHint(modeName, progressPercentage) {
   let hintMessage = '';
   
   if (progressPercentage >= 75) {
-    hintMessage = `SYSTEM NOTIFICATION: ${modeName.toUpperCase()} is nearly unlocked!\nYour progress is at ${progressPercentage}%. Continue your current financial patterns to unlock this mode very soon.`;
+    hintMessage = `SYSTEM NOTIFICATION: ${modeName.toUpperCase()} is nearly unlocked!\nYour progress is at ${progressPercentage}%. Continue your current financial patterns to unlock this mode very soon.\n<span class="easter-egg-text">Advanced analytics module standing by...</span>`;
   } else if (progressPercentage >= 50) {
-    hintMessage = `${modeName.toUpperCase()} MODE: HALFWAY THERE\nYou've made significant progress (${progressPercentage}%) towards unlocking this mode. Keep going!`;
+    hintMessage = `${modeName.toUpperCase()} MODE: HALFWAY THERE\nYou've made significant progress (${progressPercentage}%) towards unlocking this mode. Keep going!\n<span class="easter-egg-text">Visualization engine loaded.</span>`;
   } else if (progressPercentage >= 25) {
-    hintMessage = `LOADING ${modeName.toUpperCase()}... PROGRESS: ${progressPercentage}%\nYou're on the right track. Continue your financial journey to unlock this premium feature.`;
+    hintMessage = `LOADING ${modeName.toUpperCase()}... PROGRESS: ${progressPercentage}%\nYou're on the right track. Continue your financial journey to unlock this premium feature.\n<span class="easter-egg-text">Pattern recognition active.</span>`;
   } else {
-    hintMessage = `${modeName.toUpperCase()} MODE: LOCKED (${progressPercentage}% PROGRESS)\nThis mode will track special aspects of your financial behavior. Continue using LEDGERLINE to make progress.`;
+    hintMessage = `${modeName.toUpperCase()} MODE: LOCKED (${progressPercentage}% PROGRESS)\nThis mode will track special aspects of your financial behavior. Continue using LEDGERLINE to make progress.\n<span class="easter-egg-text">Preparing system resources...</span>`;
   }
   
   // Add typing effect
@@ -218,6 +338,68 @@ function showLockedModeHint(modeName, progressPercentage) {
   
   const clickedRow = event.currentTarget;
   clickedRow.classList.add('pulsing');
+  
+  // Add a subtle modern UI glimpse with low probability
+  if (Math.random() < 0.2) {
+    setTimeout(() => {
+      const glimpse = document.createElement('div');
+      glimpse.className = 'modern-glimpse';
+      glimpse.style.position = 'fixed';
+      glimpse.style.top = '0';
+      glimpse.style.left = '0';
+      glimpse.style.width = '100%';
+      glimpse.style.height = '100%';
+      glimpse.style.backgroundColor = 'rgba(0, 136, 255, 0.05)';
+      glimpse.style.zIndex = '9999';
+      glimpse.style.pointerEvents = 'none';
+      document.body.appendChild(glimpse);
+      
+      setTimeout(() => {
+        document.body.removeChild(glimpse);
+      }, 150);
+    }, 1500);
+  }
 }
 </script>
+
+<style>
+  /* Modern UI glimpse easter egg */
+  .modern-ui-glimpse {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba(0, 136, 255, 0.1), rgba(0, 255, 170, 0.1));
+    z-index: 9999;
+    pointer-events: none;
+    animation: glimpseFlash 0.5s;
+  }
+  
+  @keyframes glimpseFlash {
+    0% { opacity: 0; }
+    20% { opacity: 0.8; }
+    100% { opacity: 0; }
+  }
+  
+  .flash-screen {
+    animation: flashScreen 0.5s;
+  }
+  
+  @keyframes flashScreen {
+    0% { background-color: #000000; }
+    50% { background-color: #001a3a; }
+    100% { background-color: #000000; }
+  }
+  
+  .modern-glimpse {
+    animation: glimpseModern 0.15s;
+  }
+  
+  @keyframes glimpseModern {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+</style>
 {% endblock %}
