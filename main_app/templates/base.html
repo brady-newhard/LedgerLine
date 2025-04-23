@@ -1,32 +1,109 @@
 {% load static %}
+{% load ansi_shadow_tags %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="shortcut icon" type="image/png" href="{% static 'images/LedgerLine-logo.png' %}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
     <link rel="stylesheet" href="{% static 'css/base.css' %}" />
-    <title>LedgerLine</title>
+    <title>LEDGERLINE</title>
     {% block head %} 
     {% endblock %}
   </head>
   <body>
-    <header>
-      <div class="header-logo-container">
-        <a href="/">
-          <img src="{% static 'images/LedgerLine-logo.png' %}" alt="LedgerLine Logo" />
-        </a>
+    <div class="container">
+      <div class="function-keys">
+        <span class="function-key">F1-Help</span>
+        <span class="function-key">F2-Save</span>
+        <span class="function-key">F3-Exit</span>
+        <span class="function-key">F4-Charts</span>
       </div>
-      <nav>
-        <ul>
-          <li><a href="/about">About</a></li>
-        </ul>
-      </nav>
-    </header>
-    <main>
-     {% block content %} 
-     {% endblock %}
-     </main>
+      <header>
+        <div class="header-logo-container">
+          <a href="/">
+            <span class="app-title">LEDGERLINE</span>
+          </a>
+          <span>Beige Edition</span>
+        </div>
+        <nav>
+          <ul>
+            <li><a href="{% url 'home' %}">home</a></li>
+            <li><a href="{% url 'about' %}">about</a></li>
+            <li><a href="{% url 'unlocked_modes' %}">modes</a></li>
+            {% if user.is_authenticated %}
+              <li><a href="{% url 'journey_map' %}">journey</a></li>
+              <li><a href="{% url 'transaction_list' %}">ledger</a></li>
+              <li>
+                <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                  {% csrf_token %}
+                  <button type="submit" style="background: none; border: none; color: inherit; cursor: pointer; padding: 0; text-decoration: underline;">logout</button>
+                </form>
+              </li>
+            {% else %}
+              <li><a href="{% url 'login' %}">login</a></li>
+              <li><a href="{% url 'register' %}">register</a></li>
+            {% endif %}
+          </ul>
+        </nav>
+        
+        {% if has_unlocked_modes %}
+        <div class="mode-badges">
+          {% for mode in unlocked_modes %}
+            <span class="badge mode-badge" title="{{ mode.description }}">
+              {{ mode.icon }} {{ mode.name }}
+            </span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </header>
+      <main>
+        {% comment %}
+        <!-- 
+        FOR DEVELOPERS: To make tables responsive on mobile devices, wrap them in a div with the 'table-container' class:
+        
+        <div class="table-container">
+            <table>
+                <!-- Table content here -->
+            </table>
+        </div>
+        
+        For improved text readability, you can use these helper classes:
+        - .readable-text: Optimized line height and spacing
+        - .large-text: Larger, more readable text
+        - .focus-text: Highlighted text box for important content
+        -->
+        {% endcomment %}
+        
+        <!-- Display any messages from the messages framework -->
+        {% if messages %}
+        <div class="messages">
+          {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+        
+        {% block content %} 
+        {% endblock %}
+      </main>
+      <footer>
+        <pre class="ascii-title">
+
+          _             _                 _ _            
+          | |    ___  __| | __ _  ___ _ __| (_)_ __   ___ 
+          | |   / _ \/ _` |/ _` |/ _ \ '__| | | '_ \ / _ \
+          | |__|  __/ (_| | (_| |  __/ |  | | | | | |  __/
+          |_____\___|\__,_|\__, |\___|_|  |_|_|_| |_|\___|
+                           |___/                          
+         
+        </pre>
+        <p class="text-muted">
+          <span class="status-bar-brand">LEDGERLINE: Beige Edition</span> &copy; 1981-{% now "Y" %} | Track. Filter. Export. Forget.
+        </p>
+      </footer>
+    </div>
   </body>
 </html>

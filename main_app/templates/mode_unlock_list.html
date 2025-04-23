@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load ansi_shadow_tags %}
+
+{% block content %}
+<div class="menu-bar">
+  File  Edit  View  Format  Options  Range  Data  Help
+</div>
+
+<pre class="ascii-title">
+<div class="ascii-terminal-style">{% ansi_shadow "PREMIUM MODES" %}</div>
+</pre>
+
+<div class="terminal-output">
+C:>ACCESS PREMIUM.DAT
+Reading mode configuration...
+Mode status: {% if has_unlocked_modes %}{{ modes|length }} mode(s) unlocked{% else %}No modes unlocked{% endif %}
+</div>
+
+<div class="table-container">
+  <table>
+    <thead>
+      <tr>
+        <th class="col-label"></th>
+        <th class="col-label">A</th>
+        <th class="col-label">B</th>
+        <th class="col-label">C</th>
+        <th class="col-label">D</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="row-label">1</td>
+        <td><strong>status</strong></td>
+        <td><strong>icon</strong></td>
+        <td><strong>mode name</strong></td>
+        <td><strong>description</strong></td>
+      </tr>
+
+      {% if all_modes %}
+        <!-- Show unlocked modes first -->
+        {% for mode in modes %}
+          <tr class="mode-row">
+            <td class="row-label">{{ forloop.counter|add:"1" }}</td>
+            <td><span class="badge badge-success">unlocked</span></td>
+            <td class="mode-icon">{{ mode.icon }}</td>
+            <td><strong>{{ mode.name }}</strong></td>
+            <td class="text-muted">{{ mode.description }}</td>
+          </tr>
+        {% endfor %}
+        
+        <!-- Then show locked modes -->
+        {% for mode in locked_modes %}
+          <tr class="mode-row locked-mode">
+            <td class="row-label">{{ forloop.counter|add:modes|length|add:"1" }}</td>
+            <td><span class="badge">locked</span></td>
+            <td class="mode-icon">{{ mode.icon }}</td>
+            <td><strong>{{ mode.name }}</strong></td>
+            <td class="text-muted">{{ mode.description }}</td>
+          </tr>
+        {% endfor %}
+      {% else %}
+        <tr>
+          <td class="row-label">2</td>
+          <td colspan="4">No modes initialized. Start using the app to unlock features!</td>
+        </tr>
+      {% endif %}
+    </tbody>
+  </table>
+</div>
+
+{% if not has_unlocked_modes %}
+  <div class="alert" id="mode-alert">
+    <p>System message: No modes unlocked yet.</p>
+    <p class="text-muted">Continue using LEDGERLINE to unlock premium features.</p>
+    <div class="loading-bar">
+      <div class="loading-bar-fill" id="progress-bar" style="width: 15%;"></div>
+    </div>
+    <p class="text-muted" id="progress-text">Mode unlock progress: 15%</p>
+  </div>
+{% endif %}
+
+<div class="mode-info focus-text">
+  <h3>How Modes Work</h3>
+  <p>LEDGERLINE tracks your financial behaviors and automatically unlocks special modes when specific conditions are met.</p>
+  <ul>
+    <li><strong>🔒 Lockdown Mode</strong>: Triggered when expenses exceed income.</li>
+    <li><strong>🏝️ Vacay Mode</strong>: Triggered by sustained savings over multiple months.</li>
+    <li><strong>⚠️ Survival Mode</strong>: Triggered by intense early-month spending.</li>
+    <li><strong>🏆 Stability Mode</strong>: Triggered by consistent income/expense ratio over time.</li>
+    <li><strong>💰 Saver Mode</strong>: Triggered when total savings exceed 3x monthly income.</li>
+  </ul>
+  <p>All modes are automatically tracked and unlocked based on your transaction history.</p>
+</div>
+
+<div class="function-keys">
+  <div class="function-key" onclick="showHelpInfo()">F1-Help</div>
+  <div class="function-key" onclick="window.location.reload()">F2-Refresh</div>
+  <div class="function-key" onclick="window.location.href='/'">F3-Return</div>
+  <div class="function-key" onclick="window.location.href='{% url 'transaction_list' %}'">F4-Ledger</div>
+</div>
+
+<div class="status-bar">
+  <span id="status-message">READY.</span>
+  <span class="status-bar-brand">LEDGERLINE: Beige Edition</span>
+  <span>{% now "m/d/Y" %}</span>
+</div>
+
+<style>
+  .mode-icon {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+  .locked-mode {
+    opacity: 0.7;
+  }
+</style>
+
+<script>
+function showHelpInfo() {
+  const helpText = `PREMIUM MODES HELP:
+- Modes are automatically unlocked based on your financial behavior
+- Different modes track different aspects of your financial health
+- Unlocked modes provide visual indicators of your financial patterns
+- Check this page regularly to see your mode status
+- The mode system is completely automatic - just use the app normally!`;
+  
+  // Find or create terminal output
+  let output = document.querySelector('.terminal-output');
+  
+  // Update content
+  output.innerHTML = helpText.replace(/\n/g, '<br>');
+  
+  // Update status
+  document.getElementById('status-message').textContent = "Displaying help documentation";
+}
+</script>
+{% endblock %}

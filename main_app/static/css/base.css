@@ -1,3 +1,758 @@
+/* LEDGERLINE: Beige Edition - IBM/3000 Series Design System */
+
+/* Color System */
+:root {
+    --bg-beige: #f4f1ea;
+    --accent-beige: #cfc6b8;
+    --text-primary: #1a1a1a;
+    --text-muted: #5e5e5e;
+    --income: #296442;
+    --expense: #8b2e2e;
+    --border-gray: #d3d3d3;
+    --highlight-blue: #000080;  /* IBM blue */
+    --lotus-green: #003300;     /* Lotus terminal green */
+    --terminal-black: #000000;  /* Terminal background */
+    --terminal-gray: #333333;   /* Terminal border */
+    --menu-bar: #c0c0c0;        /* Menu bar gray */
+    --brand-color: #296442;     /* Brand color for LEDGERLINE */
+}
+
+/* Base Typography */
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
 body {
+    background-color: var(--bg-beige);
+    color: var(--text-primary);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 15px;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+}
+
+/* Layout */
+.container {
+    max-width: 800px;  /* Slightly wider for terminal appearance */
+    margin: 0 auto;
+    padding: 1rem;
+    border: 1px solid var(--border-gray);
+    margin-top: 20px;
+    background-color: var(--bg-beige);
+}
+
+header {
+    background-color: var(--menu-bar);
+    border-bottom: 1px solid var(--border-gray);
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.header-logo-container {
+    display: inline-block;
+    margin-right: 2rem;
+}
+
+.app-title {
+    font-weight: bold;
+    color: var(--highlight-blue);
+    font-size: 1.2rem;
+    letter-spacing: 0.05em;
+}
+
+/* IBM Style Menu */
+.menu-bar {
+    background-color: var(--menu-bar);
+    padding: 0.25rem 0;
+    border-bottom: 1px solid var(--border-gray);
+    margin-bottom: 1rem;
+}
+
+/* Navigation */
+nav ul {
+    list-style-type: none;
+    display: inline-flex;
+}
+
+nav ul li {
+    margin-right: 1.5rem;
+}
+
+nav ul li a {
+    color: var(--text-primary);
+    text-decoration: none;
+    text-transform: lowercase;
+    padding: 0.1rem 0.5rem;
+    border: 1px solid transparent;
+}
+
+nav ul li a:hover {
+    border: 1px solid var(--border-gray);
+    background-color: var(--bg-beige);
+}
+
+/* Buttons */
+button, .button, input[type="submit"] {
+    background-color: var(--menu-bar);
+    border: 2px outset var(--border-gray);
+    color: var(--text-primary);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px;
+    padding: 0.35rem 0.75rem;
+    cursor: pointer;
+    text-transform: lowercase;
+    min-height: 36px; /* Better touch target */
+    transition: background-color 0.2s ease;
+}
+
+button:active, .button:active, input[type="submit"]:active {
+    border-style: inset;
+}
+
+button:hover, .button:hover, input[type="submit"]:hover {
+    background-color: var(--accent-beige);
+}
+
+/* Forms */
+input, select, textarea {
+    font-family: 'IBM Plex Mono', monospace;
+    border: 1px inset var(--border-gray);
+    padding: 0.35rem 0.5rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    background-color: white;
+    font-size: 15px; /* Prevent zoom on focus on mobile */
+    line-height: 1.4;
+}
+
+/* Focus states for better accessibility */
+input:focus, select:focus, textarea:focus, button:focus, a:focus {
+    outline: 2px solid var(--highlight-blue);
+    outline-offset: 1px;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--text-primary);
+}
+
+/* Lotus 123 Style Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border-gray);
+}
+
+th {
+    text-align: left;
+    border-bottom: 1px solid var(--border-gray);
+    padding: 0.35rem 0.6rem;
+    color: var(--highlight-blue);  /* IBM blue for headers */
+    font-weight: 600;
+    background-color: var(--menu-bar);
+}
+
+td {
+    padding: 0.35rem 0.6rem;
+    border-bottom: 1px solid var(--border-gray);
+    border-right: 1px solid var(--border-gray);
+}
+
+/* Lotus 123 style alternating rows */
+tr:nth-child(even) {
+    background-color: var(--accent-beige);
+}
+
+/* Column labels like Lotus */
+.col-label {
+    background-color: var(--menu-bar);
+    text-align: center;
+    font-weight: 600;
+}
+
+/* Row labels like Lotus */
+.row-label {
+    background-color: var(--menu-bar);
+    font-weight: 600;
+}
+
+/* Selected cell in Lotus */
+.cell-selected {
     background-color: black;
+    color: white;
+}
+
+/* Align amounts to the right */
+.amount {
+    text-align: right;
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+/* Typography Utilities */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'IBM Plex Mono', monospace;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: var(--highlight-blue);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+h1 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-shadow: 1px 1px 0 rgba(0, 0, 128, 0.1);
+}
+
+h2 {
+    font-size: 20px;
+    letter-spacing: 0.08em;
+}
+
+h3 {
+    font-size: 18px;
+}
+
+p {
+    margin-bottom: 1rem;
+    max-width: 70ch; /* Optimal reading width */
+    line-height: 1.6;
+}
+
+a {
+    color: var(--highlight-blue);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* IBM-style Status Bar */
+.status-bar {
+    background-color: var(--menu-bar);
+    border-top: 1px solid var(--border-gray);
+    padding: 0.25rem 0.5rem;
+    font-size: 14px;
+    color: var(--text-primary);
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 500;
+}
+
+.status-bar-brand {
+    color: var(--brand-color);
+    font-weight: bold;
+}
+
+/* Interactive elements - for future functionality */
+.interactive {
+    cursor: pointer;
+    position: relative;
+}
+
+.interactive:hover {
+    background-color: var(--bg-beige);
+}
+
+.interactive:active {
+    background-color: var(--accent-beige);
+}
+
+/* For functional loading bars */
+.loading-bar.active .loading-bar-fill {
+    transition: width 2s linear;
+}
+
+/* For clickable menu items */
+.menu-item {
+    display: inline-block;
+    padding: 0.1rem 0.5rem;
+    cursor: pointer;
+}
+
+.menu-item:hover {
+    background-color: var(--bg-beige);
+}
+
+.menu-item.active {
+    background-color: var(--bg-beige);
+    border: 1px solid var(--border-gray);
+}
+
+/* Function key actions */
+.function-key {
+    font-family: 'IBM Plex Mono', monospace;
+    padding: 0.25rem 0.75rem;
+    font-size: 14px;
+    color: var(--text-primary);
+    cursor: pointer;
+    font-weight: 600;
+    border: 1px solid var(--border-gray);
+    background-color: var(--menu-bar);
+    margin-right: 10px;
+    display: inline-block;
+}
+
+.function-key:hover {
+    background-color: var(--accent-beige);
+}
+
+/* Command line interface */
+.command-line {
+    padding: 0.5rem;
+    margin-top: 1rem;
+    border: 1px solid var(--border-gray);
+    background-color: var(--bg-beige);
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+.command-line input {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    font-family: inherit;
+    color: var(--text-primary);
+    width: calc(100% - 30px);
+}
+
+.command-line:before {
+    content: "C:>";
+    margin-right: 5px;
+    color: var(--text-primary);
+}
+
+/* Badges and Alerts - IBM Terminal Style */
+.badge {
+    display: inline-block;
+    border: 1px solid var(--border-gray);
+    padding: 0.15rem 0.35rem;
+    margin-right: 0.5rem;
+    font-size: 13px;
+    background-color: var(--menu-bar);
+    font-weight: 500;
+}
+
+.badge-success {
+    background-color: var(--income);
+    color: white;
+}
+
+.badge-warning {
+    background-color: var(--accent-beige);
+}
+
+.badge-danger {
+    background-color: var(--expense);
+    color: white;
+}
+
+.alert {
+    border: 1px solid var(--border-gray);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    background-color: var(--bg-beige);
+}
+
+/* Income & Expense Colors */
+.income {
+    color: var(--income);
+}
+
+.expense {
+    color: var(--expense);
+}
+
+/* ASCII Art Section Titles */
+pre.ascii-title {
+    margin: 2rem 0;
+    background-color: var(--bg-beige);
+    padding: 1.5rem;
+    border: 1px solid var(--border-gray);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: bold;
+    color: var(--highlight-blue);
+    line-height: 1.2;
+    font-size: 16px;
+}
+
+pre.ascii-title h1 {
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--highlight-blue);
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    margin: 0;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 0 rgba(0, 0, 128, 0.2);
+    position: relative;
+    display: inline-block;
+}
+
+pre.ascii-title h1:before,
+pre.ascii-title h1:after {
+    content: "";
+    display: block;
+    height: 2px;
+    background-color: var(--highlight-blue);
+    position: absolute;
+    left: 0;
+    right: 0;
+}
+
+pre.ascii-title h1:before {
+    top: -10px;
+}
+
+pre.ascii-title h1:after {
+    bottom: -10px;
+}
+
+/* Add this class for a more "terminal-style" ASCII art effect */
+.ascii-terminal-style {
+    white-space: pre;
+    line-height: 1.2;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: bold;
+    font-size: 16px;
+    color: var(--highlight-blue);
+    text-align: center;
+    margin: 0 auto;
+}
+
+/* Terminal-like Output */
+.terminal-output {
+    font-family: 'IBM Plex Mono', monospace;
+    background-color: var(--bg-beige);
+    border: 1px solid var(--border-gray);
+    padding: 1rem;
+    color: var(--text-primary);
+    white-space: pre-wrap;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+/* Loading Bar */
+.loading-bar {
+    width: 100%;
+    background-color: var(--bg-beige);
+    border: 1px solid var(--border-gray);
+    height: 20px;
+    margin: 1rem 0;
+    position: relative;
+}
+
+.loading-bar-fill {
+    height: 100%;
+    background-color: var(--highlight-blue);
+}
+
+/* Function Key Bar (F1, F2, etc) */
+.function-keys {
+    display: flex;
+    justify-content: space-between;
+    background-color: var(--menu-bar);
+    border-top: 1px solid var(--border-gray);
+    border-bottom: 1px solid var(--border-gray);
+    padding: 0.5rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    font-family: 'IBM Plex Mono', monospace;
+}
+
+/* Error messages */
+.error {
+    color: var(--expense);
+    margin-bottom: 1rem;
+}
+
+/* Mode Unlock Badge */
+.mode-unlock {
+    display: inline-block;
+    padding: 0.5rem;
+    border: 1px solid var(--border-gray);
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    background-color: var(--bg-beige);
+}
+
+/* Slogan */
+.slogan {
+    color: var(--text-muted);
+    font-style: italic;
+    margin-bottom: 1.5rem;
+    font-size: 14px;
+    letter-spacing: 0.02em;
+}
+
+/* About content styling */
+.about-content {
+    line-height: 1.7;
+    margin-bottom: 2rem;
+}
+
+.about-content h2 {
+    color: var(--highlight-blue);
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.about-content p {
+    margin-bottom: 1.25rem;
+    font-size: 15px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .container {
+        max-width: 95%;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        max-width: 100%;
+        padding: 0.75rem;
+        margin-top: 10px;
+    }
+    
+    /* Improve readability of text */
+    body {
+        font-size: 15px;
+        line-height: 1.5;
+    }
+
+    /* Header adjustments */
+    header {
+        padding: 0.5rem 0.25rem;
+    }
+
+    .header-logo-container {
+        display: block;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+
+    /* Navigation adjustment */
+    nav ul {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    nav ul li {
+        margin: 0.25rem 0.5rem;
+    }
+    
+    /* Function key adjustments */
+    .function-keys {
+        flex-wrap: wrap;
+    }
+    
+    .function-key {
+        margin-bottom: 0.5rem;
+        padding: 0.3rem 0.5rem;
+        flex-grow: 1;
+        text-align: center;
+        margin-right: 5px;
+    }
+
+    /* Table adjustments */
+    table, th, td {
+        font-size: 14px;
+    }
+    
+    th, td {
+        padding: 0.4rem 0.4rem;
+    }
+    
+    /* Typography adjustments */
+    h1 {
+        font-size: 22px;
+    }
+    
+    h2 {
+        font-size: 18px;
+    }
+    
+    h3 {
+        font-size: 16px;
+    }
+    
+    /* Terminal output */
+    .terminal-output {
+        font-size: 14px;
+        padding: 0.75rem;
+    }
+    
+    /* ASCII art adjustments for better mobile display */
+    pre.ascii-title {
+        padding: 1rem 0.5rem;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* Additional small screen adjustments */
+    .container {
+        padding: 0.5rem;
+        border: none;
+    }
+    
+    body {
+        font-size: 14px;
+    }
+    
+    /* Better touch targets for mobile */
+    nav ul li {
+        margin: 0.25rem;
+    }
+    
+    nav ul li a {
+        padding: 0.3rem 0.5rem;
+        display: block;
+    }
+    
+    /* Adjust function keys for very small screens */
+    .function-keys {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 5px;
+    }
+    
+    .function-key {
+        margin-right: 0;
+        margin-bottom: 5px;
+    }
+    
+    /* Improve button touchability */
+    button, .button, input[type="submit"] {
+        padding: 0.5rem 0.75rem;
+        min-height: 44px; /* Minimum touch target */
+    }
+    
+    /* Adjust forms for better mobile use */
+    input, select, textarea {
+        padding: 0.5rem;
+        margin-bottom: 1rem;
+        font-size: 16px; /* Prevent iOS zoom */
+    }
+    
+    /* ASCII title simplified for very small screens */
+    pre.ascii-title {
+        font-size: 12px;
+        white-space: pre;
+        overflow-x: auto;
+    }
+    
+    /* Tables become scrollable on very small screens */
+    .table-container {
+        overflow-x: auto;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Readability helpers */
+.readable-text {
+    font-size: 1rem;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+    word-spacing: 0.05em;
+}
+
+.large-text {
+    font-size: 1.2rem;
+    line-height: 1.7;
+}
+
+.focus-text {
+    background-color: var(--bg-beige);
+    padding: 1rem;
+    border: 1px solid var(--border-gray);
+    margin-bottom: 1.5rem;
+}
+
+/* Improved paragraph readability */
+p {
+    margin-bottom: 1rem;
+    max-width: 70ch; /* Optimal reading width */
+    line-height: 1.6;
+}
+
+/* Improved list readability */
+ul, ol {
+    margin-bottom: 1rem;
+    padding-left: 1.5rem;
+}
+
+li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
+/* Text selection */
+::selection {
+    background-color: var(--highlight-blue);
+    color: white;
+}
+
+/* Table responsiveness */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    margin-bottom: 1.5rem;
+}
+
+/* Mode Badges */
+.mode-badges {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 0.75rem;
+    padding: 0.25rem;
+    background-color: var(--bg-beige);
+    border: 1px solid var(--border-gray);
+}
+
+.mode-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.2rem 0.5rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.25rem;
+    background-color: var(--menu-bar);
+    border: 1px solid var(--border-gray);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: help;
+}
+
+.mode-badge:hover {
+    background-color: var(--accent-beige);
+}
+
+/* Mode unlock animation */
+@keyframes mode-unlock {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); background-color: var(--highlight-blue); color: white; }
+    100% { transform: scale(1); }
+}
+
+.mode-badge.newly-unlocked {
+    animation: mode-unlock 1s ease;
 }
