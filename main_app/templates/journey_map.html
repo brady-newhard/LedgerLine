@@ -2,217 +2,92 @@
 {% load ansi_shadow_tags %}
 
 {% block content %}
-<div class="menu-bar">
-  File  Edit  View  Format  Options  Range  Data  Help
-</div>
-
-<pre class="ascii-title">
-<div class="ascii-terminal-style">{% ansi_shadow "FINANCIAL JOURNEY MAP" %}</div>
-</pre>
-
-<div class="terminal-output">
-C:>ACCESS JOURNEY.DAT
-Reading financial journey timeline...
-Processing mode history...
-Ready.
-</div>
-
-<div class="focus-text">
-  <p>Your LEDGERLINE journey map tracks your financial evolution across different modes.</p>
-  <p>Follow the timeline to see your progress and achievements.</p>
-</div>
-
-<div class="journey-timeline">
-  {% for mode in mode_progression %}
-    <div class="journey-node {% if mode.is_unlocked %}unlocked{% endif %}">
-      <div class="journey-icon">{{ mode.icon }}</div>
-      <div class="journey-mode-name">{{ mode.name }}</div>
-      <div class="journey-progress">
-        <div class="loading-bar">
-          <div class="loading-bar-fill" style="width: {{ mode.progress }}%;"></div>
-        </div>
-        <span class="progress-text">{{ mode.progress }}%</span>
-      </div>
-      <div class="journey-description">{{ mode.description }}</div>
-      <div class="journey-details">
-        {% if mode.is_unlocked %}
-          <span class="badge badge-success">UNLOCKED</span>
-          <a href="{% url 'mode_dashboard' mode_name=mode.name %}" class="btn btn-small">Details</a>
-        {% else %}
-          <span class="badge">{{ mode.progress }}% PROGRESS</span>
-          <div class="journey-notes text-muted">{{ mode.notes }}</div>
-        {% endif %}
-      </div>
+<div class="terminal-container">
+    <div class="terminal-header">
+        {% ansi_shadow "FINANCIAL JOURNEY MAP" %}
     </div>
     
-    {% if not forloop.last %}
-      <div class="journey-connector"></div>
-    {% endif %}
-  {% endfor %}
-</div>
-
-<h3 class="section-header">Mode History</h3>
-
-<div class="table-container">
-  <table>
-    <thead>
-      <tr>
-        <th class="col-label"></th>
-        <th class="col-label">A</th>
-        <th class="col-label">B</th>
-        <th class="col-label">C</th>
-        <th class="col-label">D</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td class="row-label">1</td>
-        <td><strong>date</strong></td>
-        <td><strong>mode</strong></td>
-        <td><strong>event</strong></td>
-        <td><strong>progress</strong></td>
-      </tr>
-
-      {% for mode_name, events in mode_history.items %}
-        {% for event in events|slice:":5" %}
-          <tr class="mode-row">
-            <td class="row-label">{{ forloop.counter|add:"1" }}</td>
-            <td>{{ event.timestamp|date:"m/d/Y H:i" }}</td>
-            <td>{{ event.mode_name }}</td>
-            <td>
-              {% if event.status_change == 'unlocked' %}
-                <span class="badge badge-success">UNLOCKED</span>
-              {% elif event.status_change == 'locked' %}
-                <span class="badge badge-warning">LOCKED</span>
-              {% else %}
-                <span class="badge">PROGRESS</span>
-              {% endif %}
-            </td>
-            <td>{{ event.progress_percentage }}%</td>
-          </tr>
-        {% empty %}
-          <tr>
-            <td class="row-label">2</td>
-            <td colspan="4">No history for {{ mode_name }} yet.</td>
-          </tr>
-        {% endfor %}
-      {% empty %}
-        <tr>
-          <td class="row-label">2</td>
-          <td colspan="4">No mode history found. Continue using LEDGERLINE to build your journey.</td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-
-<div class="function-keys">
-  <div class="function-key" onclick="showHelpInfo()">F1-Help</div>
-  <div class="function-key" onclick="window.location.reload()">F2-Refresh</div>
-  <div class="function-key" onclick="window.location.href='{% url 'unlocked_modes' %}'">F3-Modes</div>
-  <div class="function-key" onclick="window.location.href='{% url 'transaction_list' %}'">F4-Ledger</div>
-</div>
-
-<div class="status-bar">
-  <span id="status-message">READY.</span>
-  <span class="status-bar-brand">LEDGERLINE: Beige Edition</span>
-  <span>{% now "m/d/Y" %}</span>
-</div>
-
-<style>
-  .journey-timeline {
-    display: flex;
-    flex-direction: column;
-    margin: 30px 0;
-    align-items: flex-start;
-  }
-  
-  .journey-node {
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-color);
-    padding: 15px;
-    margin: 10px 0;
-    width: 80%;
-    position: relative;
-    opacity: 0.7;
-    transition: all 0.3s ease;
-  }
-  
-  .journey-node.unlocked {
-    opacity: 1;
-    border: 1px solid var(--highlight-color);
-    box-shadow: 0 0 5px rgba(var(--highlight-rgb), 0.3);
-  }
-  
-  .journey-connector {
-    width: 2px;
-    height: 30px;
-    background-color: var(--text-muted);
-    margin-left: 20px;
-  }
-  
-  .journey-icon {
-    font-size: 2rem;
-    float: left;
-    margin-right: 15px;
-  }
-  
-  .journey-mode-name {
-    font-size: 1.2rem;
-    font-weight: bold;
-    margin-bottom: 5px;
-  }
-  
-  .journey-description {
-    margin-bottom: 10px;
-  }
-  
-  .journey-progress {
-    margin: 10px 0;
-  }
-  
-  .journey-details {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 10px;
-  }
-  
-  .journey-notes {
-    font-size: 0.9rem;
-    margin-top: 5px;
-    width: 100%;
-  }
-  
-  .section-header {
-    margin-top: 30px;
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 5px;
-  }
-  
-  /* Retro flashing cursor */
-  .terminal-output::after {
-    content: "_";
-    animation: blink 1s step-end infinite;
-  }
-  
-  @keyframes blink {
-    50% {
-      opacity: 0;
-    }
-  }
-</style>
+    <div class="terminal-body">
+        <div class="journey-map-container">
+            {% if user_modes %}
+                <div class="journey-timeline">
+                    {% for mode in user_modes %}
+                        {% if mode.unlocked %}
+                        <a href="{% url 'mode_dashboard' mode.name %}" class="journey-node-link">
+                        {% endif %}
+                        <div class="journey-node {% if mode.unlocked %}unlocked{% else %}locked{% endif %}" {% if not mode.unlocked %}title="Continue your financial journey to unlock this mode"{% endif %}>
+                            <div class="mode-icon">{{ mode.icon|default:"💰" }}</div>
+                            <div class="mode-name">{{ mode.name }}</div>
+                            <div class="mode-status">
+                                {% if mode.unlocked %}
+                                    <span class="status-unlocked">UNLOCKED</span>
+                                    <div class="progress-bar">
+                                        <div class="progress-fill" style="width: {{ mode.progress_percentage }}%;"></div>
+                                    </div>
+                                    <div class="progress-text">{{ mode.progress_percentage }}%</div>
+                                {% else %}
+                                    <span class="status-locked">LOCKED</span>
+                                {% endif %}
+                            </div>
+                            {% if mode.description %}
+                                <div class="mode-description">{{ mode.description }}</div>
+                            {% endif %}
+                        </div>
+                        {% if mode.unlocked %}
+                        </a>
+                        {% endif %}
+                        
+                        {% if not forloop.last %}
+                            <div class="journey-connector {% if mode.unlocked %}active{% endif %}"></div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-journey">
+                    <p>No financial modes available yet. Start your journey by unlocking your first mode!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="terminal-footer">
+        <div class="footer-actions">
+            <a href="{% url 'unlocked_modes' %}" class="terminal-button">View All Modes</a>
+            <a href="{% url 'home' %}" class="terminal-button">Back to Dashboard</a>
+        </div>
+    </div>
+    
+    <div class="function-keys">
+        <div class="function-key" onclick="showHelpInfo()">F1-Help</div>
+        <div class="function-key" onclick="window.location.href='{% url 'home' %}'">F2-Home</div>
+        <div class="function-key" onclick="window.location.href='{% url 'unlocked_modes' %}'">F3-Modes</div>
+        <div class="function-key" onclick="window.location.href='{% url 'transaction_list' %}'">F4-Ledger</div>
+    </div>
+    
+    <div class="status-bar">
+        <span id="status-message">READY.</span>
+        <span class="status-bar-brand">LEDGERLINE: Terminal Edition</span>
+        <span>{% now "m/d/Y" %}</span>
+    </div>
 
 <script>
 function showHelpInfo() {
   const helpText = `JOURNEY MAP HELP:
-- The Journey Map displays your financial path through the LEDGERLINE modes
-- Each node represents a financial mode you can unlock
-- The progress bar shows how close you are to unlocking each mode
-- Unlocked modes have a glowing border and full details
-- The history section shows your mode achievements over time
-- Click the DETAILS button on an unlocked mode to see more information`;
+- This is your financial journey map showing all available modes
+- Unlocked modes can be clicked to view detailed information
+- Locked modes will become available as you continue your financial journey
+- Continue using LEDGERLINE to unlock more modes
+- Each mode represents different financial patterns and behaviors`;
+  
+  // Create terminal output if it doesn't exist
+  if (!document.querySelector('.terminal-output')) {
+    const terminalOutput = document.createElement('div');
+    terminalOutput.className = 'terminal-output';
+    document.querySelector('.terminal-container').insertBefore(
+      terminalOutput, 
+      document.querySelector('.terminal-body')
+    );
+  }
   
   // Find or create terminal output
   let output = document.querySelector('.terminal-output');
@@ -224,4 +99,150 @@ function showHelpInfo() {
   document.getElementById('status-message').textContent = "Displaying help documentation";
 }
 </script>
+</div>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .journey-map-container {
+        padding: 20px;
+    }
+    
+    .journey-timeline {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin: 20px 0;
+    }
+    
+    .journey-node-link {
+        text-decoration: none;
+        display: block;
+        width: 80%;
+        max-width: 500px;
+        cursor: pointer;
+    }
+    
+    .journey-node {
+        background-color: #111;
+        border: 2px solid #333;
+        border-radius: 8px;
+        padding: 15px;
+        width: 100%;
+        margin: 10px 0;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .journey-node.unlocked {
+        border-color: #5f5;
+        box-shadow: 0 0 10px rgba(95, 255, 95, 0.5);
+    }
+    
+    .journey-node.unlocked:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0 15px rgba(95, 255, 95, 0.7);
+    }
+    
+    .journey-node.locked {
+        filter: grayscale(1);
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+    
+    .journey-connector {
+        height: 40px;
+        width: 4px;
+        background-color: #333;
+    }
+    
+    .journey-connector.active {
+        background-color: #5f5;
+        box-shadow: 0 0 10px rgba(95, 255, 95, 0.5);
+    }
+    
+    .mode-icon {
+        font-size: 2em;
+        margin-bottom: 10px;
+    }
+    
+    .mode-name {
+        font-size: 1.5em;
+        font-weight: bold;
+        margin-bottom: 5px;
+        text-transform: uppercase;
+    }
+    
+    .mode-status {
+        margin: 10px 0;
+    }
+    
+    .status-unlocked {
+        color: #5f5;
+        font-weight: bold;
+    }
+    
+    .status-locked {
+        color: #f55;
+        font-weight: bold;
+    }
+    
+    .progress-bar {
+        background-color: #222;
+        height: 10px;
+        border-radius: 5px;
+        margin: 10px 0;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        background-color: #5f5;
+        height: 100%;
+        transition: width 0.5s ease-in-out;
+    }
+    
+    .progress-text {
+        font-size: 0.9em;
+        color: #5f5;
+    }
+    
+    .mode-description {
+        margin-top: 10px;
+        font-style: italic;
+        color: #aaa;
+    }
+    
+    .empty-journey {
+        text-align: center;
+        padding: 30px;
+        color: #aaa;
+    }
+    
+    .terminal-footer {
+        margin-top: 20px;
+        text-align: center;
+    }
+    
+    .footer-actions {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+    
+    .terminal-button {
+        background-color: #333;
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .terminal-button:hover {
+        background-color: #555;
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    }
+</style>
 {% endblock %} 

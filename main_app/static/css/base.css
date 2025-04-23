@@ -298,6 +298,15 @@ p {
     border-radius: 30px; /* More rounded for oval shape */
     margin-right: 0.5rem;
     margin-bottom: 0.5rem;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.mode-badge:hover {
+    border-color: #00aaff;
+    color: #00aaff;
+    box-shadow: 0 0 8px rgba(0, 136, 255, 0.4);
+    text-decoration: none;
 }
 
 .mode-badges {

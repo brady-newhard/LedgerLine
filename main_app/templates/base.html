@@ -111,16 +111,70 @@
         }
       }
     </style>
+    
+    <script>
+      function showHelpModal() {
+        document.getElementById('helpModal').style.display = 'block';
+      }
+      
+      function closeHelpModal() {
+        document.getElementById('helpModal').style.display = 'none';
+      }
+      
+      // Close modal when clicking outside of it
+      window.onclick = function(event) {
+        if (event.target == document.getElementById('helpModal')) {
+          closeHelpModal();
+        }
+      }
+    </script>
+    
+    <style>
+      /* Modal Styles */
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.7);
+      }
+      
+      .modal-content {
+        background-color: #000000 !important;
+        margin: 10% auto;
+        padding: 20px;
+        border: 1px solid #00aa00;
+        width: 80%;
+        max-width: 700px;
+        box-shadow: 0 0 15px rgba(0, 170, 0, 0.5);
+      }
+      
+      .close-modal {
+        color: #00aa00;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+      
+      .close-modal:hover {
+        color: #00ff00;
+      }
+    </style>
+    
     {% block head %} 
     {% endblock %}
   </head>
   <body>
     <div class="container">
       <div class="function-keys">
-        <span class="function-key">F1-Help</span>
-        <span class="function-key">F2-Save</span>
-        <span class="function-key">F3-Exit</span>
-        <span class="function-key">F4-Charts</span>
+        <span class="function-key" onclick="showHelpModal()">F1-Help</span>
+        <span class="function-key" onclick="window.location.href='{% url 'home' %}'">F2-Home</span>
+        <span class="function-key" onclick="window.location.href='{% url 'journey_map' %}'">F3-Journey</span>
+        <span class="function-key" onclick="window.location.href='{% url 'transaction_list' %}'">F4-Ledger</span>
       </div>
       <header>
         <div class="header-logo-container">
@@ -153,9 +207,9 @@
         {% if has_unlocked_modes %}
         <div class="mode-badges">
           {% for mode in unlocked_modes %}
-            <span class="badge mode-badge" title="{{ mode.description }}">
+            <a href="{% url 'mode_dashboard' mode.name %}" class="badge mode-badge" title="{{ mode.description }}">
               {{ mode.icon }} {{ mode.name }}
-            </span>
+            </a>
           {% endfor %}
         </div>
         {% endif %}
@@ -190,6 +244,25 @@
           <span class="status-bar-brand">LEDGERLINE: Terminal Edition</span> &copy; 1981-{% now "Y" %} | Track. Filter. Export. Forget.
         </p>
       </footer>
+    </div>
+
+    <div id="helpModal" class="modal">
+      <div class="modal-content">
+        <span class="close-modal" onclick="closeHelpModal()">&times;</span>
+        <h2>LEDGERLINE Help</h2>
+        <div class="terminal-output">
+          <p>Welcome to LEDGERLINE Terminal Edition</p>
+          <p>====================================</p>
+          <br>
+          <p>Navigation:</p>
+          <p>- F1: Show this help information</p>
+          <p>- F2: Return to home page</p>
+          <p>- F3: View your financial journey map</p>
+          <p>- F4: Access your financial ledger</p>
+          <br>
+          <p>Mode badges displayed in header provide quick access to your unlocked financial modes.</p>
+        </div>
+      </div>
     </div>
   </body>
 </html>
