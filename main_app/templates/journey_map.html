@@ -15,7 +15,10 @@
                         {% if mode.unlocked %}
                         <a href="{% url 'mode_dashboard' mode.name %}" class="journey-node-link">
                         {% endif %}
-                        <div class="journey-node {% if mode.unlocked %}unlocked{% else %}locked{% endif %}" {% if not mode.unlocked %}title="Continue your financial journey to unlock this mode"{% endif %}>
+                        <div class="journey-node {% if mode.unlocked %}unlocked{% else %}locked{% endif %}" 
+                             {% if not mode.unlocked %}
+                             onclick="showLockMessage('{{ mode.name }}')"
+                             {% endif %}>
                             <div class="mode-icon">{{ mode.icon|default:"💰" }}</div>
                             <div class="mode-name">{{ mode.name }}</div>
                             <div class="mode-status">
@@ -27,10 +30,21 @@
                                     <div class="progress-text">{{ mode.progress_percentage }}%</div>
                                 {% else %}
                                     <span class="status-locked">LOCKED</span>
+                                    {% if mode.progress_percentage > 0 %}
+                                    <div class="progress-bar">
+                                        <div class="progress-fill locked-progress" style="width: {{ mode.progress_percentage }}%;"></div>
+                                    </div>
+                                    <div class="progress-text">{{ mode.progress_percentage }}% towards unlocking</div>
+                                    {% endif %}
                                 {% endif %}
                             </div>
                             {% if mode.description %}
                                 <div class="mode-description">{{ mode.description }}</div>
+                            {% endif %}
+                            {% if not mode.unlocked %}
+                                <div class="lock-overlay">
+                                    <div class="lock-icon">🔒</div>
+                                </div>
                             {% endif %}
                         </div>
                         {% if mode.unlocked %}
@@ -98,12 +112,130 @@ function showHelpInfo() {
   // Update status
   document.getElementById('status-message').textContent = "Displaying help documentation";
 }
+
+function showLockMessage(modeName) {
+  // Create terminal output if it doesn't exist
+  if (!document.querySelector('.terminal-output')) {
+    const terminalOutput = document.createElement('div');
+    terminalOutput.className = 'terminal-output';
+    document.querySelector('.terminal-container').insertBefore(
+      terminalOutput, 
+      document.querySelector('.terminal-body')
+    );
+  }
+  
+  // Find output element
+  const output = document.querySelector('.terminal-output');
+  
+  // Create a randomly selected tantalizing message
+  const messages = [
+    `ACCESSING ${modeName.toUpperCase()}... ACCESS DENIED.\nThis mode is still locked. Continue using LEDGERLINE to unlock new insights about your financial behavior.`,
+    `${modeName.toUpperCase()} MODE: LOCKED\nThis feature will be unlocked when your financial patterns meet specific criteria. Keep managing your finances with LEDGERLINE!`,
+    `SYSTEM NOTIFICATION: ${modeName.toUpperCase()} is waiting to be discovered.\nYour financial journey will unlock this mode when the time is right.`,
+    `${modeName.toUpperCase()} INITIALIZATION FAILED: MODE LOCKED\nImprove your financial habits to unlock this powerful mode.`
+  ];
+  
+  const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+  
+  // Add typing effect
+  output.innerHTML = '';
+  let i = 0;
+  const speed = 30; // typing speed in ms
+  
+  function typeWriter() {
+    if (i < randomMessage.length) {
+      output.innerHTML += randomMessage.charAt(i) === '\n' ? '<br>' : randomMessage.charAt(i);
+      i++;
+      setTimeout(typeWriter, speed);
+    } else {
+      // Add blinking cursor at the end
+      output.innerHTML += '<span class="blinking-cursor"></span>';
+    }
+  }
+  
+  typeWriter();
+  
+  // Update status
+  document.getElementById('status-message').textContent = "ACCESS DENIED";
+  
+  // Shake the locked node slightly with animation
+  const nodes = document.querySelectorAll('.journey-node.locked');
+  nodes.forEach(node => {
+    node.classList.add('shake');
+    setTimeout(() => {
+      node.classList.remove('shake');
+    }, 500);
+  });
+}
 </script>
 </div>
 {% endblock %}
 
 {% block styles %}
 <style>
+    /* First update the locked nodes styling */
+    .journey-node.locked {
+        filter: grayscale(0.8);
+        opacity: 0.7;
+        cursor: pointer;
+        transition: all 0.4s ease;
+        overflow: hidden;
+    }
+    
+    .journey-node.locked:hover {
+        filter: grayscale(0.5);
+        opacity: 0.85;
+        border-color: #999;
+        transform: translateY(-2px);
+        box-shadow: 0 0 15px rgba(150, 150, 150, 0.3);
+    }
+    
+    /* Add lock overlay styling */
+    .lock-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        pointer-events: none;
+    }
+    
+    .lock-icon {
+        font-size: 2.5rem;
+        opacity: 0.5;
+        transition: all 0.3s ease;
+        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    }
+    
+    .journey-node.locked:hover .lock-icon {
+        transform: scale(1.2);
+        opacity: 0.9;
+    }
+    
+    /* Add styling for locked progress */
+    .locked-progress {
+        background-color: #777 !important;
+        opacity: 0.6;
+    }
+    
+    /* Add shake animation */
+    @keyframes shake {
+        0% { transform: translateX(0); }
+        20% { transform: translateX(-5px); }
+        40% { transform: translateX(5px); }
+        60% { transform: translateX(-3px); }
+        80% { transform: translateX(3px); }
+        100% { transform: translateX(0); }
+    }
+    
+    .shake {
+        animation: shake 0.5s;
+    }
+    
+    /* Keep existing styles below */
     .journey-map-container {
         padding: 20px;
     }
@@ -132,6 +264,7 @@ function showHelpInfo() {
         margin: 10px 0;
         text-align: center;
         transition: all 0.3s ease;
+        position: relative;
     }
     
     .journey-node.unlocked {
@@ -143,13 +276,8 @@ function showHelpInfo() {
         transform: translateY(-3px);
         box-shadow: 0 0 15px rgba(95, 255, 95, 0.7);
     }
-    
-    .journey-node.locked {
-        filter: grayscale(1);
-        opacity: 0.7;
-        cursor: not-allowed;
-    }
-    
+
+    /* Remaining existing styles */
     .journey-connector {
         height: 40px;
         width: 4px;

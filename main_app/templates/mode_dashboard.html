@@ -7,7 +7,7 @@
 </div>
 
 <pre class="ascii-title">
-<div class="ascii-terminal-style">{% ansi_shadow mode_data.mode.name|upper %}</div>
+<div class="ascii-terminal-style">{{ mode_data.mode.name|upper|ansi_shadow }}</div>
 </pre>
 
 <div class="terminal-output">
@@ -38,7 +38,7 @@ Ready.
 </div>
 
 <div class="dashboard-grid">
-  <div class="dashboard-card focus-text">
+  <div class="dashboard-card focus-text" onclick="pulseMetrics()">
     <h3>Current Status</h3>
     <p class="mode-notes">{{ mode_data.current_data.notes }}</p>
     
@@ -58,7 +58,7 @@ Ready.
     <h3>Financial Tips</h3>
     <ul class="tips-list">
       {% for tip in mode_tips %}
-        <li>{{ tip }}</li>
+        <li class="tip-item" onclick="highlightTip(this)">{{ tip }}</li>
       {% empty %}
         <li>No specific tips available for this mode.</li>
       {% endfor %}
@@ -89,7 +89,7 @@ Ready.
       </tr>
 
       {% for event in mode_data.history %}
-        <tr class="mode-row">
+        <tr class="mode-row history-row" onclick="showEventDetails('{{ event.timestamp|date:"m/d/Y H:i" }}', '{{ event.status_change }}', {{ event.progress_percentage }}, '{{ event.details|escapejs }}')">
           <td class="row-label">{{ forloop.counter|add:"1" }}</td>
           <td>{{ event.timestamp|date:"m/d/Y H:i" }}</td>
           <td>
@@ -219,6 +219,13 @@ Ready.
     background-color: var(--bg-secondary);
     border: 1px solid var(--border-color);
     padding: 15px;
+    transition: all 0.25s ease;
+    cursor: pointer;
+  }
+  
+  .dashboard-card:hover {
+    box-shadow: 0 0 15px rgba(0, 170, 0, 0.2);
+    transform: translateY(-2px);
   }
   
   .metric-grid {
@@ -231,6 +238,11 @@ Ready.
   .metric {
     display: flex;
     flex-direction: column;
+    transition: all 0.3s ease;
+  }
+  
+  .metric.highlight {
+    transform: scale(1.05);
   }
   
   .metric-label {
@@ -249,6 +261,20 @@ Ready.
   
   .tips-list li {
     margin-bottom: 8px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    padding-left: 5px;
+  }
+
+  .tips-list li:hover {
+    color: var(--text-highlight) !important;
+  }
+  
+  .tips-list li.highlight {
+    color: var(--text-highlight) !important;
+    transform: translateX(5px);
+    font-weight: bold;
   }
   
   .mode-notes {
@@ -279,6 +305,30 @@ Ready.
     text-overflow: ellipsis;
     white-space: nowrap;
   }
+  
+  .history-row {
+    cursor: pointer;
+    transition: all 0.25s ease;
+  }
+  
+  .history-row:hover {
+    background-color: #111 !important;
+  }
+  
+  .history-row.active {
+    background-color: #001a00 !important;
+    border-left: 3px solid var(--text-highlight);
+  }
+  
+  @keyframes flash {
+    0% { background-color: #000000; }
+    30% { background-color: #002200; }
+    100% { background-color: #000000; }
+  }
+  
+  .flash {
+    animation: flash 0.8s;
+  }
 </style>
 
 <script>
@@ -299,6 +349,95 @@ function showHelpInfo() {
   
   // Update status
   document.getElementById('status-message').textContent = "Displaying help documentation";
+}
+
+function pulseMetrics() {
+  // Add highlight effect to metrics
+  const metrics = document.querySelectorAll('.metric');
+  metrics.forEach(metric => {
+    metric.classList.add('highlight');
+    
+    setTimeout(() => {
+      metric.classList.remove('highlight');
+    }, 800);
+  });
+  
+  // Update status message
+  document.getElementById('status-message').textContent = "Refreshing metrics...";
+  
+  // Add fancy loading effect
+  const card = document.querySelector('.dashboard-card');
+  card.classList.add('flash');
+  
+  setTimeout(() => {
+    card.classList.remove('flash');
+    document.getElementById('status-message').textContent = "Metrics updated";
+  }, 1000);
+  
+  setTimeout(() => {
+    document.getElementById('status-message').textContent = "READY.";
+  }, 3000);
+}
+
+function highlightTip(tipElement) {
+  // Remove highlight from all tips
+  document.querySelectorAll('.tip-item').forEach(tip => {
+    tip.classList.remove('highlight');
+  });
+  
+  // Add highlight to clicked tip
+  tipElement.classList.add('highlight');
+  
+  // Update status
+  document.getElementById('status-message').textContent = "Tip selected";
+  
+  // After a delay, reset status
+  setTimeout(() => {
+    document.getElementById('status-message').textContent = "READY.";
+  }, 2000);
+}
+
+function showEventDetails(timestamp, statusChange, progress, details) {
+  // Reset all rows
+  document.querySelectorAll('.history-row').forEach(row => {
+    row.classList.remove('active');
+  });
+  
+  // Highlight clicked row
+  event.currentTarget.classList.add('active');
+  
+  // Update terminal output with full details
+  const output = document.querySelector('.terminal-output');
+  
+  let statusText = statusChange === 'unlocked' ? 'UNLOCKED' : 
+                  statusChange === 'locked' ? 'LOCKED' : 'PROGRESS UPDATE';
+  
+  const detailsText = `EVENT DETAILS:
+Timestamp: ${timestamp}
+Status: ${statusText}
+Progress: ${progress}%
+Details: ${details}`;
+  
+  // Add typing effect
+  output.innerHTML = '';
+  let i = 0;
+  const speed = 20; // typing speed in ms
+  
+  function typeWriter() {
+    if (i < detailsText.length) {
+      output.innerHTML += detailsText.charAt(i) === '\n' ? '<br>' : detailsText.charAt(i);
+      i++;
+      setTimeout(typeWriter, speed);
+    } else {
+      // Add blinking cursor at the end
+      output.innerHTML += '<span class="blinking-cursor"></span>';
+    }
+  }
+  
+  typeWriter();
+  
+  // Update status
+  document.getElementById('status-message').textContent = "Displaying event details";
 }
 </script>
 {% endblock %} 

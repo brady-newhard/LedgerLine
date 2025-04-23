@@ -50,7 +50,7 @@ Mode status: {% if has_unlocked_modes %}{{ modes|length }} mode(s) unlocked{% el
         
         <!-- Then show locked modes -->
         {% for mode in locked_modes %}
-          <tr class="mode-row locked-mode">
+          <tr class="mode-row locked-mode" onclick="showLockedModeHint('{{ mode.name }}', {{ mode.progress_percentage }})">
             <td class="row-label">{{ forloop.counter|add:modes|length|add:"1" }}</td>
             <td><span class="badge">locked</span></td>
             <td class="mode-icon">{{ mode.icon }}</td>
@@ -112,6 +112,12 @@ Mode status: {% if has_unlocked_modes %}{{ modes|length }} mode(s) unlocked{% el
   }
   .locked-mode {
     opacity: 0.7;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  .locked-mode:hover {
+    opacity: 0.85;
+    background-color: #111 !important;
   }
   .clickable {
     cursor: pointer;
@@ -120,6 +126,16 @@ Mode status: {% if has_unlocked_modes %}{{ modes|length }} mode(s) unlocked{% el
   .clickable:hover {
     background-color: #111 !important;
     box-shadow: inset 0 0 5px rgba(0, 170, 0, 0.3);
+  }
+  
+  @keyframes pulse {
+    0% { background-color: #000000; }
+    50% { background-color: #001a00; }
+    100% { background-color: #000000; }
+  }
+  
+  .pulsing {
+    animation: pulse 2s infinite;
   }
 </style>
 
@@ -140,6 +156,68 @@ function showHelpInfo() {
   
   // Update status
   document.getElementById('status-message').textContent = "Displaying help documentation";
+}
+
+function showLockedModeHint(modeName, progressPercentage) {
+  // Find terminal output
+  let output = document.querySelector('.terminal-output');
+  
+  // Get a hint message based on progress percentage
+  let hintMessage = '';
+  
+  if (progressPercentage >= 75) {
+    hintMessage = `SYSTEM NOTIFICATION: ${modeName.toUpperCase()} is nearly unlocked!\nYour progress is at ${progressPercentage}%. Continue your current financial patterns to unlock this mode very soon.`;
+  } else if (progressPercentage >= 50) {
+    hintMessage = `${modeName.toUpperCase()} MODE: HALFWAY THERE\nYou've made significant progress (${progressPercentage}%) towards unlocking this mode. Keep going!`;
+  } else if (progressPercentage >= 25) {
+    hintMessage = `LOADING ${modeName.toUpperCase()}... PROGRESS: ${progressPercentage}%\nYou're on the right track. Continue your financial journey to unlock this premium feature.`;
+  } else {
+    hintMessage = `${modeName.toUpperCase()} MODE: LOCKED (${progressPercentage}% PROGRESS)\nThis mode will track special aspects of your financial behavior. Continue using LEDGERLINE to make progress.`;
+  }
+  
+  // Add typing effect
+  output.innerHTML = '';
+  let i = 0;
+  const speed = 30; // typing speed in ms
+  
+  function typeWriter() {
+    if (i < hintMessage.length) {
+      output.innerHTML += hintMessage.charAt(i) === '\n' ? '<br>' : hintMessage.charAt(i);
+      i++;
+      setTimeout(typeWriter, speed);
+    } else {
+      // Add blinking cursor at the end
+      output.innerHTML += '<span class="blinking-cursor"></span>';
+    }
+  }
+  
+  typeWriter();
+  
+  // Update progress bar animation for visual effect
+  const progressBar = document.getElementById('progress-bar');
+  const progressText = document.getElementById('progress-text');
+  
+  if (progressBar && progressText) {
+    // Animate progress bar to the mode's progress percentage
+    progressBar.style.width = '0%';
+    progressBar.style.transition = 'width 1.5s ease-in-out';
+    
+    setTimeout(() => {
+      progressBar.style.width = progressPercentage + '%';
+      progressText.textContent = `Mode unlock progress: ${progressPercentage}%`;
+    }, 100);
+  }
+  
+  // Update status
+  document.getElementById('status-message').textContent = `${modeName.toUpperCase()}: ANALYZING PROGRESS`;
+  
+  // Add pulse effect to the clicked row
+  document.querySelectorAll('.mode-row.locked-mode').forEach(row => {
+    row.classList.remove('pulsing');
+  });
+  
+  const clickedRow = event.currentTarget;
+  clickedRow.classList.add('pulsing');
 }
 </script>
 {% endblock %}
