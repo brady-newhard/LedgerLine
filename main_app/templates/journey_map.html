@@ -76,12 +76,14 @@
     }
 
     function playLockEffect() {
-        const audio = new Audio("{% static 'sounds/lock.mp3' %}");
-        audio.play();
-        document.querySelector('.locked:hover').classList.add('shake');
-        setTimeout(() => {
-            document.querySelector('.locked:hover').classList.remove('shake');
-        }, 500);
+        // Visual feedback only since we don't have the sound file
+        const lockedNode = document.querySelector('.locked:hover');
+        if (lockedNode) {
+            lockedNode.classList.add('shake');
+            setTimeout(() => {
+                lockedNode.classList.remove('shake');
+            }, 500);
+        }
     }
 
     function toggleDescriptions() {

@@ -153,24 +153,19 @@ def journey_map(request):
     """
     Display the user's financial mode journey map
     """
-    # Get all mode data with current statuses
-    modes_data = ModeService.check_all_modes(request.user)
+    # Get all modes (both locked and unlocked)
+    all_modes = ModeUnlock.objects.filter(user=request.user).order_by('-is_unlocked', 'name')
     
-    # Get historical data
-    mode_history = ModeService.get_user_mode_history(request.user)
-    
-    # Organize modes in their progression order
-    mode_progression = [
-        modes_data.get('lockdown_mode', {}),
-        modes_data.get('survival_mode', {}),
-        modes_data.get('stability_mode', {}),
-        modes_data.get('saver_mode', {}),
-        modes_data.get('vacay_mode', {})
-    ]
+    # Check if we have any modes yet
+    if not all_modes:
+        # Initialize all possible modes for this user if none exist
+        ModeService.check_all_modes(request.user)
+        ModeService.update_user_modes(request.user)
+        # Refresh the modes list
+        all_modes = ModeUnlock.objects.filter(user=request.user).order_by('-is_unlocked', 'name')
     
     context = {
-        'mode_progression': mode_progression,
-        'mode_history': mode_history,
+        'modes': all_modes,
         'current_tab': 'journey'
     }
     
