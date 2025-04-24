@@ -16,8 +16,18 @@ Enter transaction details:
 ------------------------------------
 </div>
 
-<form method="post">
+<form method="post" class="transaction-form">
   {% csrf_token %}
+  
+  {% if form.errors %}
+    <div class="alert">
+      {% for field, errors in form.errors.items %}
+        {% for error in errors %}
+          <p class="error">{{ error }}</p>
+        {% endfor %}
+      {% endfor %}
+    </div>
+  {% endif %}
   
   <div class="form-group">
     <label for="id_transaction_type">transaction type [INCOME/EXPENSE]:</label>
@@ -30,7 +40,7 @@ Enter transaction details:
   </div>
   
   <div class="form-group">
-    <label for="id_description">description [MAX 255 CHARS]:</label>
+    <label for="id_description">description [MAX 200 CHARS]:</label>
     {{ form.description }}
   </div>
   
@@ -39,8 +49,10 @@ Enter transaction details:
     {{ form.date }}
   </div>
   
-  <input type="submit" value="save record">
-  <a href="{% url 'transaction_list' %}" class="button">cancel</a>
+  <div class="form-actions">
+    <input type="submit" value="save record" class="button">
+    <a href="{% url 'transaction_list' %}" class="button">cancel</a>
+  </div>
 </form>
 
 <div class="function-keys">
@@ -56,4 +68,47 @@ Enter transaction details:
   <span class="status-bar-brand">LEDGERLINE: Beige Edition</span>
   <span>PRESS F2 TO SAVE</span>
 </div>
+
+<style>
+.transaction-form {
+  margin: 2rem 0;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border-gray);
+  background-color: var(--bg-beige);
+  color: var(--text-primary);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--highlight-blue);
+}
+
+.form-actions {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.error {
+  color: var(--expense);
+  margin: 0.5rem 0;
+}
+</style>
 {% endblock %} 
