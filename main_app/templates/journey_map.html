@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="terminal-container">
+    <div class="terminal-header">
+        <h1>FINANCIAL JOURNEY MAP v1.0.3</h1>
+        <div class="version-indicator">
+            <span class="version-text">TERMINAL MODE ACTIVE</span>
+            <span class="version-hint">Reality Glimpse Available: Press Alt+R</span>
+        </div>
+    </div>
+
+    <div class="terminal-body">
+        <div class="journey-map-container">
+            {% if modes %}
+                <div class="journey-timeline">
+                    {% for mode in modes %}
+                        <div class="journey-node {% if mode.is_unlocked %}unlocked{% else %}locked{% endif %}" 
+                             data-mode="{{ mode.name }}"
+                             onclick="handleModeClick('{{ mode.name }}')">
+                            <div class="mode-header">
+                                <span class="mode-icon">{{ mode.icon }}</span>
+                                <h2 class="mode-title">{{ mode.name }}</h2>
+                                {% if mode.is_unlocked %}
+                                    <span class="mode-status glitch-text">UNLOCKED</span>
+                                {% else %}
+                                    <span class="mode-status">LOCKED</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="mode-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: {{ mode.progress_percentage }}%"></div>
+                                </div>
+                                <span class="progress-text">Progress: {{ mode.progress_percentage }}%</span>
+                            </div>
+
+                            <div class="mode-description" id="desc-{{ mode.name|slugify }}">
+                                {{ mode.description }}
+                            </div>
+
+                            {% if not forloop.last %}
+                                <div class="journey-connector {% if mode.is_unlocked %}active{% endif %}"></div>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="terminal-message">
+                    <p class="glitch-text">NO MODES AVAILABLE</p>
+                    <p>Begin your journey by completing the initial assessment.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="terminal-footer">
+        <div class="function-keys">
+            <button onclick="toggleHelp()">F1: Help</button>
+            <button onclick="toggleDescriptions()">F2: Toggle Descriptions</button>
+            <button onclick="refreshJourney()">F5: Refresh</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function handleModeClick(modeName) {
+        if (document.querySelector(`[data-mode="${modeName}"]`).classList.contains('unlocked')) {
+            window.location.href = `/modes/${modeName}/dashboard/`;
+        } else {
+            playLockEffect();
+        }
+    }
+
+    function playLockEffect() {
+        const audio = new Audio("{% static 'sounds/lock.mp3' %}");
+        audio.play();
+        document.querySelector('.locked:hover').classList.add('shake');
+        setTimeout(() => {
+            document.querySelector('.locked:hover').classList.remove('shake');
+        }, 500);
+    }
+
+    function toggleDescriptions() {
+        document.querySelectorAll('.mode-description').forEach(desc => {
+            desc.style.display = desc.style.display === 'none' ? 'block' : 'none';
+        });
+    }
+
+    function toggleHelp() {
+        alert(`LEDGERLINE JOURNEY MAP HELP
+        
+- Click on unlocked modes to access their dashboard
+- Press F2 to toggle mode descriptions
+- Press F5 to refresh your journey progress
+- Hidden Feature: Try pressing Alt+R for a glimpse of reality`);
+    }
+
+    function refreshJourney() {
+        location.reload();
+    }
+
+    // Easter Egg: Reality Glimpse
+    document.addEventListener('keydown', (e) => {
+        if (e.altKey && e.key === 'r') {
+            const glimpse = document.createElement('div');
+            glimpse.className = 'modern-interface-glimpse';
+            document.body.appendChild(glimpse);
+            setTimeout(() => {
+                document.body.removeChild(glimpse);
+            }, 500);
+        }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        // Hide descriptions initially
+        toggleDescriptions();
+        
+        // Add terminal startup effect
+        document.querySelectorAll('.journey-node').forEach((node, index) => {
+            node.style.opacity = '0';
+            setTimeout(() => {
+                node.style.opacity = '1';
+            }, index * 200);
+        });
+    });
+</script>
+{% endblock %}
+
+{% block styles %}
+<style>
+    .terminal-message {
+        text-align: center;
+        padding: 2rem;
+        border: 1px dashed #00aa00;
+    }
+
+    .mode-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .mode-icon {
+        font-size: 1.5em;
+    }
+
+    .mode-title {
+        flex-grow: 1;
+    }
+
+    .mode-status {
+        font-size: 0.8em;
+        padding: 0.2rem 0.5rem;
+        border: 1px solid currentColor;
+    }
+
+    .mode-description {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-left: 2px solid #00aa00;
+        font-size: 0.9em;
+    }
+
+    .function-keys {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .function-keys button {
+        background: none;
+        border: 1px solid #00aa00;
+        color: #00aa00;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .function-keys button:hover {
+        background-color: #00aa00;
+        color: #000000;
+    }
+
+    .shake {
+        animation: shake 0.5s ease-in-out;
+    }
+</style>
+{% endblock %}
