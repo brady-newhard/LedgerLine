@@ -2,17 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 
-class ModeUnlock(models.Model):
-<<<<<<< HEAD
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    name = models.CharField(max_length=100)
-    description = models.TextField()
-    is_unlocked = models.BooleanField(default=False)
-    triggered_on = models.DateTimeField(null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.name} - {'Unlocked' if self.is_unlocked else 'Locked'}"
-=======
+class ModeUnlock(models.Model
     """
     Model to track which modes each user has unlocked.
     
