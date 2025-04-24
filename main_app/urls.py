@@ -9,5 +9,6 @@ urlpatterns = [
     path('transactions/', TransactionList.as_view(), name='transaction_list'),
     path('transactions/create/', TransactionCreate.as_view(), name='transaction_create'),
     path('register/', views.register, name='register'),
-    
+    path('journey/', views.journey_map, name='journey_map'),
+    path('modes/<str:mode_name>/dashboard/', views.mode_dashboard, name='mode_dashboard'),
 ]
