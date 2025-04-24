@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* LEDGERLINE: Beige Edition - IBM/3000 Series Design System */
 
 /* Color System */
@@ -15,11 +16,83 @@
     --terminal-gray: #333333;   /* Terminal border */
     --menu-bar: #c0c0c0;        /* Menu bar gray */
     --brand-color: #296442;     /* Brand color for LEDGERLINE */
+=======
+/* LEDGERLINE: Terminal Edition - Phosphor Green on Black */
+
+/* Global Reset and Phosphor Green Override */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: inherit;
+    vertical-align: baseline;
+    background-color: #000000 !important;
+    color: #00aa00 !important;
+}
+
+/* Ensure all elements have black background */
+* {
+    background-color: #000000 !important;
+    box-sizing: border-box;
+}
+
+a, a:visited, button, .function-key {
+    color: #00aa00 !important;
+    text-decoration: none;
+}
+
+a:hover, button:hover, .function-key:hover, a:active, .interactive:hover {
+    color: #00ff00 !important;
+    text-decoration: none;
+}
+
+/* Color System */
+:root {
+    /* Terminal theme colors */
+    --bg-primary: #000000;
+    --bg-secondary: #000000;
+    --text-primary: #00aa00;
+    --text-highlight: #00ff00;
+    --text-muted: #008800;
+    --accent-color: #00aa00;
+    --border-color: #00aa00;
+    --highlight-color: #00ff00;
+    --header-bg: #000000;
+    --header-border: #00aa00;
+    --menu-bg: #000000;
+    
+    /* Transaction colors */
+    --income: #00cc00;
+    --expense: #ff3333;
+    
+    /* Other UI elements */
+    --badge-bg: #000000;
+    --button-bg: #000000;
+    --button-text: #00aa00;
+    --button-hover: #000000;
+    --input-bg: #000000;
+    --input-border: #00aa00;
+    --table-header-bg: #000000;
+    --table-stripe: #000000;
+>>>>>>> origin/pm-review-terminal-ui
 }
 
 /* Base Typography */
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
+<<<<<<< HEAD
 * {
     box-sizing: border-box;
     margin: 0;
@@ -35,10 +108,23 @@ body {
     font-size: 15px;
     line-height: 1.6;
     letter-spacing: 0.01em;
+=======
+body {
+    background-color: #000000;
+    color: #00aa00;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 20px;
+    line-height: 1.6;
+    letter-spacing: 0.01em;
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
+>>>>>>> origin/pm-review-terminal-ui
 }
 
 /* Layout */
 .container {
+<<<<<<< HEAD
     max-width: 800px;  /* Slightly wider for terminal appearance */
     margin: 0 auto;
     padding: 1rem;
@@ -50,11 +136,24 @@ body {
 header {
     background-color: var(--menu-bar);
     border-bottom: 1px solid var(--border-gray);
+=======
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #00aa00;
+    margin: 0 auto;
+    background-color: #000000;
+}
+
+header {
+    background-color: #000000;
+    border-bottom: 1px solid #00aa00;
+>>>>>>> origin/pm-review-terminal-ui
     padding: 0.5rem;
     margin-bottom: 1rem;
 }
 
 .header-logo-container {
+<<<<<<< HEAD
     display: inline-block;
     margin-right: 2rem;
 }
@@ -69,11 +168,24 @@ header {
     padding: 0.25rem 0;
     border-bottom: 1px solid var(--border-gray);
     margin-bottom: 1rem;
+=======
+    display: block;
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.app-title {
+    font-weight: bold;
+    color: #00aa00;
+    font-size: 24px;
+    letter-spacing: 0.05em;
+>>>>>>> origin/pm-review-terminal-ui
 }
 
 /* Navigation */
 nav ul {
     list-style-type: none;
+<<<<<<< HEAD
     display: inline-flex;
 }
 
@@ -92,10 +204,36 @@ nav ul li a {
 nav ul li a:hover {
     border: 1px solid var(--border-gray);
     background-color: var(--bg-beige);
+=======
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+nav ul li {
+    margin: 0 0.75rem 0.5rem 0;
+}
+
+nav ul li a {
+    color: #00aa00;
+    text-decoration: none;
+    text-transform: lowercase;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid transparent;
+    font-size: 20px;
+    display: inline-block;
+}
+
+nav ul li a:hover {
+    border: 1px solid #00aa00;
+    background-color: #000000;
+    color: #00ff00;
+>>>>>>> origin/pm-review-terminal-ui
 }
 
 /* Buttons */
 button, .button, input[type="submit"] {
+<<<<<<< HEAD
     background-color: var(--menu-bar);
     border: 2px outset var(--border-gray);
     color: var(--text-primary);
@@ -108,34 +246,92 @@ button, .button, input[type="submit"] {
 
 button:active, .button:active, input[type="submit"]:active {
     border-style: inset;
+=======
+    background-color: #000000;
+    border: 2px solid #00aa00;
+    color: #00aa00;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 20px;
+    padding: 0.35rem 1rem;
+    cursor: pointer;
+    text-transform: lowercase;
+    min-height: 38px;
+    transition: all 0.2s ease, transform 0.15s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+button:hover, .button:hover, input[type="submit"]:hover {
+    background-color: #000000;
+    color: #00ff00;
+    border-color: #00ff00;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 170, 0, 0.3);
+}
+
+button:active, .button:active, input[type="submit"]:active {
+    transform: translateY(0) scale(0.98);
+    transition: all 0.1s ease;
+    animation: terminal-click 0.3s forwards;
+>>>>>>> origin/pm-review-terminal-ui
 }
 
 /* Forms */
 input, select, textarea {
     font-family: 'IBM Plex Mono', monospace;
+<<<<<<< HEAD
     border: 1px inset var(--border-gray);
     padding: 0.25rem 0.5rem;
     margin-bottom: 1rem;
     width: 100%;
     background-color: white;
+=======
+    border: 1px solid #00aa00;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    background-color: #000000;
+    color: #00aa00;
+    font-size: 18px;
+    line-height: 1.4;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #00ff00;
+    box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+>>>>>>> origin/pm-review-terminal-ui
 }
 
 label {
     display: block;
     margin-bottom: 0.25rem;
+<<<<<<< HEAD
     color: var(--text-primary);
 }
 
 /* Lotus 123 Style Tables */
+=======
+    color: #00aa00;
+    font-size: 18px;
+}
+
+/* Terminal Style Tables */
+>>>>>>> origin/pm-review-terminal-ui
 table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 1.5rem;
+<<<<<<< HEAD
     border: 1px solid var(--border-gray);
+=======
+    border: 1px solid #00aa00;
+>>>>>>> origin/pm-review-terminal-ui
 }
 
 th {
     text-align: left;
+<<<<<<< HEAD
     border-bottom: 1px solid var(--border-gray);
     padding: 0.35rem 0.6rem;
     color: var(--highlight-blue);  /* IBM blue for headers */
@@ -339,10 +535,73 @@ pre.ascii-title {
     padding: 1.5rem;
     border: 1px solid var(--border-gray);
     text-align: center;
+=======
+    border-bottom: 1px solid #00aa00;
+    padding: 0.5rem;
+    color: #00ff00;
+    font-weight: 600;
+    font-size: 18px;
+}
+
+td {
+    padding: 0.5rem;
+    border-bottom: 1px solid #00aa00;
+    border-right: 1px solid #00aa00;
+    font-size: 18px;
+}
+
+tr:nth-child(even) {
+    background-color: #000000;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'IBM Plex Mono', monospace;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #00ff00;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+h1 { font-size: 28px; }
+h2 { font-size: 24px; }
+h3 { font-size: 22px; }
+
+p {
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    font-size: 18px;
+}
+
+/* Function keys */
+.function-keys {
+    display: flex;
+    flex-wrap: wrap;
+    background-color: #000000;
+    border-bottom: 1px solid #00aa00;
+    padding: 0.5rem 0;
+    margin-bottom: 1rem;
+}
+
+.function-key {
+    font-family: 'IBM Plex Mono', monospace;
+    padding: 0.25rem 0.75rem;
+    font-size: 18px;
+    color: #00aa00;
+    cursor: pointer;
+    font-weight: 600;
+    border: 1px solid #00aa00;
+    background-color: #000000;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease, transform 0.1s ease;
+>>>>>>> origin/pm-review-terminal-ui
     position: relative;
     overflow: hidden;
 }
 
+<<<<<<< HEAD
 pre.ascii-title h1 {
     font-family: 'IBM Plex Mono', monospace;
     color: var(--highlight-blue);
@@ -385,11 +644,83 @@ pre.ascii-title h1:after {
     color: var(--highlight-blue);
     text-align: center;
     margin: 0 auto;
+=======
+.function-key:hover {
+    color: #00ff00;
+    border-color: #00ff00;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 170, 0, 0.3);
+}
+
+.function-key:active {
+    animation: terminal-click 0.3s forwards;
+    transform: translateY(0);
+}
+
+/* Badge styles */
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 30px; /* More rounded for oval shape */
+    background-color: var(--badge-bg);
+    color: var(--text-primary);
+    font-size: 14px;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.badge-success {
+    border-color: var(--income);
+    color: var(--income);
+}
+
+.badge-warning {
+    border-color: var(--expense);
+    color: var(--expense);
+}
+
+.mode-badge {
+    border: 1px solid #0088ff; /* Blue border for mode badges */
+    color: #0088ff; /* Blue text to match */
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 14px;
+    padding: 0.25rem 0.75rem;
+    background-color: var(--badge-bg);
+    border-radius: 30px; /* More rounded for oval shape */
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    text-decoration: none;
+    transition: all 0.2s ease, transform 0.15s ease;
+    position: relative;
+}
+
+.mode-badge:hover {
+    border-color: #00aaff;
+    color: #00aaff;
+    box-shadow: 0 0 12px rgba(0, 136, 255, 0.6);
+    text-decoration: none;
+    transform: translateY(-2px) scale(1.05);
+}
+
+.mode-badge:active {
+    transform: translateY(0) scale(0.98);
+    transition: all 0.1s ease;
+}
+
+.mode-badges {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+>>>>>>> origin/pm-review-terminal-ui
 }
 
 /* Terminal-like Output */
 .terminal-output {
     font-family: 'IBM Plex Mono', monospace;
+<<<<<<< HEAD
     background-color: var(--bg-beige);
     border: 1px solid var(--border-gray);
     padding: 1rem;
@@ -466,10 +797,150 @@ pre.ascii-title h1:after {
 .about-content p {
     margin-bottom: 1.25rem;
     font-size: 15px;
+=======
+    background-color: #000000;
+    border: 1px solid #00aa00;
+    padding: 1rem;
+    color: #00aa00;
+    white-space: pre-wrap;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+    font-size: 18px;
+}
+
+/* ASCII Art Title */
+pre.ascii-title {
+    margin: 1rem 0;
+    background-color: #000000;
+    padding: 1rem;
+    border: 1px solid #00aa00;
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: bold;
+    color: #00aa00;
+    line-height: 1.2;
+    font-size: 16px;
+    width: 100%;
+    overflow-x: auto;
+}
+
+/* Terminal effects */
+.blinking-cursor::after {
+    content: "█";
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* Status bar */
+.status-bar {
+    background-color: #000000;
+    border-top: 1px solid #00aa00;
+    padding: 0.5rem;
+    font-size: 16px;
+    color: #00aa00;
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.status-bar-brand {
+    color: #00ff00;
+    font-weight: bold;
+}
+
+/* Footer */
+footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #00aa00;
+}
+
+/* Interactive element animations and feedback */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes glow {
+    0% { box-shadow: 0 0 5px rgba(0, 170, 0, 0.5); }
+    50% { box-shadow: 0 0 15px rgba(0, 255, 0, 0.7); }
+    100% { box-shadow: 0 0 5px rgba(0, 170, 0, 0.5); }
+}
+
+@keyframes terminal-click {
+    0% { background-color: #000000; }
+    30% { background-color: #003300; }
+    100% { background-color: #000000; }
+}
+
+/* Locked items - create desire */
+.locked-item {
+    position: relative;
+    cursor: not-allowed;
+    filter: grayscale(0.7);
+    transition: all 0.3s ease;
+}
+
+.locked-item:hover::after {
+    content: "Continue your journey to unlock";
+    position: absolute;
+    left: 50%;
+    top: -30px;
+    transform: translateX(-50%);
+    background: #000;
+    color: #00ff00;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    border: 1px solid #00aa00;
+    opacity: 0;
+    animation: fade-in 0.3s forwards;
+}
+
+@keyframes fade-in {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.locked-item:hover {
+    filter: grayscale(0.4);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+/* Terminal buttons */
+.terminal-button {
+    background-color: #333;
+    color: #0f0;
+    border: 1px solid #00aa00;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    display: inline-block;
+}
+
+.terminal-button:hover {
+    background-color: #444;
+    transform: translateY(-2px);
+    box-shadow: 0 0 12px rgba(0, 255, 0, 0.3);
+}
+
+.terminal-button:active {
+    transform: translateY(0) scale(0.98);
+    transition: all 0.1s ease;
+>>>>>>> origin/pm-review-terminal-ui
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+<<<<<<< HEAD
     .container {
         padding: 0.5rem;
     }
@@ -483,6 +954,73 @@ pre.ascii-title h1:after {
     }
     
     .terminal-output {
+=======
+    body {
+        font-size: 18px;
+    }
+    
+    h1 { font-size: 24px; }
+    h2 { font-size: 22px; }
+    h3 { font-size: 20px; }
+    
+    .app-title {
+        font-size: 22px;
+    }
+    
+    nav ul li a,
+    button, 
+    .button, 
+    input[type="submit"],
+    .function-key {
+        font-size: 18px;
+    }
+    
+    .container {
+        padding: 0.25rem;
+    }
+    
+    pre.ascii-title {
+        font-size: 14px;
+        padding: 0.5rem;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        font-size: 16px;
+    }
+    
+    h1 { font-size: 22px; }
+    h2 { font-size: 20px; }
+    h3 { font-size: 18px; }
+    
+    .app-title {
+        font-size: 20px;
+    }
+    
+    nav ul li a,
+    button, 
+    .button, 
+    input[type="submit"],
+    .function-key,
+    label,
+    p,
+    td, th {
+        font-size: 16px;
+    }
+    
+    .function-keys {
+        justify-content: center;
+    }
+    
+    .function-key {
+        padding: 0.2rem 0.5rem;
+        margin-right: 0.25rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    table, .terminal-output {
+>>>>>>> origin/pm-review-terminal-ui
         font-size: 14px;
     }
 }
