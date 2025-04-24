@@ -554,3 +554,174 @@ footer {
         font-size: 14px;
     }
 }
+
+/* Terminal UI Elements */
+.terminal-container {
+    border: 2px solid #00aa00;
+    padding: 1rem;
+    margin: 1rem;
+    position: relative;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.terminal-header {
+    border-bottom: 1px solid #00aa00;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.version-indicator {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 0.8em;
+    opacity: 0.7;
+}
+
+.version-text {
+    animation: flicker 5s infinite;
+}
+
+.version-hint {
+    display: none;
+    color: #ff0000 !important;
+}
+
+/* Journey Map Styles */
+.journey-map-container {
+    padding: 2rem;
+    position: relative;
+}
+
+.journey-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    position: relative;
+}
+
+.journey-node {
+    border: 1px solid #00aa00;
+    padding: 1.5rem;
+    position: relative;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background: linear-gradient(to right, #000000, #001100);
+}
+
+.journey-node.unlocked {
+    border-color: #00ff00;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+}
+
+.journey-node.locked {
+    opacity: 0.7;
+    filter: grayscale(50%);
+}
+
+.journey-node.locked:hover {
+    animation: shake 0.5s ease-in-out;
+}
+
+.journey-connector {
+    width: 2px;
+    height: 2rem;
+    background-color: #004400;
+    margin: 0 auto;
+}
+
+.journey-connector.active {
+    background-color: #00ff00;
+    animation: pulse 2s infinite;
+}
+
+/* Terminal Effects */
+@keyframes flicker {
+    0% { opacity: 1; }
+    92% { opacity: 1; }
+    93% { opacity: 0.3; }
+    94% { opacity: 1; }
+    95% { opacity: 0.5; }
+    96% { opacity: 1; }
+    97% { opacity: 0.3; }
+    98% { opacity: 1; }
+    99% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+@keyframes glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+    100% { transform: translate(0); }
+}
+
+.glitch-text {
+    animation: glitch 0.3s infinite;
+    display: inline-block;
+    color: #00ff00 !important;
+}
+
+/* Modern Interface Glimpse */
+.modern-interface-glimpse {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(45deg, #1a1a1a, #2a2a2a);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    animation: glimpse 0.5s forwards;
+}
+
+@keyframes glimpse {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Progress Bars */
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background-color: #001100;
+    margin: 0.5rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: #00aa00;
+    transition: width 0.5s ease;
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2), transparent);
+    animation: progress-shine 2s infinite;
+}
+
+@keyframes progress-shine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}

@@ -1,726 +1,194 @@
 {% extends 'base.html' %}
-{% load ansi_shadow_tags %}
+{% load static %}
 
 {% block content %}
 <div class="terminal-container">
     <div class="terminal-header">
-        {% ansi_shadow "FINANCIAL JOURNEY MAP" %}
+        <h1>FINANCIAL JOURNEY MAP v1.0.3</h1>
         <div class="version-indicator">
-            <span class="version-text">v2.84 Terminal Edition</span>
-            <span class="version-hint">[Version mismatch detected]</span>
+            <span class="version-text">TERMINAL MODE ACTIVE</span>
+            <span class="version-hint">Reality Glimpse Available: Press Alt+R</span>
         </div>
     </div>
-    
-    <div class="terminal-output hidden">
-        <!-- Will be populated by JavaScript -->
-    </div>
-    
+
     <div class="terminal-body">
         <div class="journey-map-container">
-            {% if user_modes %}
+            {% if modes %}
                 <div class="journey-timeline">
-                    {% for mode in user_modes %}
-                        {% if mode.unlocked %}
-                        <a href="{% url 'mode_dashboard' mode.name %}" class="journey-node-link">
-                        {% endif %}
-                        <div class="journey-node {% if mode.unlocked %}unlocked{% else %}locked{% endif %}" 
-                             {% if not mode.unlocked %}
-                             onclick="showLockMessage('{{ mode.name }}')"
-                             {% endif %}>
-                            <div class="mode-icon">{{ mode.icon|default:"💰" }}</div>
-                            <div class="mode-name">{{ mode.name }}</div>
-                            <div class="mode-status">
-                                {% if mode.unlocked %}
-                                    <span class="status-unlocked">UNLOCKED</span>
-                                    <div class="progress-bar">
-                                        <div class="progress-fill" style="width: {{ mode.progress_percentage }}%;"></div>
-                                    </div>
-                                    <div class="progress-text">{{ mode.progress_percentage }}%</div>
+                    {% for mode in modes %}
+                        <div class="journey-node {% if mode.is_unlocked %}unlocked{% else %}locked{% endif %}" 
+                             data-mode="{{ mode.name }}"
+                             onclick="handleModeClick('{{ mode.name }}')">
+                            <div class="mode-header">
+                                <span class="mode-icon">{{ mode.icon }}</span>
+                                <h2 class="mode-title">{{ mode.name }}</h2>
+                                {% if mode.is_unlocked %}
+                                    <span class="mode-status glitch-text">UNLOCKED</span>
                                 {% else %}
-                                    <span class="status-locked">LOCKED</span>
-                                    {% if mode.progress_percentage > 0 %}
-                                    <div class="progress-bar">
-                                        <div class="progress-fill locked-progress" style="width: {{ mode.progress_percentage }}%;"></div>
-                                    </div>
-                                    <div class="progress-text">{{ mode.progress_percentage }}% towards unlocking</div>
-                                    {% endif %}
+                                    <span class="mode-status">LOCKED</span>
                                 {% endif %}
                             </div>
-                            <div class="mode-description-container">
-                                <div class="mode-description-toggle" onclick="toggleDescription(this, event)">[ Details ]</div>
-                                <div class="mode-description hidden">
-                                    {% if mode.description %}
-                                        {{ mode.description }}
-                                    {% else %}
-                                        No description available
-                                    {% endif %}
+
+                            <div class="mode-progress">
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: {{ mode.progress_percentage }}%"></div>
                                 </div>
+                                <span class="progress-text">Progress: {{ mode.progress_percentage }}%</span>
                             </div>
-                            {% if not mode.unlocked %}
-                                <div class="lock-overlay">
-                                    <div class="lock-icon">🔒</div>
-                                </div>
+
+                            <div class="mode-description" id="desc-{{ mode.name|slugify }}">
+                                {{ mode.description }}
+                            </div>
+
+                            {% if not forloop.last %}
+                                <div class="journey-connector {% if mode.is_unlocked %}active{% endif %}"></div>
                             {% endif %}
                         </div>
-                        {% if mode.unlocked %}
-                        </a>
-                        {% endif %}
-                        
-                        {% if not forloop.last %}
-                            <div class="journey-connector {% if mode.unlocked %}active{% endif %}"></div>
-                        {% endif %}
                     {% endfor %}
                 </div>
             {% else %}
-                <div class="empty-journey">
-                    <p>No financial modes available yet. Start your journey by unlocking your first mode!</p>
-                    <p class="easter-egg-text">System scanning for potential pathways...</p>
+                <div class="terminal-message">
+                    <p class="glitch-text">NO MODES AVAILABLE</p>
+                    <p>Begin your journey by completing the initial assessment.</p>
                 </div>
             {% endif %}
         </div>
     </div>
-    
+
     <div class="terminal-footer">
-        <div class="footer-actions">
-            <a href="{% url 'unlocked_modes' %}" class="terminal-button">View All Modes</a>
-            <a href="{% url 'home' %}" class="terminal-button">Back to Dashboard</a>
+        <div class="function-keys">
+            <button onclick="toggleHelp()">F1: Help</button>
+            <button onclick="toggleDescriptions()">F2: Toggle Descriptions</button>
+            <button onclick="refreshJourney()">F5: Refresh</button>
         </div>
     </div>
-    
-    <div class="function-keys">
-        <div class="function-key" onclick="showHelpInfo()">F1-Help</div>
-        <div class="function-key" onclick="window.location.href='{% url 'home' %}'">F2-Home</div>
-        <div class="function-key" onclick="window.location.href='{% url 'unlocked_modes' %}'">F3-Modes</div>
-        <div class="function-key" onclick="window.location.href='{% url 'transaction_list' %}'">F4-Ledger</div>
-        <div class="function-key hidden glimpse-trigger" onclick="showGlimpse()">F9-Reality</div>
-    </div>
-    
-    <div class="status-bar">
-        <span id="status-message">READY.</span>
-        <span class="status-bar-brand">LEDGERLINE: Terminal Edition <span class="glitch-text">[Emulation]</span></span>
-        <span>{% now "m/d/Y" %}</span>
-    </div>
-
-<script>
-let secretUnlockProgress = 0;
-
-function showHelpInfo() {
-  const helpText = `JOURNEY MAP HELP:
-- This is your financial journey map showing all available modes
-- Unlocked modes can be clicked to view detailed information
-- Locked modes will become available as you continue your financial journey
-- Continue using LEDGERLINE to unlock more modes
-- Each mode represents different financial patterns and behaviors
-
-<span class="glitch-text">[Notice: System operating in compatibility mode. Advanced visualization suppressed.]</span>`;
-  
-  // Create terminal output if it doesn't exist
-  if (!document.querySelector('.terminal-output')) {
-    const terminalOutput = document.createElement('div');
-    terminalOutput.className = 'terminal-output';
-    document.querySelector('.terminal-container').insertBefore(
-      terminalOutput, 
-      document.querySelector('.terminal-body')
-    );
-  }
-  
-  // Find or create terminal output
-  let output = document.querySelector('.terminal-output');
-  output.classList.remove('hidden');
-  
-  // Update content
-  output.innerHTML = helpText.replace(/\n/g, '<br>');
-  
-  // Update status
-  document.getElementById('status-message').textContent = "Displaying help documentation";
-  
-  // Small chance to reveal the hidden F9 key
-  if (Math.random() < 0.15 && secretUnlockProgress >= 3) {
-    document.querySelector('.glimpse-trigger').classList.remove('hidden');
-    
-    setTimeout(() => {
-      document.querySelector('.glimpse-trigger').classList.add('hidden');
-    }, 5000);
-  }
-}
-
-function toggleDescription(element, event) {
-  // Prevent event propagation if inside a clickable node
-  if (event) {
-    event.stopPropagation();
-  }
-  
-  const container = element.parentElement;
-  const description = container.querySelector('.mode-description');
-  
-  if (description.classList.contains('hidden')) {
-    description.classList.remove('hidden');
-    element.textContent = '[ Hide ]';
-    
-    // Increment the secret unlock progress
-    secretUnlockProgress++;
-    
-    // If user has toggled descriptions multiple times, show a hint
-    if (secretUnlockProgress === 3) {
-      setTimeout(() => {
-        const output = document.querySelector('.terminal-output') || document.createElement('div');
-        if (!document.querySelector('.terminal-output')) {
-          output.className = 'terminal-output';
-          document.querySelector('.terminal-container').insertBefore(
-            output, 
-            document.querySelector('.terminal-body')
-          );
-        }
-        output.classList.remove('hidden');
-        output.innerHTML = '<span class="glitch-text">System notice: User showing curiosity. Potential candidate detected.</span>';
-        
-        setTimeout(() => {
-          output.innerHTML = '';
-        }, 3000);
-      }, 500);
-    }
-  } else {
-    description.classList.add('hidden');
-    element.textContent = '[ Details ]';
-  }
-}
-
-function showGlimpse() {
-  // Flash screen with a modern interface glimpse
-  const glimpse = document.createElement('div');
-  glimpse.className = 'modern-interface-glimpse';
-  document.body.appendChild(glimpse);
-  
-  // Create modern UI elements within the glimpse
-  const modernElements = document.createElement('div');
-  modernElements.className = 'modern-elements';
-  modernElements.innerHTML = `
-    <div class="modern-header">LedgerLine Pro</div>
-    <div class="modern-subtitle">Advanced Financial Intelligence</div>
-    <div class="modern-message">Access denied. Continue your financial journey to unlock full capabilities.</div>
-  `;
-  glimpse.appendChild(modernElements);
-  
-  // Show the glimpse briefly
-  setTimeout(() => {
-    glimpse.classList.add('fade-out');
-    setTimeout(() => {
-      document.body.removeChild(glimpse);
-      document.getElementById('status-message').textContent = "REALITY DISTORTION FIELD COLLAPSED";
-      
-      setTimeout(() => {
-        document.getElementById('status-message').textContent = "READY.";
-      }, 3000);
-    }, 1000);
-  }, 2000);
-}
-
-function showLockMessage(modeName) {
-  // Create terminal output if it doesn't exist
-  if (!document.querySelector('.terminal-output')) {
-    const terminalOutput = document.createElement('div');
-    terminalOutput.className = 'terminal-output';
-    document.querySelector('.terminal-container').insertBefore(
-      terminalOutput, 
-      document.querySelector('.terminal-body')
-    );
-  }
-  
-  // Find output element
-  const output = document.querySelector('.terminal-output');
-  output.classList.remove('hidden');
-  
-  // Create a randomly selected tantalizing message
-  const messages = [
-    `ACCESSING ${modeName.toUpperCase()}... ACCESS DENIED.\nThis mode is still locked. Continue using LEDGERLINE to unlock new insights about your financial behavior.\n<span class="easter-egg-text">Advanced visualization available in future versions...</span>`,
-    `${modeName.toUpperCase()} MODE: LOCKED\nThis feature will be unlocked when your financial patterns meet specific criteria. Keep managing your finances with LEDGERLINE!\n<span class="easter-egg-text">Predictive analytics waiting to be unlocked...</span>`,
-    `SYSTEM NOTIFICATION: ${modeName.toUpperCase()} is waiting to be discovered.\nYour financial journey will unlock this mode when the time is right.\n<span class="easter-egg-text">This interface is merely the beginning...</span>`,
-    `${modeName.toUpperCase()} INITIALIZATION FAILED: MODE LOCKED\nImprove your financial habits to unlock this powerful mode.\n<span class="easter-egg-text">The future of finance lies behind this lock...</span>`
-  ];
-  
-  const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-  
-  // Add typing effect
-  output.innerHTML = '';
-  let i = 0;
-  const speed = 30; // typing speed in ms
-  
-  function typeWriter() {
-    if (i < randomMessage.length) {
-      output.innerHTML += randomMessage.charAt(i) === '\n' ? '<br>' : randomMessage.charAt(i);
-      i++;
-      setTimeout(typeWriter, speed);
-    } else {
-      // Add blinking cursor at the end
-      output.innerHTML += '<span class="blinking-cursor"></span>';
-    }
-  }
-  
-  typeWriter();
-  
-  // Update status
-  document.getElementById('status-message').textContent = "ACCESS DENIED";
-  
-  // Shake the locked node slightly with animation
-  const nodes = document.querySelectorAll('.journey-node.locked');
-  nodes.forEach(node => {
-    node.classList.add('shake');
-    setTimeout(() => {
-      node.classList.remove('shake');
-    }, 500);
-  });
-  
-  // Increment secret unlock progress for showing interest in locked modes
-  secretUnlockProgress++;
-  
-  // If user has clicked multiple locked modes, show additional hints
-  if (secretUnlockProgress === 5) {
-    setTimeout(() => {
-      // Glimpse of something beneath
-      const glimpse = document.createElement('div');
-      glimpse.className = 'reality-glitch';
-      document.body.appendChild(glimpse);
-      
-      setTimeout(() => {
-        document.body.removeChild(glimpse);
-      }, 150);
-      
-      // Show F9 key briefly
-      document.querySelector('.glimpse-trigger').classList.remove('hidden');
-      
-      setTimeout(() => {
-        document.querySelector('.glimpse-trigger').classList.add('hidden');
-      }, 3000);
-    }, 1500);
-  }
-}
-
-// Run at start to set up occasional glitches
-document.addEventListener('DOMContentLoaded', function() {
-  // Random glitches
-  setInterval(() => {
-    if (Math.random() < 0.05) { // 5% chance each interval
-      const glitch = document.createElement('div');
-      glitch.className = 'micro-glitch';
-      document.body.appendChild(glitch);
-      
-      setTimeout(() => {
-        document.body.removeChild(glitch);
-      }, 100);
-    }
-  }, 30000); // Check every 30 seconds
-  
-  // Make version hint occasionally flicker
-  setInterval(() => {
-    const versionHint = document.querySelector('.version-hint');
-    if (versionHint) {
-      versionHint.classList.add('flicker');
-      setTimeout(() => {
-        versionHint.classList.remove('flicker');
-      }, 2000);
-    }
-  }, 60000); // Every minute
-});
-</script>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function handleModeClick(modeName) {
+        if (document.querySelector(`[data-mode="${modeName}"]`).classList.contains('unlocked')) {
+            window.location.href = `/modes/${modeName}/dashboard/`;
+        } else {
+            playLockEffect();
+        }
+    }
+
+    function playLockEffect() {
+        const audio = new Audio("{% static 'sounds/lock.mp3' %}");
+        audio.play();
+        document.querySelector('.locked:hover').classList.add('shake');
+        setTimeout(() => {
+            document.querySelector('.locked:hover').classList.remove('shake');
+        }, 500);
+    }
+
+    function toggleDescriptions() {
+        document.querySelectorAll('.mode-description').forEach(desc => {
+            desc.style.display = desc.style.display === 'none' ? 'block' : 'none';
+        });
+    }
+
+    function toggleHelp() {
+        alert(`LEDGERLINE JOURNEY MAP HELP
+        
+- Click on unlocked modes to access their dashboard
+- Press F2 to toggle mode descriptions
+- Press F5 to refresh your journey progress
+- Hidden Feature: Try pressing Alt+R for a glimpse of reality`);
+    }
+
+    function refreshJourney() {
+        location.reload();
+    }
+
+    // Easter Egg: Reality Glimpse
+    document.addEventListener('keydown', (e) => {
+        if (e.altKey && e.key === 'r') {
+            const glimpse = document.createElement('div');
+            glimpse.className = 'modern-interface-glimpse';
+            document.body.appendChild(glimpse);
+            setTimeout(() => {
+                document.body.removeChild(glimpse);
+            }, 500);
+        }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        // Hide descriptions initially
+        toggleDescriptions();
+        
+        // Add terminal startup effect
+        document.querySelectorAll('.journey-node').forEach((node, index) => {
+            node.style.opacity = '0';
+            setTimeout(() => {
+                node.style.opacity = '1';
+            }, index * 200);
+        });
+    });
+</script>
 {% endblock %}
 
 {% block styles %}
 <style>
-    /* Version indicator */
-    .version-indicator {
-        font-size: 0.7rem;
-        text-align: right;
-        margin-top: -10px;
-        margin-bottom: 10px;
-        opacity: 0.6;
-    }
-    
-    .version-hint {
-        color: #ff5555 !important;
-        margin-left: 10px;
-        opacity: 0.5;
-        font-style: italic;
-        cursor: help;
-    }
-    
-    .version-hint:hover {
-        opacity: 0.9;
-    }
-    
-    .flicker {
-        animation: textFlicker 2s;
-    }
-    
-    @keyframes textFlicker {
-        0% { opacity: 0.5; }
-        5% { opacity: 0; }
-        10% { opacity: 0.7; }
-        15% { opacity: 0.2; }
-        20% { opacity: 0.6; }
-        25% { opacity: 0.9; }
-        30% { opacity: 0.2; }
-        35% { opacity: 0.7; }
-        40% { opacity: 0.5; }
-        45% { opacity: 0.2; }
-        50% { opacity: 0.7; }
-        55% { opacity: 0.5; }
-        60% { opacity: 0.7; }
-        100% { opacity: 0.5; }
-    }
-    
-    /* Mode description toggle */
-    .mode-description-container {
-        margin-top: 10px;
-        text-align: left;
-    }
-    
-    .mode-description-toggle {
-        color: #00aaff !important;
-        font-size: 0.85em;
-        cursor: pointer;
-        display: inline-block;
-    }
-    
-    .mode-description-toggle:hover {
-        color: #00ffff !important;
-    }
-    
-    .mode-description {
-        margin-top: 8px;
-        font-style: italic;
-        color: #aaa;
-        padding-left: 10px;
-        border-left: 1px solid #444;
-        transition: all 0.3s ease;
-    }
-    
-    .mode-description.hidden {
-        max-height: 0;
-        opacity: 0;
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-    }
-    
-    /* Modern glimpse elements */
-    .modern-interface-glimpse {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, #001a3a, #003a3a);
-        z-index: 9999;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        opacity: 0;
-        animation: glimpseIn 0.5s forwards;
-    }
-    
-    .modern-interface-glimpse.fade-out {
-        animation: glimpseOut 1s forwards;
-    }
-    
-    @keyframes glimpseIn {
-        0% { opacity: 0; }
-        100% { opacity: 1; }
-    }
-    
-    @keyframes glimpseOut {
-        0% { opacity: 1; }
-        100% { opacity: 0; }
-    }
-    
-    .modern-elements {
+    .terminal-message {
         text-align: center;
-        color: white !important;
+        padding: 2rem;
+        border: 1px dashed #00aa00;
     }
-    
-    .modern-header {
-        font-size: 3rem;
+
+    .mode-header {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
         margin-bottom: 1rem;
-        color: white !important;
-        font-weight: bold;
-    }
-    
-    .modern-subtitle {
-        font-size: 1.5rem;
-        margin-bottom: 2rem;
-        color: #00aaff !important;
-    }
-    
-    .modern-message {
-        font-size: 1rem;
-        color: #aaaaaa !important;
-    }
-    
-    .reality-glitch {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, rgba(0, 136, 255, 0.2), rgba(0, 255, 170, 0.2));
-        z-index: 9999;
-        pointer-events: none;
-        animation: realityGlitch 0.15s;
-    }
-    
-    @keyframes realityGlitch {
-        0% { opacity: 0; }
-        50% { opacity: 1; }
-        100% { opacity: 0; }
-    }
-    
-    .micro-glitch {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 136, 255, 0.05);
-        z-index: 9999;
-        pointer-events: none;
-        animation: microGlitch 0.1s;
-    }
-    
-    @keyframes microGlitch {
-        0% { opacity: 0; }
-        50% { opacity: 0.5; }
-        100% { opacity: 0; }
-    }
-    
-    .glitch-text {
-        animation: glitchText 5s infinite;
-        display: inline-block;
-        color: #ff5555 !important;
-    }
-    
-    @keyframes glitchText {
-        0% { opacity: 1; }
-        0.1% { opacity: 0; transform: translateX(1px); }
-        0.2% { opacity: 1; transform: translateX(0); }
-        25% { opacity: 1; }
-        25.1% { opacity: 0; transform: translateX(-1px); }
-        25.2% { opacity: 1; transform: translateX(0); }
-        85% { opacity: 1; }
-        85.1% { opacity: 0; transform: translateY(1px); }
-        85.2% { opacity: 1; transform: translateY(0); }
-        100% { opacity: 1; }
-    }
-    
-    .hidden {
-        display: none;
-    }
-    
-    /* Easter egg text */
-    .easter-egg-text {
-        opacity: 0.5;
-        font-size: 0.85em;
-        color: #555 !important;
-        display: block;
-        margin-top: 5px;
-        cursor: help;
-    }
-    
-    .easter-egg-text:hover {
-        color: #00ffff !important;
     }
 
-    /* First update the locked nodes styling */
-    .journey-node.locked {
-        filter: grayscale(0.8);
-        opacity: 0.7;
-        cursor: pointer;
-        transition: all 0.4s ease;
-        overflow: hidden;
-    }
-    
-    .journey-node.locked:hover {
-        filter: grayscale(0.5);
-        opacity: 0.85;
-        border-color: #999;
-        transform: translateY(-2px);
-        box-shadow: 0 0 15px rgba(150, 150, 150, 0.3);
-    }
-    
-    /* Add lock overlay styling */
-    .lock-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        pointer-events: none;
-    }
-    
-    .lock-icon {
-        font-size: 2.5rem;
-        opacity: 0.5;
-        transition: all 0.3s ease;
-        text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
-    }
-    
-    .journey-node.locked:hover .lock-icon {
-        transform: scale(1.2);
-        opacity: 0.9;
-    }
-    
-    /* Add styling for locked progress */
-    .locked-progress {
-        background-color: #777 !important;
-        opacity: 0.6;
-    }
-    
-    /* Add shake animation */
-    @keyframes shake {
-        0% { transform: translateX(0); }
-        20% { transform: translateX(-5px); }
-        40% { transform: translateX(5px); }
-        60% { transform: translateX(-3px); }
-        80% { transform: translateX(3px); }
-        100% { transform: translateX(0); }
-    }
-    
-    .shake {
-        animation: shake 0.5s;
-    }
-    
-    /* Keep existing styles below */
-    .journey-map-container {
-        padding: 20px;
-    }
-    
-    .journey-timeline {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin: 20px 0;
-    }
-    
-    .journey-node-link {
-        text-decoration: none;
-        display: block;
-        width: 80%;
-        max-width: 500px;
-        cursor: pointer;
-    }
-    
-    .journey-node {
-        background-color: #111;
-        border: 2px solid #333;
-        border-radius: 8px;
-        padding: 15px;
-        width: 100%;
-        margin: 10px 0;
-        text-align: center;
-        transition: all 0.3s ease;
-        position: relative;
-    }
-    
-    .journey-node.unlocked {
-        border-color: #5f5;
-        box-shadow: 0 0 10px rgba(95, 255, 95, 0.5);
-    }
-    
-    .journey-node.unlocked:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 0 15px rgba(95, 255, 95, 0.7);
-    }
-
-    /* Remaining existing styles */
-    .journey-connector {
-        height: 40px;
-        width: 4px;
-        background-color: #333;
-    }
-    
-    .journey-connector.active {
-        background-color: #5f5;
-        box-shadow: 0 0 10px rgba(95, 255, 95, 0.5);
-    }
-    
     .mode-icon {
-        font-size: 2em;
-        margin-bottom: 10px;
-    }
-    
-    .mode-name {
         font-size: 1.5em;
-        font-weight: bold;
-        margin-bottom: 5px;
-        text-transform: uppercase;
     }
-    
+
+    .mode-title {
+        flex-grow: 1;
+    }
+
     .mode-status {
-        margin: 10px 0;
+        font-size: 0.8em;
+        padding: 0.2rem 0.5rem;
+        border: 1px solid currentColor;
     }
-    
-    .status-unlocked {
-        color: #5f5;
-        font-weight: bold;
-    }
-    
-    .status-locked {
-        color: #f55;
-        font-weight: bold;
-    }
-    
-    .progress-bar {
-        background-color: #222;
-        height: 10px;
-        border-radius: 5px;
-        margin: 10px 0;
-        overflow: hidden;
-    }
-    
-    .progress-fill {
-        background-color: #5f5;
-        height: 100%;
-        transition: width 0.5s ease-in-out;
-    }
-    
-    .progress-text {
+
+    .mode-description {
+        margin-top: 1rem;
+        padding: 1rem;
+        border-left: 2px solid #00aa00;
         font-size: 0.9em;
-        color: #5f5;
     }
-    
-    .empty-journey {
-        text-align: center;
-        padding: 30px;
-        color: #aaa;
-    }
-    
-    .terminal-footer {
-        margin-top: 20px;
-        text-align: center;
-    }
-    
-    .footer-actions {
+
+    .function-keys {
         display: flex;
-        justify-content: center;
-        gap: 15px;
+        gap: 1rem;
+        margin-top: 2rem;
     }
-    
-    .terminal-button {
-        background-color: #333;
-        color: #fff;
-        border: none;
-        padding: 8px 16px;
-        border-radius: 4px;
+
+    .function-keys button {
+        background: none;
+        border: 1px solid #00aa00;
+        color: #00aa00;
+        padding: 0.5rem 1rem;
         cursor: pointer;
-        text-decoration: none;
-        transition: all 0.2s ease;
+        transition: all 0.3s ease;
     }
-    
-    .terminal-button:hover {
-        background-color: #555;
-        box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+
+    .function-keys button:hover {
+        background-color: #00aa00;
+        color: #000000;
+    }
+
+    .shake {
+        animation: shake 0.5s ease-in-out;
     }
 </style>
-{% endblock %} 
+{% endblock %}
