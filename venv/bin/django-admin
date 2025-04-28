@@ -1,4 +1,4 @@
-#!/home/robwistrand/code/ga/projects/LedgerLine/venv/bin/python3
+#!/Users/tanziehickory/code/ga/labs/LedgerLine/venv/bin/python3.11
 # -*- coding: utf-8 -*-
 import re
 import sys

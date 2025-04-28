@@ -8,35 +8,60 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" type="image/png" href="{% static 'images/LedgerLine-logo.png' %}" />
     <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+    <style>
+        body {
+            background-color: #000000 !important;
+            color: #00ff00 !important;
+            font-family: 'VT323', monospace !important;
+        }
+        .ascii-terminal-style {
+            background-color: #000000 !important;
+            border: 1px solid #00aa00 !important;
+            color: #00ff00 !important;
+        }
+        header {
+            background-color: #003300 !important;
+            border-bottom: 1px solid #00aa00 !important;
+        }
+        nav ul li a {
+            color: #00ff00 !important;
+        }
+        .function-key {
+            background-color: #003300 !important;
+            border: 1px solid #00aa00 !important;
+            color: #00ff00 !important;
+        }
+    </style>
     <title>LEDGERLINE</title>
     {% block head %} 
     {% endblock %}
   </head>
-  <body>
-    <div class="container">
-      <header>
+  <body style="background-color: #000000; color: #00ff00;">
+    <div class="ascii-terminal-style" style="background-color: #000000; color: #00ff00; border: 1px solid #00aa00;">
+      <header style="background-color: #003300; border-bottom: 1px solid #00aa00;">
         <div class="header-logo-container">
           <a href="/">
             <img src="{% static 'images/LedgerLine-logo.png' %}" alt="LEDGERLINE Logo" />
           </a>
-          <span>LEDGERLINE: Beige Edition</span>
+          <span style="color: #00ff00;">LEDGERLINE: ATARI TERMINAL EDITION</span>
         </div>
         <nav>
           <ul>
-            <li><a href="{% url 'home' %}">home</a></li>
-            <li><a href="{% url 'about' %}">about</a></li>
-            <li><a href="{% url 'unlocked_modes' %}">modes</a></li>
+            <li><a href="{% url 'home' %}" style="color: #00ff00;">HOME</a></li>
+            <li><a href="{% url 'about' %}" style="color: #00ff00;">ABOUT</a></li>
+            <li><a href="{% url 'unlocked_modes' %}" style="color: #00ff00;">MODES</a></li>
             {% if user.is_authenticated %}
-              <li><a href="{% url 'transaction_list' %}">ledger</a></li>
+              <li><a href="{% url 'transaction_list' %}" style="color: #00ff00;">LEDGER</a></li>
+              <li><a href="{% url 'category_list' %}" style="color: #00ff00;">CATEGORIES</a></li>
               <li>
                 <form method="post" action="{% url 'logout' %}" style="display: inline;">
                   {% csrf_token %}
-                  <button type="submit" style="background: none; border: none; color: inherit; cursor: pointer; padding: 0; text-decoration: underline;">logout</button>
+                  <button type="submit" class="function-key" style="background-color: #003300; border: 1px solid #00aa00; color: #00ff00;">LOGOUT</button>
                 </form>
               </li>
             {% else %}
-              <li><a href="{% url 'login' %}">login</a></li>
-              <li><a href="{% url 'register' %}">register</a></li>
+              <li><a href="{% url 'login' %}" class="function-key" style="background-color: #003300; border: 1px solid #00aa00; color: #00ff00;">LOGIN</a></li>
+              <li><a href="{% url 'register' %}" class="function-key" style="background-color: #003300; border: 1px solid #00aa00; color: #00ff00;">REGISTER</a></li>
             {% endif %}
           </ul>
         </nav>
@@ -47,19 +72,10 @@
       </main>
       <footer>
         <pre class="ascii-title">
-
-          _             _                 _ _            
-          | |    ___  __| | __ _  ___ _ __| (_)_ __   ___ 
-          | |   / _ \/ _` |/ _` |/ _ \ '__| | | '_ \ / _ \
-          | |__|  __/ (_| | (_| |  __/ |  | | | | | |  __/
-          |_____\___|\__,_|\__, |\___|_|  |_|_|_| |_|\___|
-                           |___/                          
-         
         </pre>
-        <p class="text-muted">
-          <span class="status-bar-brand">LEDGERLINE: Beige Edition</span> &copy; 1981-{% now "Y" %} | Track. Filter. Export. Forget.
-        </p>
       </footer>
     </div>
+    {% block extra_js %}
+    {% endblock %}
   </body>
 </html>

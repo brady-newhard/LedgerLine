@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="ascii-terminal-style">
+    <div class="menu-bar">
+        <h1>CATEGORY MANAGEMENT</h1>
+        <div class="function-keys">
+            <a href="{% url 'category_create' %}" class="function-key">F1: NEW CATEGORY</a>
+        </div>
+    </div>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="terminal-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>NAME</th>
+                    <th>TYPE</th>
+                    <th>ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                <tr>
+                    <td>
+                        <span class="badge" style="background-color: {{ category.color }}; color: var(--text-green);">
+                            {{ category.name|upper }}
+                        </span>
+                    </td>
+                    <td>
+                        {% if category.is_income %}
+                            <span class="badge badge-success">INCOME</span>
+                        {% else %}
+                            <span class="badge badge-danger">EXPENSE</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="function-keys">
+                            <a href="{% url 'category_update' category.id %}" class="function-key">F2: EDIT</a>
+                            <a href="{% url 'category_delete' category.id %}" class="function-key">F3: DELETE</a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3" class="text-center">NO CATEGORIES FOUND</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="status-bar">
+        <span>F1: NEW CATEGORY | F2: EDIT | F3: DELETE | ESC: BACK</span>
+    </div>
+</div>
+{% endblock %} 
