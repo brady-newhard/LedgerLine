@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="ascii-terminal-style">
+    <div class="menu-bar">
+        <h1>{% if form.instance.pk %}EDIT CATEGORY{% else %}NEW CATEGORY{% endif %}</h1>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_category_type">Category Type</label>
+            {{ form.category_type }}
+            {% if form.category_type.errors %}
+                <div class="error">{{ form.category_type.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="id_icon">Category Icon</label>
+            {{ form.icon }}
+            {% if form.icon.errors %}
+                <div class="error">{{ form.icon.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="id_is_income">Income Category?</label>
+            {{ form.is_income }}
+            {% if form.is_income.errors %}
+                <div class="error">{{ form.is_income.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="id_color">Category Color</label>
+            {{ form.color }}
+            {% if form.color.errors %}
+                <div class="error">{{ form.color.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="function-keys">
+            <button type="submit" class="function-key">{% if form.instance.pk %}F2: UPDATE{% else %}F1: CREATE{% endif %}</button>
+            <a href="{% url 'category_list' %}" class="function-key">ESC: CANCEL</a>
+        </div>
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const colorInput = document.getElementById('{{ form.color.id_for_label }}');
+        const colorPreview = document.getElementById('colorPreview');
+        
+        function updateColorPreview() {
+            colorPreview.style.backgroundColor = colorInput.value;
+        }
+        
+        colorInput.addEventListener('input', updateColorPreview);
+        updateColorPreview(); // Initial update
+    });
+</script>
+{% endblock %}
+{% endblock %} 
