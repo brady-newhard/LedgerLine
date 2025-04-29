@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load ansi_shadow_tags %}
+
+{% block content %}
+<div class="menu-bar">
+  File  Edit  View  Format  Options  Range  Data  Help
+</div>
+<pre class="ascii-title">
+<div class="ascii-terminal-style">{% ansi_shadow "BUDGETS" %}</div>
+</pre>
+
+<div class="transaction-controls">
+  <a href="{% url 'budget_create' %}" class="button">add budget</a>
+</div>
+
+<div class="terminal-output">
+C:>FILE IMPORT BUDGET.WKS
+Loading worksheet...
+</div>
+
+{% if budgets %}
+  <table>
+    <thead>
+      <tr>
+        <th class="col-label"></th>
+        <th class="col-label">A</th>
+        <th class="col-label">B</th>
+        <th class="col-label">C</th>
+        <th class="col-label">D</th>
+        <th class="col-label">E</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="row-label">1</td>
+        <td><strong>name</strong></td>
+        <td><strong>type</strong></td>
+        <td><strong>amount</strong></td>
+        <td><strong>dates</strong></td>
+        <td><strong>status</strong></td>
+      </tr>
+      {% for budget in budgets %}
+        <tr class="interactive" onclick="window.location.href='{% url 'budget_detail' budget.id %}'">
+          <td class="row-label">{{ forloop.counter|add:"1" }}</td>
+          <td>{{ budget.budget_name }}</td>
+          <td>{{ budget.get_budgeting_type_display }}</td>
+          <td class="amount">${{ budget.amount }}</td>
+          <td>{{ budget.start_date|date:"Y-m-d" }} to {{ budget.end_date|date:"Y-m-d" }}</td>
+          <td>
+            {% if budget.end_date < now %}
+              <span class="badge badge-warning">expired</span>
+            {% else %}
+              <span class="badge badge-success">active</span>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <div class="alert">
+    <p>no budgets yet.</p>
+    <p class="text-muted">add your first budget to start planning your finances.</p>
+  </div>
+{% endif %}
+
+<div class="function-keys">
+  <div class="function-key" onclick="showMessage('Displaying help documentation...')">F1-Help</div>
+  <div class="function-key" onclick="window.location.href='{% url 'budget_create' %}'">F2-New</div>
+  <div class="function-key" onclick="showMessage('Delete function not implemented.')">F3-Del</div>
+  <div class="function-key" onclick="showMessage('Sorting budgets...')">F4-Sort</div>
+  <div class="function-key" onclick="calculateBudgetTotals()">F9-Calc</div>
+  <div class="function-key" onclick="showMenu()">F10-Menu</div>
+</div>
+
+<div class="status-bar">
+  <span>READY.</span>
+  <span class="status-bar-brand">LEDGERLINE: Beige Edition</span>
+  <span>{% now "m/d/Y" %}</span>
+  <span>MEM: 640K</span>
+</div>
+
+<script>
+function showMessage(message) {
+  const msgElement = document.createElement('div');
+  msgElement.className = 'terminal-output';
+  msgElement.textContent = message;
+  
+  // Insert before the status bar
+  const statusBar = document.querySelector('.status-bar');
+  statusBar.parentNode.insertBefore(msgElement, statusBar);
+  
+  // Remove after 3 seconds
+  setTimeout(() => {
+    msgElement.remove();
+  }, 3000);
+}
+
+function calculateBudgetTotals() {
+  // Example of calculating budget totals
+  let totalMonthly = 0;
+  let totalAnnual = 0;
+  
+  // In a real implementation, you would get these from your budgets
+  showMessage('Calculating... Total Monthly: $0.00, Total Annual: $0.00');
+}
+
+function showMenu() {
+  const menuElement = document.createElement('div');
+  menuElement.className = 'terminal-output';
+  menuElement.innerHTML = 'MENU OPTIONS:<br>1. New Budget<br>2. Reports<br>3. Import/Export<br>4. Exit';
+  
+  // Insert before the status bar
+  const statusBar = document.querySelector('.status-bar');
+  statusBar.parentNode.insertBefore(menuElement, statusBar);
+  
+  // Add click event to remove
+  menuElement.addEventListener('click', function() {
+    this.remove();
+  });
+}
+</script>
+
+<style>
+.interactive {
+  cursor: pointer;
+}
+
+.interactive:hover {
+  background-color: var(--accent-beige);
+}
+
+.amount {
+  text-align: right;
+  font-family: 'IBM Plex Mono', monospace;
+}
+</style>
+{% endblock %}
+

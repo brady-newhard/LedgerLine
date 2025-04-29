@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load ansi_shadow_tags %}
+
+{% block content %}
+<div class="menu-bar">
+  File  Edit  View  Format  Options  Range  Data  Help
+</div>
+<pre class="ascii-title">
+<div class="ascii-terminal-style">{% ansi_shadow "NEW BUDGET" %}</div>
+</pre>
+
+<div class="terminal-output">
+C:>FILE NEW BUDGET.WKS
+Loading worksheet...
+</div>
+
+<form method="POST" class="form">
+  {% csrf_token %}
+  
+  <div class="form-group">
+    <label for="{{ form.budget_name.id_for_label }}">Budget Name:</label>
+    {{ form.budget_name }}
+    {% if form.budget_name.errors %}
+      <div class="error">{{ form.budget_name.errors }}</div>
+    {% endif %}
+  </div>
+
+  <div class="form-group">
+    <label for="{{ form.budgeting_type.id_for_label }}">Budget Type:</label>
+    {{ form.budgeting_type }}
+    {% if form.budgeting_type.errors %}
+      <div class="error">{{ form.budgeting_type.errors }}</div>
+    {% endif %}
+  </div>
+
+  <div class="form-group">
+    <label for="{{ form.amount.id_for_label }}">Amount ($):</label>
+    {{ form.amount }}
+    {% if form.amount.errors %}
+      <div class="error">{{ form.amount.errors }}</div>
+    {% endif %}
+  </div>
+
+  <div class="form-group">
+    <label for="{{ form.start_date.id_for_label }}">Start Date:</label>
+    {{ form.start_date }}
+    {% if form.start_date.errors %}
+      <div class="error">{{ form.start_date.errors }}</div>
+    {% endif %}
+  </div>
+
+  <div class="form-group">
+    <label for="{{ form.end_date.id_for_label }}">End Date:</label>
+    {{ form.end_date }}
+    {% if form.end_date.errors %}
+      <div class="error">{{ form.end_date.errors }}</div>
+    {% endif %}
+  </div>
+
+  <div class="form-controls">
+    <button type="submit" class="button">save budget</button>
+    <a href="{% url 'budget_list' %}" class="button">cancel</a>
+  </div>
+</form>
+
+<div class="function-keys">
+  <div class="function-key" onclick="showMessage('Displaying help documentation...')">F1-Help</div>
+  <div class="function-key" onclick="document.querySelector('form').submit()">F2-Save</div>
+  <div class="function-key" onclick="window.location.href = '{% url 'budget_list' %}'">F3-Cancel</div>
+  <div class="function-key" onclick="showMessage('Clear form not implemented.')">F4-Clear</div>
+  <div class="function-key" onclick="showMessage('Calculate not implemented.')">F9-Calc</div>
+  <div class="function-key" onclick="showMenu()">F10-Menu</div>
+</div>
+
+<div class="status-bar">
+  <span>READY.</span>
+  <span class="status-bar-brand">LEDGERLINE: Beige Edition</span>
+  <span>{% now "m/d/Y" %}</span>
+  <span>MEM: 640K</span>
+</div>
+
+<script>
+function showMessage(message) {
+  const msgElement = document.createElement('div');
+  msgElement.className = 'terminal-output';
+  msgElement.textContent = message;
+  
+  // Insert before the status bar
+  const statusBar = document.querySelector('.status-bar');
+  statusBar.parentNode.insertBefore(msgElement, statusBar);
+  
+  // Remove after 3 seconds
+  setTimeout(() => {
+    msgElement.remove();
+  }, 3000);
+}
+
+function showMenu() {
+  const menuElement = document.createElement('div');
+  menuElement.className = 'terminal-output';
+  menuElement.innerHTML = 'MENU OPTIONS:<br>1. Save Budget<br>2. Cancel<br>3. Clear Form<br>4. Exit';
+  
+  // Insert before the status bar
+  const statusBar = document.querySelector('.status-bar');
+  statusBar.parentNode.insertBefore(menuElement, statusBar);
+  
+  // Add click event to remove
+  menuElement.addEventListener('click', function() {
+    this.remove();
+  });
+}
+</script>
+
+<style>
+.form {
+  background-color: var(--bg-beige);
+  padding: 1rem;
+  border: 1px solid var(--border-gray);
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 0.25rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border-gray);
+  background-color: white;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.form-controls {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+}
+
+.error {
+  color: var(--expense);
+  font-size: 0.9rem;
+  margin-top: 0.25rem;
+}
+</style>
+{% endblock %}
