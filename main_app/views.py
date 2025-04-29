@@ -117,9 +117,16 @@ class TransactionCreate(LoginRequiredMixin, CreateView):
 
 class TransactionUpdate(LoginRequiredMixin, UpdateView):
     model = Transaction
-    template_name = 'transactions/transaction_form.html'
-    fields = ['transaction_type', 'amount', 'description', 'date']
+    template_name = 'main_app/transaction_form.html'
     success_url = reverse_lazy('transaction_list')
+    
+    def get_form_class(self):
+        return TransactionForm
+    
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
     
     def get_queryset(self):
         return Transaction.objects.filter(user=self.request.user)
@@ -138,7 +145,7 @@ class TransactionUpdate(LoginRequiredMixin, UpdateView):
 
 class TransactionDelete(LoginRequiredMixin, DeleteView):
     model = Transaction
-    template_name = 'transactions/transaction_confirm_delete.html'
+    template_name = 'main_app/transaction_confirm_delete.html'
     success_url = reverse_lazy('transaction_list')
     
     def get_queryset(self):
