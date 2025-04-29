@@ -8,60 +8,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" type="image/png" href="{% static 'images/LedgerLine-logo.png' %}" />
     <link rel="stylesheet" href="{% static 'css/base.css' %}" />
-    <style>
-        body {
-            background-color: #000000 !important;
-            color: #00ff00 !important;
-            font-family: 'VT323', monospace !important;
-        }
-        .ascii-terminal-style {
-            background-color: #000000 !important;
-            border: 1px solid #00aa00 !important;
-            color: #00ff00 !important;
-        }
-        header {
-            background-color: #003300 !important;
-            border-bottom: 1px solid #00aa00 !important;
-        }
-        nav ul li a {
-            color: #00ff00 !important;
-        }
-        .function-key {
-            background-color: #003300 !important;
-            border: 1px solid #00aa00 !important;
-            color: #00ff00 !important;
-        }
-    </style>
     <title>LEDGERLINE</title>
     {% block head %} 
     {% endblock %}
   </head>
-  <body style="background-color: #000000; color: #00ff00;">
-    <div class="ascii-terminal-style" style="background-color: #000000; color: #00ff00; border: 1px solid #00aa00;">
-      <header style="background-color: #003300; border-bottom: 1px solid #00aa00;">
+  <body>
+    <div class="ascii-terminal-style">
+      <header>
         <div class="header-logo-container">
           <a href="/">
             <img src="{% static 'images/LedgerLine-logo.png' %}" alt="LEDGERLINE Logo" />
           </a>
-          <span style="color: #00ff00;">LEDGERLINE: ATARI TERMINAL EDITION</span>
+          <span>LEDGERLINE: ATARI TERMINAL EDITION</span>
         </div>
         <nav>
           <ul>
-            <li><a href="{% url 'home' %}" style="color: #00ff00;">HOME</a></li>
-            <li><a href="{% url 'about' %}" style="color: #00ff00;">ABOUT</a></li>
-            <li><a href="{% url 'unlocked_modes' %}" style="color: #00ff00;">MODES</a></li>
+            <li><a href="{% url 'home' %}">HOME</a></li>
+            <li><a href="{% url 'about' %}">ABOUT</a></li>
+            <li><a href="{% url 'unlocked_modes' %}">MODES</a></li>
             {% if user.is_authenticated %}
-              <li><a href="{% url 'transaction_list' %}" style="color: #00ff00;">LEDGER</a></li>
-              <li><a href="{% url 'category_list' %}" style="color: #00ff00;">CATEGORIES</a></li>
+              <li><a href="{% url 'transaction_list' %}">LEDGER</a></li>
+              <li><a href="{% url 'category_list' %}">CATEGORIES</a></li>
               <li>
                 <form method="post" action="{% url 'logout' %}" style="display: inline;">
                   {% csrf_token %}
-                  <button type="submit" class="function-key" style="background-color: #003300; border: 1px solid #00aa00; color: #00ff00;">LOGOUT</button>
+                  <button type="submit" class="function-key">LOGOUT</button>
                 </form>
               </li>
             {% else %}
-              <li><a href="{% url 'login' %}" class="function-key" style="background-color: #003300; border: 1px solid #00aa00; color: #00ff00;">LOGIN</a></li>
-              <li><a href="{% url 'register' %}" class="function-key" style="background-color: #003300; border: 1px solid #00aa00; color: #00ff00;">REGISTER</a></li>
+              <li><a href="{% url 'login' %}" class="function-key">LOGIN</a></li>
+              <li><a href="{% url 'register' %}" class="function-key">REGISTER</a></li>
             {% endif %}
           </ul>
         </nav>
