@@ -1,9 +1,15 @@
 from django.urls import path
 from . import views
 from .views import (
+
     unlocked_modes_view, TransactionList, TransactionCreate,
     BudgetList, BudgetCreate, BudgetDetail, BudgetUpdate, BudgetDelete,
-    BudgetItemUpdate, BudgetItemDelete
+    BudgetItemUpdate, BudgetItemDelete,
+    CategoryList,
+    CategoryCreate,
+    CategoryUpdate,
+    CategoryDelete
+
 )
 
 urlpatterns = [
@@ -20,4 +26,11 @@ urlpatterns = [
     path('budgets/<int:pk>/delete/', BudgetDelete.as_view(), name='budget_delete'),
     path('budget-items/<int:pk>/update/', BudgetItemUpdate.as_view(), name='budgetitem_update'),
     path('budget-items/<int:pk>/delete/', BudgetItemDelete.as_view(), name='budgetitem_delete'),
+    path('categories/', CategoryList.as_view(), name='category_list'),
+    path('categories/create/', CategoryCreate.as_view(), name='category_create'),
+    path('categories/<int:pk>/update/', CategoryUpdate.as_view(), name='category_update'),
+    path('categories/<int:pk>/delete/', CategoryDelete.as_view(), name='category_delete'),
+    path('journey/', views.journey_map, name='journey_map'),
+    path('modes/<str:mode_name>/dashboard/', views.mode_dashboard, name='mode_dashboard'),
+
 ]

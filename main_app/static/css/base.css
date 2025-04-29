@@ -1,488 +1,729 @@
-/* LEDGERLINE: Beige Edition - IBM/3000 Series Design System */
+
+/* LEDGERLINE: Terminal Edition - Phosphor Green on Black */
+
+/* Global Reset and Phosphor Green Override */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: inherit;
+    vertical-align: baseline;
+    background-color: #000000 !important;
+    color: #00aa00 !important;
+}
+
+/* Ensure all elements have black background */
+* {
+    background-color: #000000 !important;
+    box-sizing: border-box;
+}
+
+a, a:visited, button, .function-key {
+    color: #00aa00 !important;
+    text-decoration: none;
+}
+
+a:hover, button:hover, .function-key:hover, a:active, .interactive:hover {
+    color: #00ff00 !important;
+    text-decoration: none;
+}
 
 /* Color System */
 :root {
-    --bg-beige: #f4f1ea;
-    --accent-beige: #cfc6b8;
-    --text-primary: #1a1a1a;
-    --text-muted: #5e5e5e;
-    --income: #296442;
-    --expense: #8b2e2e;
-    --border-gray: #d3d3d3;
-    --highlight-blue: #000080;  /* IBM blue */
-    --lotus-green: #003300;     /* Lotus terminal green */
-    --terminal-black: #000000;  /* Terminal background */
-    --terminal-gray: #333333;   /* Terminal border */
-    --menu-bar: #c0c0c0;        /* Menu bar gray */
-    --brand-color: #296442;     /* Brand color for LEDGERLINE */
+    /* Terminal theme colors */
+    --bg-primary: #000000;
+    --bg-secondary: #000000;
+    --text-primary: #00aa00;
+    --text-highlight: #00ff00;
+    --text-muted: #008800;
+    --accent-color: #00aa00;
+    --border-color: #00aa00;
+    --highlight-color: #00ff00;
+    --header-bg: #000000;
+    --header-border: #00aa00;
+    --menu-bg: #000000;
+    
+    /* Transaction colors */
+    --income: #00cc00;
+    --expense: #ff3333;
+    
+    /* Other UI elements */
+    --badge-bg: #000000;
+    --button-bg: #000000;
+    --button-text: #00aa00;
+    --button-hover: #000000;
+    --input-bg: #000000;
+    --input-border: #00aa00;
+    --table-header-bg: #000000;
+    --table-stripe: #000000;
 }
 
 /* Base Typography */
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
 body {
-    background-color: var(--bg-beige);
-    color: var(--text-primary);
+    background-color: #000000;
+    color: #00aa00;
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 15px;
+    font-size: 20px;
     line-height: 1.6;
     letter-spacing: 0.01em;
+    min-height: 100vh;
+    width: 100%;
+    overflow-x: hidden;
 }
 
 /* Layout */
 .container {
-    max-width: 800px;  /* Slightly wider for terminal appearance */
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #00aa00;
     margin: 0 auto;
-    padding: 1rem;
-    border: 1px solid var(--border-gray);
-    margin-top: 20px;
-    background-color: var(--bg-beige);
+    background-color: #000000;
 }
 
 header {
-    background-color: var(--menu-bar);
-    border-bottom: 1px solid var(--border-gray);
+    background-color: #000000;
+    border-bottom: 1px solid #00aa00;
     padding: 0.5rem;
     margin-bottom: 1rem;
 }
 
 .header-logo-container {
-    display: inline-block;
-    margin-right: 2rem;
+    display: block;
+    margin-bottom: 0.5rem;
+    text-align: center;
 }
 
-.header-logo-container img {
-    max-height: 30px;
+.app-title {
+    font-weight: bold;
+    color: #00aa00;
+    font-size: 24px;
+    letter-spacing: 0.05em;
+
 }
 
-/* IBM Style Menu */
-.menu-bar {
-    background-color: var(--menu-bar);
-    padding: 0.25rem 0;
-    border-bottom: 1px solid var(--border-gray);
-    margin-bottom: 1rem;
-}
-
-/* Navigation */
 nav ul {
     list-style-type: none;
-    display: inline-flex;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 nav ul li {
-    margin-right: 1.5rem;
+    margin: 0 0.75rem 0.5rem 0;
 }
 
 nav ul li a {
-    color: var(--text-primary);
+    color: #00aa00;
     text-decoration: none;
     text-transform: lowercase;
-    padding: 0.1rem 0.5rem;
+    padding: 0.2rem 0.5rem;
     border: 1px solid transparent;
+    font-size: 20px;
+    display: inline-block;
 }
 
 nav ul li a:hover {
-    border: 1px solid var(--border-gray);
-    background-color: var(--bg-beige);
+    border: 1px solid #00aa00;
+    background-color: #000000;
+    color: #00ff00;
 }
 
 /* Buttons */
 button, .button, input[type="submit"] {
-    background-color: var(--menu-bar);
-    border: 2px outset var(--border-gray);
-    color: var(--text-primary);
+    background-color: #000000;
+    border: 2px solid #00aa00;
+    color: #00aa00;
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 14px;
-    padding: 0.25rem 0.75rem;
+    font-size: 20px;
+    padding: 0.35rem 1rem;
     cursor: pointer;
     text-transform: lowercase;
+    min-height: 38px;
+    transition: all 0.2s ease, transform 0.15s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+button:hover, .button:hover, input[type="submit"]:hover {
+    background-color: #000000;
+    color: #00ff00;
+    border-color: #00ff00;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 170, 0, 0.3);
 }
 
 button:active, .button:active, input[type="submit"]:active {
-    border-style: inset;
+    transform: translateY(0) scale(0.98);
+    transition: all 0.1s ease;
+    animation: terminal-click 0.3s forwards;
 }
 
 /* Forms */
 input, select, textarea {
     font-family: 'IBM Plex Mono', monospace;
-    border: 1px inset var(--border-gray);
-    padding: 0.25rem 0.5rem;
+    border: 1px solid #00aa00;
+    padding: 0.5rem;
     margin-bottom: 1rem;
     width: 100%;
-    background-color: white;
+    background-color: #000000;
+    color: #00aa00;
+    font-size: 18px;
+    line-height: 1.4;
+}
+
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: #00ff00;
+    box-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
 }
 
 label {
     display: block;
     margin-bottom: 0.25rem;
-    color: var(--text-primary);
+    color: #00aa00;
+    font-size: 18px;
 }
 
-/* Lotus 123 Style Tables */
+/* Terminal Style Tables */
 table {
     width: 100%;
     border-collapse: collapse;
     margin-bottom: 1.5rem;
-    border: 1px solid var(--border-gray);
+    border: 1px solid #00aa00;
 }
 
 th {
     text-align: left;
-    border-bottom: 1px solid var(--border-gray);
-    padding: 0.35rem 0.6rem;
-    color: var(--highlight-blue);  /* IBM blue for headers */
+    border-bottom: 1px solid #00aa00;
+    padding: 0.5rem;
+    color: #00ff00;
     font-weight: 600;
-    background-color: var(--menu-bar);
+    font-size: 18px;
 }
 
 td {
-    padding: 0.35rem 0.6rem;
-    border-bottom: 1px solid var(--border-gray);
-    border-right: 1px solid var(--border-gray);
+    padding: 0.5rem;
+    border-bottom: 1px solid #00aa00;
+    border-right: 1px solid #00aa00;
+    font-size: 18px;
 }
 
-/* Lotus 123 style alternating rows */
 tr:nth-child(even) {
-    background-color: var(--accent-beige);
+    background-color: #000000;
 }
 
-/* Column labels like Lotus */
-.col-label {
-    background-color: var(--menu-bar);
-    text-align: center;
-    font-weight: 600;
-}
-
-/* Row labels like Lotus */
-.row-label {
-    background-color: var(--menu-bar);
-    font-weight: 600;
-}
-
-/* Selected cell in Lotus */
-.cell-selected {
-    background-color: black;
-    color: white;
-}
-
-/* Align amounts to the right */
-.amount {
-    text-align: right;
-    font-family: 'IBM Plex Mono', monospace;
-}
-
-/* Typography Utilities */
+/* Typography */
 h1, h2, h3, h4, h5, h6 {
+    font-family: 'IBM Plex Mono', monospace;
     margin-bottom: 1rem;
-    font-weight: 500;
-    color: var(--highlight-blue);
-    letter-spacing: 0.02em;
+    font-weight: 600;
+    color: #00ff00;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
 }
+
+h1 { font-size: 28px; }
+h2 { font-size: 24px; }
+h3 { font-size: 22px; }
 
 p {
     margin-bottom: 1rem;
+    line-height: 1.6;
+    font-size: 18px;
 }
 
-a {
-    color: var(--highlight-blue);
-    text-decoration: none;
-    font-weight: 500;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-/* IBM-style Status Bar */
-.status-bar {
-    background-color: var(--menu-bar);
-    border-top: 1px solid var(--border-gray);
-    padding: 0.25rem 0.5rem;
-    font-size: 14px;
-    color: var(--text-primary);
-    margin-top: 1rem;
+/* Function keys */
+.function-keys {
     display: flex;
-    justify-content: space-between;
-    font-weight: 500;
-}
-
-.status-bar-brand {
-    color: var(--brand-color);
-    font-weight: bold;
-}
-
-/* Interactive elements - for future functionality */
-.interactive {
-    cursor: pointer;
-    position: relative;
-}
-
-.interactive:hover {
-    background-color: var(--bg-beige);
-}
-
-.interactive:active {
-    background-color: var(--accent-beige);
-}
-
-/* For functional loading bars */
-.loading-bar.active .loading-bar-fill {
-    transition: width 2s linear;
-}
-
-/* For clickable menu items */
-.menu-item {
-    display: inline-block;
-    padding: 0.1rem 0.5rem;
-    cursor: pointer;
-}
-
-.menu-item:hover {
-    background-color: var(--bg-beige);
-}
-
-.menu-item.active {
-    background-color: var(--bg-beige);
-    border: 1px solid var(--border-gray);
-}
-
-/* Function key actions */
-.function-key {
-    padding: 0.25rem 0.75rem;
-    font-size: 14px;
-    color: var(--text-primary);
-    cursor: pointer;
-    font-weight: 500;
-}
-
-.function-key:hover {
-    background-color: var(--accent-beige);
-}
-
-/* Command line interface */
-.command-line {
-    padding: 0.5rem;
-    margin-top: 1rem;
-    border: 1px solid var(--border-gray);
-    background-color: var(--bg-beige);
-    font-family: 'IBM Plex Mono', monospace;
-}
-
-.command-line input {
-    background-color: transparent;
-    border: none;
-    outline: none;
-    font-family: inherit;
-    color: var(--text-primary);
-    width: calc(100% - 30px);
-}
-
-.command-line:before {
-    content: "C:>";
-    margin-right: 5px;
-    color: var(--text-primary);
-}
-
-/* Badges and Alerts - IBM Terminal Style */
-.badge {
-    display: inline-block;
-    border: 1px solid var(--border-gray);
-    padding: 0.15rem 0.35rem;
-    margin-right: 0.5rem;
-    font-size: 13px;
-    background-color: var(--menu-bar);
-    font-weight: 500;
-}
-
-.badge-success {
-    background-color: var(--income);
-    color: white;
-}
-
-.badge-warning {
-    background-color: var(--accent-beige);
-}
-
-.badge-danger {
-    background-color: var(--expense);
-    color: white;
-}
-
-.alert {
-    border: 1px solid var(--border-gray);
-    padding: 1rem;
+    flex-wrap: wrap;
+    background-color: #000000;
+    border-bottom: 1px solid #00aa00;
+    padding: 0.5rem 0;
     margin-bottom: 1rem;
-    background-color: var(--bg-beige);
 }
 
-/* Income & Expense Colors */
-.income {
-    color: var(--income);
-}
-
-.expense {
-    color: var(--expense);
-}
-
-/* ASCII Art Section Titles */
-pre.ascii-title {
-    margin: 2rem 0;
-    background-color: var(--bg-beige);
-    padding: 1.5rem;
-    border: 1px solid var(--border-gray);
-    text-align: center;
+.function-key {
+    font-family: 'IBM Plex Mono', monospace;
+    padding: 0.25rem 0.75rem;
+    font-size: 18px;
+    color: #00aa00;
+    cursor: pointer;
+    font-weight: 600;
+    border: 1px solid #00aa00;
+    background-color: #000000;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    transition: all 0.2s ease, transform 0.1s ease;
     position: relative;
     overflow: hidden;
 }
 
-pre.ascii-title h1 {
-    font-family: 'IBM Plex Mono', monospace;
-    color: var(--highlight-blue);
-    font-size: 28px;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    margin: 0;
-    text-transform: uppercase;
-    text-shadow: 2px 2px 0 rgba(0, 0, 128, 0.2);
-    position: relative;
+.function-key:hover {
+    color: #00ff00;
+    border-color: #00ff00;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 170, 0, 0.3);
+}
+
+.function-key:active {
+    animation: terminal-click 0.3s forwards;
+    transform: translateY(0);
+}
+
+/* Badge styles */
+.badge {
     display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 30px; /* More rounded for oval shape */
+    background-color: var(--badge-bg);
+    color: var(--text-primary);
+    font-size: 14px;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid var(--border-color);
 }
 
-pre.ascii-title h1:before,
-pre.ascii-title h1:after {
-    content: "";
-    display: block;
-    height: 2px;
-    background-color: var(--highlight-blue);
-    position: absolute;
-    left: 0;
-    right: 0;
+.badge-success {
+    border-color: var(--income);
+    color: var(--income);
 }
 
-pre.ascii-title h1:before {
-    top: -10px;
+.badge-warning {
+    border-color: var(--expense);
+    color: var(--expense);
 }
 
-pre.ascii-title h1:after {
-    bottom: -10px;
+.mode-badge {
+    border: 1px solid #0088ff; /* Blue border for mode badges */
+    color: #0088ff; /* Blue text to match */
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 14px;
+    padding: 0.25rem 0.75rem;
+    background-color: var(--badge-bg);
+    border-radius: 30px; /* More rounded for oval shape */
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    text-decoration: none;
+    transition: all 0.2s ease, transform 0.15s ease;
+    position: relative;
 }
 
-/* Add this class for a more "terminal-style" ASCII art effect */
-.ascii-terminal-style {
-    white-space: pre;
-    line-height: 1.2;
-    font-family: 'IBM Plex Mono', monospace;
-    font-weight: bold;
-    font-size: 16px;
-    color: var(--highlight-blue);
-    text-align: center;
-    margin: 0 auto;
+.mode-badge:hover {
+    border-color: #00aaff;
+    color: #00aaff;
+    box-shadow: 0 0 12px rgba(0, 136, 255, 0.6);
+    text-decoration: none;
+    transform: translateY(-2px) scale(1.05);
+}
+
+.mode-badge:active {
+    transform: translateY(0) scale(0.98);
+    transition: all 0.1s ease;
+}
+
+.mode-badges {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
 }
 
 /* Terminal-like Output */
 .terminal-output {
     font-family: 'IBM Plex Mono', monospace;
-    background-color: var(--bg-beige);
-    border: 1px solid var(--border-gray);
+    background-color: #000000;
+    border: 1px solid #00aa00;
     padding: 1rem;
-    color: var(--text-primary);
+    color: #00aa00;
     white-space: pre-wrap;
     margin-bottom: 1rem;
     line-height: 1.5;
-    font-size: 15px;
-    font-weight: 500;
+    font-size: 18px;
 }
 
-/* Loading Bar */
-.loading-bar {
-    width: 100%;
-    background-color: var(--bg-beige);
-    border: 1px solid var(--border-gray);
-    height: 20px;
+/* ASCII Art Title */
+pre.ascii-title {
     margin: 1rem 0;
-    position: relative;
+    background-color: #000000;
+    padding: 1rem;
+    border: 1px solid #00aa00;
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+    font-weight: bold;
+    color: #00aa00;
+    line-height: 1.2;
+    font-size: 16px;
+    width: 100%;
+    overflow-x: auto;
 }
 
-.loading-bar-fill {
-    height: 100%;
-    background-color: var(--highlight-blue);
+/* Terminal effects */
+.blinking-cursor::after {
+    content: "█";
+    animation: blink 1s step-end infinite;
 }
 
-/* Function Key Bar (F1, F2, etc) */
-.function-keys {
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+/* Status bar */
+.status-bar {
+    background-color: #000000;
+    border-top: 1px solid #00aa00;
+    padding: 0.5rem;
+    font-size: 16px;
+    color: #00aa00;
+    margin-top: 1rem;
     display: flex;
     justify-content: space-between;
-    background-color: var(--menu-bar);
-    border-top: 1px solid var(--border-gray);
-    padding: 0.35rem 0;
-    margin-top: 1rem;
 }
 
-/* Error messages */
-.error {
-    color: var(--expense);
-    margin-bottom: 1rem;
+.status-bar-brand {
+    color: #00ff00;
+    font-weight: bold;
 }
 
-/* Mode Unlock Badge */
-.mode-unlock {
+/* Footer */
+footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #00aa00;
+}
+
+/* Interactive element animations and feedback */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+@keyframes glow {
+    0% { box-shadow: 0 0 5px rgba(0, 170, 0, 0.5); }
+    50% { box-shadow: 0 0 15px rgba(0, 255, 0, 0.7); }
+    100% { box-shadow: 0 0 5px rgba(0, 170, 0, 0.5); }
+}
+
+@keyframes terminal-click {
+    0% { background-color: #000000; }
+    30% { background-color: #003300; }
+    100% { background-color: #000000; }
+}
+
+/* Locked items - create desire */
+.locked-item {
+    position: relative;
+    cursor: not-allowed;
+    filter: grayscale(0.7);
+    transition: all 0.3s ease;
+}
+
+.locked-item:hover::after {
+    content: "Continue your journey to unlock";
+    position: absolute;
+    left: 50%;
+    top: -30px;
+    transform: translateX(-50%);
+    background: #000;
+    color: #00ff00;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    white-space: nowrap;
+    border: 1px solid #00aa00;
+    opacity: 0;
+    animation: fade-in 0.3s forwards;
+}
+
+@keyframes fade-in {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.locked-item:hover {
+    filter: grayscale(0.4);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+/* Terminal buttons */
+.terminal-button {
+    background-color: #333;
+    color: #0f0;
+    border: 1px solid #00aa00;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.25s ease;
     display: inline-block;
-    padding: 0.5rem;
-    border: 1px solid var(--border-gray);
-    margin-right: 0.5rem;
-    margin-bottom: 0.5rem;
-    background-color: var(--bg-beige);
 }
 
-/* Slogan */
-.slogan {
-    color: var(--text-muted);
-    font-style: italic;
-    margin-bottom: 1.5rem;
-    font-size: 14px;
-    letter-spacing: 0.02em;
+.terminal-button:hover {
+    background-color: #444;
+    transform: translateY(-2px);
+    box-shadow: 0 0 12px rgba(0, 255, 0, 0.3);
 }
 
-/* About content styling */
-.about-content {
-    line-height: 1.7;
-    margin-bottom: 2rem;
-}
-
-.about-content h2 {
-    color: var(--highlight-blue);
-    font-weight: 600;
-    margin-bottom: 1rem;
-}
-
-.about-content p {
-    margin-bottom: 1.25rem;
-    font-size: 15px;
+.terminal-button:active {
+    transform: translateY(0) scale(0.98);
+    transition: all 0.1s ease;
 }
 
 /* Responsive adjustments */
 @media (max-width: 768px) {
+    body {
+        font-size: 18px;
+    }
+    
+    h1 { font-size: 24px; }
+    h2 { font-size: 22px; }
+    h3 { font-size: 20px; }
+    
+    .app-title {
+        font-size: 22px;
+    }
+    
+    nav ul li a,
+    button, 
+    .button, 
+    input[type="submit"],
+    .function-key {
+        font-size: 18px;
+    }
+    
     .container {
+        padding: 0.25rem;
+    }
+    
+    pre.ascii-title {
+        font-size: 14px;
         padding: 0.5rem;
     }
-    
-    table, th, td {
-        font-size: 14px;
-    }
-    
+}
+
+@media (max-width: 480px) {
     body {
-        font-size: 14px;
+        font-size: 16px;
     }
     
-    .terminal-output {
+    h1 { font-size: 22px; }
+    h2 { font-size: 20px; }
+    h3 { font-size: 18px; }
+    
+    .app-title {
+        font-size: 20px;
+    }
+    
+    nav ul li a,
+    button, 
+    .button, 
+    input[type="submit"],
+    .function-key,
+    label,
+    p,
+    td, th {
+        font-size: 16px;
+    }
+    
+    .function-keys {
+        justify-content: center;
+    }
+    
+    .function-key {
+        padding: 0.2rem 0.5rem;
+        margin-right: 0.25rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    table, .terminal-output {
         font-size: 14px;
     }
+}
+
+/* Terminal UI Elements */
+.terminal-container {
+    border: 2px solid #00aa00;
+    padding: 1rem;
+    margin: 1rem;
+    position: relative;
+    min-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.terminal-header {
+    border-bottom: 1px solid #00aa00;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.version-indicator {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 0.8em;
+    opacity: 0.7;
+}
+
+.version-text {
+    animation: flicker 5s infinite;
+}
+
+.version-hint {
+    display: none;
+    color: #ff0000 !important;
+}
+
+/* Journey Map Styles */
+.journey-map-container {
+    padding: 2rem;
+    position: relative;
+}
+
+.journey-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    position: relative;
+}
+
+.journey-node {
+    border: 1px solid #00aa00;
+    padding: 1.5rem;
+    position: relative;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background: linear-gradient(to right, #000000, #001100);
+}
+
+.journey-node.unlocked {
+    border-color: #00ff00;
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
+}
+
+.journey-node.locked {
+    opacity: 0.7;
+    filter: grayscale(50%);
+}
+
+.journey-node.locked:hover {
+    animation: shake 0.5s ease-in-out;
+}
+
+.journey-connector {
+    width: 2px;
+    height: 2rem;
+    background-color: #004400;
+    margin: 0 auto;
+}
+
+.journey-connector.active {
+    background-color: #00ff00;
+    animation: pulse 2s infinite;
+}
+
+/* Terminal Effects */
+@keyframes flicker {
+    0% { opacity: 1; }
+    92% { opacity: 1; }
+    93% { opacity: 0.3; }
+    94% { opacity: 1; }
+    95% { opacity: 0.5; }
+    96% { opacity: 1; }
+    97% { opacity: 0.3; }
+    98% { opacity: 1; }
+    99% { opacity: 0.4; }
+    100% { opacity: 1; }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+@keyframes glitch {
+    0% { transform: translate(0); }
+    20% { transform: translate(-2px, 2px); }
+    40% { transform: translate(-2px, -2px); }
+    60% { transform: translate(2px, 2px); }
+    80% { transform: translate(2px, -2px); }
+    100% { transform: translate(0); }
+}
+
+.glitch-text {
+    animation: glitch 0.3s infinite;
+    display: inline-block;
+    color: #00ff00 !important;
+}
+
+/* Modern Interface Glimpse */
+.modern-interface-glimpse {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(45deg, #1a1a1a, #2a2a2a);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    animation: glimpse 0.5s forwards;
+}
+
+@keyframes glimpse {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+/* Progress Bars */
+.progress-bar {
+    width: 100%;
+    height: 10px;
+    background-color: #001100;
+    margin: 0.5rem 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background-color: #00aa00;
+    transition: width 0.5s ease;
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 0, 0.2), transparent);
+    animation: progress-shine 2s infinite;
+}
+
+@keyframes progress-shine {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+
 }

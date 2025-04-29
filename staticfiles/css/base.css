@@ -1,0 +1,289 @@
+/* LEDGERLINE: Atari Terminal Edition */
+
+/* Color System */
+:root {
+    --bg-black: #000000;
+    --text-green: #00ff00;
+    --text-dim-green: #00aa00;
+    --highlight-green: #00ff00;
+    --border-green: #00aa00;
+    --menu-bar: #003300;
+    --income: #00ff00;
+    --expense: #ff0000;
+    --terminal-cursor: #00ff00;
+    --terminal-blink: #00aa00;
+}
+
+/* Base Typography */
+@import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    background-color: var(--bg-black);
+    color: var(--text-green);
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    line-height: 1.4;
+    letter-spacing: 0.05em;
+}
+
+/* Layout */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 1rem;
+    border: 1px solid var(--border-green);
+    margin-top: 20px;
+    background-color: var(--bg-black);
+}
+
+header {
+    background-color: var(--menu-bar);
+    border-bottom: 1px solid var(--border-green);
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.header-logo-container {
+    display: inline-block;
+    margin-right: 2rem;
+}
+
+.header-logo-container img {
+    max-height: 30px;
+}
+
+/* IBM Style Menu */
+.menu-bar {
+    background-color: var(--menu-bar);
+    padding: 0.25rem 0;
+    border-bottom: 1px solid var(--border-green);
+    margin-bottom: 1rem;
+    color: var(--text-green);
+}
+
+/* Navigation */
+nav ul {
+    list-style-type: none;
+    display: inline-flex;
+}
+
+nav ul li {
+    margin-right: 1.5rem;
+}
+
+nav ul li a {
+    color: var(--text-green);
+    text-decoration: none;
+    text-transform: uppercase;
+    padding: 0.1rem 0.5rem;
+    border: 1px solid transparent;
+}
+
+nav ul li a:hover {
+    border: 1px solid var(--border-green);
+    background-color: var(--bg-black);
+}
+
+/* Buttons */
+button, .button, input[type="submit"] {
+    background-color: var(--menu-bar);
+    border: 2px outset var(--border-green);
+    color: var(--text-green);
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    padding: 0.25rem 0.75rem;
+    cursor: pointer;
+    text-transform: uppercase;
+}
+
+button:active, .button:active, input[type="submit"]:active {
+    border-style: inset;
+}
+
+/* Forms */
+input, select, textarea {
+    font-family: 'VT323', monospace;
+    border: 1px inset var(--border-green);
+    padding: 0.25rem 0.5rem;
+    margin-bottom: 1rem;
+    width: 100%;
+    background-color: var(--bg-black);
+    color: var(--text-green);
+}
+
+label {
+    display: block;
+    margin-bottom: 0.25rem;
+    color: var(--text-green);
+}
+
+/* Terminal Style Tables */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--border-green);
+}
+
+th {
+    text-align: left;
+    border-bottom: 1px solid var(--border-green);
+    padding: 0.35rem 0.6rem;
+    color: var(--highlight-green);
+    font-weight: normal;
+    background-color: var(--menu-bar);
+}
+
+td {
+    padding: 0.35rem 0.6rem;
+    border-bottom: 1px solid var(--border-green);
+    border-right: 1px solid var(--border-green);
+}
+
+/* Terminal style alternating rows */
+tr:nth-child(even) {
+    background-color: var(--menu-bar);
+}
+
+/* Typography Utilities */
+h1, h2, h3, h4, h5, h6 {
+    margin-bottom: 1rem;
+    font-weight: normal;
+    color: var(--highlight-green);
+    letter-spacing: 0.02em;
+}
+
+p {
+    margin-bottom: 1rem;
+}
+
+a {
+    color: var(--text-green);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Terminal Status Bar */
+.status-bar {
+    background-color: var(--menu-bar);
+    border-top: 1px solid var(--border-green);
+    padding: 0.25rem 0.5rem;
+    font-size: 14px;
+    color: var(--text-green);
+    margin-top: 1rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Terminal Style Elements */
+.ascii-terminal-style {
+    background-color: var(--bg-black);
+    border: 1px solid var(--border-green);
+    padding: 1rem;
+    margin: 1rem 0;
+}
+
+.function-keys {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.function-key {
+    background-color: var(--menu-bar);
+    border: 1px solid var(--border-green);
+    color: var(--text-green);
+    padding: 0.25rem 0.75rem;
+    text-transform: uppercase;
+    font-size: 14px;
+}
+
+.function-key:hover {
+    background-color: var(--bg-black);
+}
+
+/* Badges */
+.badge {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--border-green);
+    background-color: var(--menu-bar);
+    color: var(--text-green);
+}
+
+.badge-success {
+    background-color: var(--menu-bar);
+    color: var(--income);
+}
+
+.badge-danger {
+    background-color: var(--menu-bar);
+    color: var(--expense);
+}
+
+/* Alerts */
+.alert {
+    background-color: var(--menu-bar);
+    border: 1px solid var(--border-green);
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+    color: var(--text-green);
+}
+
+.error {
+    color: var(--expense);
+}
+
+/* Amount formatting */
+.amount {
+    text-align: right;
+    font-family: 'VT323', monospace;
+    color: var(--text-green);
+}
+
+/* Form text */
+.form-text {
+    color: var(--text-dim-green);
+    font-size: 14px;
+    margin-top: 0.25rem;
+}
+
+/* Input groups */
+.input-group {
+    display: flex;
+    align-items: center;
+}
+
+.input-group-text {
+    background-color: var(--menu-bar);
+    border: 1px solid var(--border-green);
+    padding: 0.25rem 0.5rem;
+    color: var(--text-green);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .container {
+        width: 95%;
+        margin: 10px auto;
+    }
+    
+    table, th, td {
+        font-size: 14px;
+    }
+    
+    body {
+        font-size: 16px;
+    }
+}

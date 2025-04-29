@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="menu-bar">
+        <h2>Delete Category</h2>
+    </div>
+
+    <div class="ascii-terminal-style">
+        <p>Are you sure you want to delete the category "{{ object.name }}"?</p>
+        
+        {% if transaction_count > 0 %}
+            <div class="alert">
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Warning:</strong> This category is used in {{ transaction_count }} transaction{{ transaction_count|pluralize }}.
+                These transactions will have their category set to "None" after deletion.
+            </div>
+        {% endif %}
+        
+        <p class="error">
+            <i class="fas fa-exclamation-triangle"></i>
+            This action cannot be undone.
+        </p>
+        
+        <form method="post">
+            {% csrf_token %}
+            <div class="function-keys">
+                <button type="submit" class="function-key">
+                    <i class="fas fa-trash"></i> Yes, delete it
+                </button>
+                <a href="{% url 'category_list' %}" class="function-key">
+                    <i class="fas fa-times"></i> No, take me back
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 
