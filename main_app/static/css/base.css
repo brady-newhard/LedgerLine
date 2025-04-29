@@ -1,3 +1,4 @@
+
 /* LEDGERLINE: Terminal Edition - Phosphor Green on Black */
 
 /* Global Reset and Phosphor Green Override */
@@ -111,9 +112,9 @@ header {
     color: #00aa00;
     font-size: 24px;
     letter-spacing: 0.05em;
+
 }
 
-/* Navigation */
 nav ul {
     list-style-type: none;
     display: flex;
@@ -724,4 +725,5 @@ footer {
 @keyframes progress-shine {
     0% { transform: translateX(-100%); }
     100% { transform: translateX(100%); }
+
 }
