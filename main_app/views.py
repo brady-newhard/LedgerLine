@@ -67,7 +67,7 @@ class CategoryList(LoginRequiredMixin, ListView):
     context_object_name = 'categories'
     
     def get_queryset(self):
-        return Category.objects.filter(user=self.request.user).order_by('name')
+        return Category.objects.filter(user=self.request.user).order_by('category_type')
 
 class CategoryCreate(LoginRequiredMixin, CreateView):
     model = Category
