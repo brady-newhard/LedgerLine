@@ -17,10 +17,11 @@ urlpatterns = [
     path('transactions/', TransactionList.as_view(), name='transaction_list'),
     path('transactions/create/', TransactionCreate.as_view(), name='transaction_create'),
     path('register/', views.register, name='register'),
-    
-    # Category URLs
     path('categories/', CategoryList.as_view(), name='category_list'),
     path('categories/create/', CategoryCreate.as_view(), name='category_create'),
     path('categories/<int:pk>/update/', CategoryUpdate.as_view(), name='category_update'),
     path('categories/<int:pk>/delete/', CategoryDelete.as_view(), name='category_delete'),
+    path('journey/', views.journey_map, name='journey_map'),
+    path('modes/<str:mode_name>/dashboard/', views.mode_dashboard, name='mode_dashboard'),
+
 ]
