@@ -20,9 +20,10 @@ class UserRegistrationForm(UserCreationForm):
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = ['category_type', 'icon', 'is_income', 'color']
+        fields = ['category_type', 'custom_name', 'icon', 'is_income', 'color']
         widgets = {
             'category_type': forms.Select(),
+            'custom_name': forms.TextInput(attrs={'placeholder': 'Enter custom category name (optional)'}),
             'icon': forms.Select(),
             'color': forms.TextInput(attrs={'type': 'color'}),
         }
