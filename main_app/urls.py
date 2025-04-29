@@ -3,6 +3,7 @@ from . import views
 from .views import (
 
     unlocked_modes_view, TransactionList, TransactionCreate,
+    TransactionUpdate, TransactionDelete,
     BudgetList, BudgetCreate, BudgetDetail, BudgetUpdate, BudgetDelete,
     BudgetItemUpdate, BudgetItemDelete,
     CategoryList,
@@ -18,6 +19,8 @@ urlpatterns = [
     path('modes/', unlocked_modes_view, name='unlocked_modes'),
     path('transactions/', TransactionList.as_view(), name='transaction_list'),
     path('transactions/create/', TransactionCreate.as_view(), name='transaction_create'),
+    path('transactions/<int:pk>/update/', TransactionUpdate.as_view(), name='transaction_update'),
+    path('transactions/<int:pk>/delete/', TransactionDelete.as_view(), name='transaction_delete'),
     path('register/', views.register, name='register'),
     path('budgets/', BudgetList.as_view(), name='budget_list'),
     path('budgets/create/', BudgetCreate.as_view(), name='budget_create'),

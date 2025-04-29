@@ -7,11 +7,11 @@
 </div>
 
 <pre class="ascii-title">
-{% ansi_shadow "NEW TRANSACTION" %}
+{% ansi_shadow title %}
 </pre>
 
 <div class="terminal-output">
-C:>TRANSACTION NEW
+C:>TRANSACTION {% if object %}EDIT{% else %}NEW{% endif %}
 Enter transaction details:
 ------------------------------------
 </div>
@@ -32,6 +32,11 @@ Enter transaction details:
   <div class="form-group">
     <label for="id_description">description [MAX 255 CHARS]:</label>
     {{ form.description }}
+  </div>
+  
+  <div class="form-group">
+    <label for="id_category">category:</label>
+    {{ form.category }}
   </div>
   
   <div class="form-group">

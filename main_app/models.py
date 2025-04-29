@@ -86,7 +86,7 @@ class Budget(models.Model):
     budget_name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     budgeting_type = models.CharField(max_length=10, choices=BUDGETING_TYPES, default='MONTHLY')
-    # category = models.CharField(max_length=20)
+    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True)
     start_date = models.DateField()
     end_date = models.DateField()
     
