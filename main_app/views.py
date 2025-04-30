@@ -13,6 +13,7 @@ from django.contrib import messages
 from .services.mode_service import ModeService
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django.db import models
 import json
 
 def register(request):
@@ -81,13 +82,37 @@ class TransactionList(LoginRequiredMixin, ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Check for mode unlocks every time transactions are viewed
-        newly_unlocked = ModeService.update_user_modes(self.request.user)
         
-        # Add notifications for newly unlocked modes
-        for mode in newly_unlocked:
-            messages.success(self.request, f"🎉 Congratulations! You've unlocked {mode.name}: {mode.description}")
+        # Calculate monthly totals directly
+        now = timezone.now()
+        first_day = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        if now.month == 12:
+            last_day = now.replace(year=now.year + 1, month=1, day=1) - timezone.timedelta(days=1)
+        else:
+            last_day = now.replace(month=now.month + 1, day=1) - timezone.timedelta(days=1)
             
+        # Get transactions for the current month
+        monthly_transactions = Transaction.objects.filter(
+            user=self.request.user,
+            date__gte=first_day,
+            date__lte=last_day
+        )
+        
+        # Calculate totals
+        income = monthly_transactions.filter(transaction_type='INCOME').aggregate(
+            total=models.Sum('amount')
+        )['total'] or 0
+        
+        expenses = monthly_transactions.filter(transaction_type='EXPENSE').aggregate(
+            total=models.Sum('amount')
+        )['total'] or 0
+        
+        context['monthly_totals'] = {
+            'income': income,
+            'expenses': expenses,
+            'net': income - expenses
+        }
+        
         return context
 
 class TransactionCreate(LoginRequiredMixin, CreateView):
