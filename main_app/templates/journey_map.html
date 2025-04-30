@@ -67,7 +67,6 @@
                              data-mode="{{ mode.name }}"
                              onclick="handleModeClick('{{ mode.name }}')">
                             <div class="mode-header">
-                                <span class="mode-icon">{{ mode.icon }}</span>
                                 <h2 class="mode-title">{{ mode.name }}</h2>
                                 {% if mode.is_unlocked %}
                                     <span class="mode-status available">AVAILABLE</span>
@@ -137,10 +136,6 @@
         align-items: center;
         gap: 1rem;
         margin-bottom: 1rem;
-    }
-
-    .mode-icon {
-        font-size: 1.5em;
     }
 
     .mode-title {

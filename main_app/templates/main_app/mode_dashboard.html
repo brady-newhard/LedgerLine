@@ -15,7 +15,7 @@
     </div>
     
     <div class="mode-header">
-        <div class="mode-icon">{{ mode.icon|default:"💰" }}</div>
+        <div class="mode-icon-placeholder"></div>
         <div class="mode-info">
             <span class="mode-badge">{{ mode.status }}</span>
             <div class="mode-progress">
@@ -40,7 +40,7 @@
                 <div class="month-overview">
                     <div class="month-stats">
                         <div class="stat-item">
-                            <div class="stat-icon">📅</div>
+                            <div class="stat-icon-placeholder">D</div>
                             <div class="stat-details">
                                 <h3>Days Remaining</h3>
                                 <div class="stat-value">{{ mode_data.mode_data.days_left_in_month }}</div>
@@ -49,7 +49,7 @@
                         </div>
                         
                         <div class="stat-item">
-                            <div class="stat-icon">💰</div>
+                            <div class="stat-icon-placeholder">$</div>
                             <div class="stat-details">
                                 <h3>Budget Remaining</h3>
                                 <div class="stat-value">${{ mode_data.mode_data.money_left_to_spend|floatformat:2 }}</div>
@@ -58,7 +58,7 @@
                         </div>
                         
                         <div class="stat-item">
-                            <div class="stat-icon">📊</div>
+                            <div class="stat-icon-placeholder">A</div>
                             <div class="stat-details">
                                 <h3>Daily Allowance</h3>
                                 <div class="stat-value">${{ mode_data.mode_data.daily_allowance|floatformat:2 }}</div>
@@ -73,7 +73,7 @@
                     <h3 class="section-title">Essential Bills Status</h3>
                     <div class="bills-status-indicators">
                         <div class="bill-status {% if mode_data.mode_data.critical_bills_status.housing_paid %}paid{% else %}unpaid{% endif %}">
-                            <div class="status-icon">🏠</div>
+                            <div class="status-label-large">Housing</div>
                             <div class="status-label">Housing</div>
                             <div class="status-badge">
                                 {% if mode_data.mode_data.critical_bills_status.housing_paid %}PAID{% else %}UNPAID{% endif %}
@@ -81,7 +81,7 @@
                         </div>
                         
                         <div class="bill-status {% if mode_data.mode_data.critical_bills_status.utilities_paid %}paid{% else %}unpaid{% endif %}">
-                            <div class="status-icon">⚡</div>
+                            <div class="status-label-large">Utilities</div>
                             <div class="status-label">Utilities</div>
                             <div class="status-badge">
                                 {% if mode_data.mode_data.critical_bills_status.utilities_paid %}PAID{% else %}UNPAID{% endif %}
@@ -89,7 +89,7 @@
                         </div>
                         
                         <div class="bill-status {% if mode_data.mode_data.critical_bills_status.transportation_paid %}paid{% else %}unpaid{% endif %}">
-                            <div class="status-icon">🚌</div>
+                            <div class="status-label-large">Transit</div>
                             <div class="status-label">Transport</div>
                             <div class="status-badge">
                                 {% if mode_data.mode_data.critical_bills_status.transportation_paid %}PAID{% else %}UNPAID{% endif %}
@@ -111,7 +111,7 @@
                 <div class="critical-categories">
                     <!-- Food Categories -->
                     <div class="critical-category">
-                        <div class="category-icon">🛒</div>
+                        <div class="category-label">Groceries</div>
                         <div class="category-details">
                             <h3>Basic Groceries</h3>
                             <div class="amount">$<span id="groceries-amount">0</span></div>
@@ -123,7 +123,7 @@
                     </div>
                     
                     <div class="critical-category">
-                        <div class="category-icon">🚌</div>
+                        <div class="category-label">Transit</div>
                         <div class="category-details">
                             <h3>Transportation</h3>
                             <div class="amount">$<span id="transportation-amount">{{ mode_data.mode_data.critical_categories.transportation.amount|floatformat:2 }}</span></div>
@@ -135,7 +135,7 @@
                     </div>
                     
                     <div class="critical-category">
-                        <div class="category-icon">💊</div>
+                        <div class="category-label">Health</div>
                         <div class="category-details">
                             <h3>Healthcare</h3>
                             <div class="amount">$<span id="health-amount">{{ mode_data.mode_data.critical_categories.health.amount|floatformat:2 }}</span></div>
@@ -160,7 +160,7 @@
                     
                     <div class="unlockable-categories">
                         <div class="unlockable-category {% if mode_data.mode_data.critical_bills_status.all_critical_paid %}unlocked{% else %}locked{% endif %}">
-                            <div class="category-icon">🎮</div>
+                            <div class="category-label-large">Entertainment</div>
                             <div class="category-name">Entertainment</div>
                             <div class="unlock-condition">Pay all critical bills first</div>
                             <div class="unlock-status">
@@ -169,14 +169,14 @@
                         </div>
                         
                         <div class="unlockable-category locked">
-                            <div class="category-icon">🛍️</div>
+                            <div class="category-label-large">Shopping</div>
                             <div class="category-name">Discretionary</div>
                             <div class="unlock-condition">Stay under budget for 3 critical areas</div>
                             <div class="unlock-status">Locked</div>
                         </div>
                         
                         <div class="unlockable-category locked">
-                            <div class="category-icon">💝</div>
+                            <div class="category-label-large">Personal</div>
                             <div class="category-name">Gifts/Personal</div>
                             <div class="unlock-condition">Save 5% of income this month</div>
                             <div class="unlock-status">Locked</div>
@@ -251,19 +251,16 @@ document.addEventListener('DOMContentLoaded', function() {
         groceries: { 
             amount: {{ mode_data.mode_data.critical_spending.basic_groceries.amount }}, 
             spent: {{ mode_data.mode_data.critical_spending.basic_groceries.spent }},
-            icon: '{{ mode_data.mode_data.critical_spending.basic_groceries.icon }}',
             description: '{{ mode_data.mode_data.critical_spending.basic_groceries.description }}'
         },
         meals: { 
             amount: {{ mode_data.mode_data.critical_spending.essential_meals.amount }}, 
             spent: {{ mode_data.mode_data.critical_spending.essential_meals.spent }},
-            icon: '{{ mode_data.mode_data.critical_spending.essential_meals.icon }}',
             description: '{{ mode_data.mode_data.critical_spending.essential_meals.description }}'
         },
         emergency: { 
             amount: {{ mode_data.mode_data.critical_spending.emergency_food.amount }}, 
             spent: {{ mode_data.mode_data.critical_spending.emergency_food.spent }},
-            icon: '{{ mode_data.mode_data.critical_spending.emergency_food.icon }}',
             description: '{{ mode_data.mode_data.critical_spending.emergency_food.description }}'
         }
     };
@@ -747,15 +744,12 @@ function showStatusMessage(message, duration = 3000) {
         position: relative;
     }
     
-    .mode-icon {
-        font-size: 3em;
-        cursor: pointer;
-        transition: transform 0.3s ease, text-shadow 0.3s ease;
-    }
-    
-    .mode-icon:hover {
-        transform: scale(1.1);
-        text-shadow: 0 0 10px rgba(95, 255, 95, 0.7);
+    .mode-icon-placeholder {
+        width: 40px;
+        height: 40px;
+        background-color: #338833;
+        border-radius: 50%;
+        margin-right: 10px;
     }
     
     .mode-info {
@@ -899,9 +893,15 @@ function showStatusMessage(message, duration = 3000) {
         border: 1px solid #333;
     }
 
-    .category-icon {
-        font-size: 2rem;
+    .category-label {
+        font-weight: bold;
+        min-width: 80px;
+        text-align: center;
+        color: #338833;
         margin-right: 1rem;
+        border: 1px solid #338833;
+        padding: 0.5rem;
+        border-radius: 4px;
     }
 
     .category-details {
@@ -1070,9 +1070,18 @@ function showStatusMessage(message, duration = 3000) {
         min-width: 200px;
     }
     
-    .stat-icon {
-        font-size: 2em;
-        opacity: 0.9;
+    .stat-icon-placeholder {
+        width: 40px;
+        height: 40px;
+        background-color: #1d1d1d;
+        border: 1px solid #338833;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #338833;
+        font-weight: bold;
     }
     
     .stat-details {
@@ -1142,14 +1151,10 @@ function showStatusMessage(message, duration = 3000) {
         border-color: #aa0000;
     }
     
-    .status-icon {
-        font-size: 2em;
-        margin-bottom: 10px;
-    }
-    
-    .status-label {
-        font-size: 0.9em;
-        margin-bottom: 10px;
+    .status-label-large {
+        font-size: 1.2rem;
+        margin-bottom: 5px;
+        font-weight: bold;
     }
     
     .status-badge {
@@ -1191,49 +1196,6 @@ function showStatusMessage(message, duration = 3000) {
     .status-message.unpaid {
         background-color: rgba(170, 0, 0, 0.2);
         color: #aa5555;
-    }
-    
-    /* Critical Categories */
-    .critical-categories {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin: 15px 0;
-    }
-    
-    .critical-category {
-        display: flex;
-        background-color: #111;
-        padding: 15px;
-        border-radius: 5px;
-        border: 1px solid #333;
-        gap: 15px;
-    }
-    
-    .category-icon {
-        font-size: 2em;
-    }
-    
-    .category-details {
-        flex-grow: 1;
-    }
-    
-    .category-details h3 {
-        margin: 0 0 5px 0;
-        font-size: 1.1em;
-    }
-    
-    .amount {
-        font-size: 1.3em;
-        font-weight: bold;
-        color: #00aa00;
-        margin: 5px 0;
-    }
-    
-    .category-description {
-        font-size: 0.8em;
-        color: #777;
-        margin: 5px 0 10px;
     }
     
     /* Unlockable Categories */
