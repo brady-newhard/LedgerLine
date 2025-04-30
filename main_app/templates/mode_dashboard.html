@@ -4,7 +4,7 @@
 {% block content %}
 <div class="terminal-container">
     <div class="terminal-header">
-        {% ansi_shadow "MODE DASHBOARD" %}
+        <h1 class="standard-title">{{ mode.name }}</h1>
         <div class="version-indicator">
             <span class="version-text">Financial Planning Tool</span>
         </div>
@@ -17,25 +17,18 @@
     <div class="mode-header">
         <div class="mode-icon">{{ mode.icon|default:"💰" }}</div>
         <div class="mode-info">
-            <h1 class="mode-name">{{ mode.name }} <span class="mode-badge">{{ mode.status }}</span></h1>
+            <span class="mode-badge">{{ mode.status }}</span>
+            <div class="mode-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ mode.progress_percentage }}%;"></div>
+                </div>
+                <span class="progress-text">Progress: {{ mode.progress_percentage }}%</span>
+            </div>
         </div>
     </div>
     
     <div class="terminal-body">
         <div class="dashboard-grid">
-            <div class="grid-item current-status">
-                <h2>Current Progress</h2>
-                <div class="status-metrics">
-                    <div class="metric">
-                        <div class="metric-label">Completion</div>
-                        <div class="metric-value">{{ mode.progress_percentage }}%</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: {{ mode.progress_percentage }}%;"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
             {% if mode_data.mode.name == 'Lockdown Mode' %}
             <div class="grid-item lockdown-spending-plan">
                 <h2>Emergency Budget Plan</h2>
@@ -350,6 +343,18 @@ function recalculatePlan() {
 {% endblock %}
 {% block styles %}
 <style>
+    /* Standard title styling */
+    .standard-title {
+        font-size: 2.2em;
+        font-weight: bold;
+        text-align: center;
+        margin: 0.5em 0;
+        color: #00aa00;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-family: monospace;
+    }
+    
     /* Version indicator */
     .version-indicator {
         font-size: 0.7rem;
@@ -400,7 +405,10 @@ function recalculatePlan() {
     
     .mode-info {
         flex-grow: 1;
-        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding-left: 10px;
     }
     
     .mode-name {
@@ -412,12 +420,20 @@ function recalculatePlan() {
     }
     
     .mode-badge {
-        font-size: 0.6em;
-        background-color: #5f5;
+        font-size: 1em;
+        background-color: #338833;
         color: #000;
-        padding: 2px 8px;
+        padding: 5px 10px;
         border-radius: 10px;
         text-transform: uppercase;
+        letter-spacing: 1px;
+        display: inline-block;
+        margin: 0.5em 0;
+    }
+    
+    .mode-progress {
+        width: 100%;
+        margin-top: 10px;
     }
     
     .dashboard-grid {
