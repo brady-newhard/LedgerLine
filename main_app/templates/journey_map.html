@@ -5,18 +5,13 @@
 <script>
     // Define JavaScript functions first
     function handleModeClick(modeName) {
-        console.log(`Mode clicked: ${modeName}`);
         const modeElement = document.querySelector(`[data-mode="${modeName}"]`);
-        console.log(`Mode element found: ${modeElement !== null}`);
-        console.log(`Is unlocked: ${modeElement && modeElement.classList.contains('unlocked')}`);
         
         if (modeElement && modeElement.classList.contains('unlocked')) {
             // Properly encode the mode name for the URL
             const encodedModeName = encodeURIComponent(modeName);
-            console.log(`Navigating to: /journey/mode/${encodedModeName}/`);
             window.location.href = `/journey/mode/${encodedModeName}/`;
         } else {
-            console.log('Mode is locked, playing lock effect');
             playLockEffect();
         }
     }
@@ -51,13 +46,6 @@
 
     // Add event listeners after page load
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('Journey Map loaded. Available modes:');
-        document.querySelectorAll('.journey-node').forEach(node => {
-            const modeName = node.dataset.mode;
-            const isUnlocked = node.classList.contains('unlocked');
-            console.log(`Mode: ${modeName}, Unlocked: ${isUnlocked}`);
-        });
-        
         // Easter Egg: Reality Glimpse
         document.addEventListener('keydown', (e) => {
             if (e.altKey && e.key === 'r') {
@@ -85,24 +73,6 @@
     </div>
 
     <div class="terminal-body">
-        <!-- Debug Info Section -->
-        <div class="debug-info" style="margin-bottom: 20px; padding: 10px; border: 1px dashed #555; font-family: monospace; font-size: 12px;">
-            <h3>Debug Information</h3>
-            <ul>
-                {% for mode in modes %}
-                <li>
-                    {{ mode.name }} - 
-                    {% if mode.is_unlocked %}
-                        <span style="color: green;">UNLOCKED</span>
-                    {% else %}
-                        <span style="color: red;">LOCKED</span>
-                    {% endif %}
-                    (Progress: {{ mode.progress_percentage }}%)
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
-        
         <div class="journey-map-container">
             {% if modes %}
                 <div class="journey-timeline">
