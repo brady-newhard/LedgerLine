@@ -2,6 +2,79 @@
 {% load static %}
 
 {% block content %}
+<script>
+    // Define JavaScript functions first
+    function handleModeClick(modeName) {
+        console.log(`Mode clicked: ${modeName}`);
+        const modeElement = document.querySelector(`[data-mode="${modeName}"]`);
+        console.log(`Mode element found: ${modeElement !== null}`);
+        console.log(`Is unlocked: ${modeElement && modeElement.classList.contains('unlocked')}`);
+        
+        if (modeElement && modeElement.classList.contains('unlocked')) {
+            // Properly encode the mode name for the URL
+            const encodedModeName = encodeURIComponent(modeName);
+            console.log(`Navigating to: /journey/mode/${encodedModeName}/`);
+            window.location.href = `/journey/mode/${encodedModeName}/`;
+        } else {
+            console.log('Mode is locked, playing lock effect');
+            playLockEffect();
+        }
+    }
+
+    function playLockEffect() {
+        const audio = new Audio("{% static 'sounds/lock.mp3' %}");
+        audio.play();
+        document.querySelector('.locked:hover').classList.add('shake');
+        setTimeout(() => {
+            document.querySelector('.locked:hover').classList.remove('shake');
+        }, 500);
+    }
+
+    function toggleDescriptions() {
+        document.querySelectorAll('.mode-description').forEach(desc => {
+            desc.style.display = desc.style.display === 'none' ? 'block' : 'none';
+        });
+    }
+
+    function toggleHelp() {
+        alert(`LEDGERLINE JOURNEY MAP HELP
+        
+- Click on unlocked modes to access their dashboard
+- Press F2 to toggle mode descriptions
+- Press F5 to refresh your journey progress
+- Hidden Feature: Try pressing Alt+R for a glimpse of reality`);
+    }
+
+    function refreshJourney() {
+        location.reload();
+    }
+
+    // Add event listeners after page load
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log('Journey Map loaded. Available modes:');
+        document.querySelectorAll('.journey-node').forEach(node => {
+            const modeName = node.dataset.mode;
+            const isUnlocked = node.classList.contains('unlocked');
+            console.log(`Mode: ${modeName}, Unlocked: ${isUnlocked}`);
+        });
+        
+        // Easter Egg: Reality Glimpse
+        document.addEventListener('keydown', (e) => {
+            if (e.altKey && e.key === 'r') {
+                const glimpse = document.createElement('div');
+                glimpse.className = 'modern-interface-glimpse';
+                document.body.appendChild(glimpse);
+                setTimeout(() => {
+                    document.body.removeChild(glimpse);
+                }, 500);
+            }
+        });
+        
+        // Hide descriptions initially
+        toggleDescriptions();
+    });
+</script>
+
 <div class="terminal-container">
     <div class="terminal-header">
         <h1>FINANCIAL JOURNEY MAP v1.0.3</h1>
@@ -12,6 +85,24 @@
     </div>
 
     <div class="terminal-body">
+        <!-- Debug Info Section -->
+        <div class="debug-info" style="margin-bottom: 20px; padding: 10px; border: 1px dashed #555; font-family: monospace; font-size: 12px;">
+            <h3>Debug Information</h3>
+            <ul>
+                {% for mode in modes %}
+                <li>
+                    {{ mode.name }} - 
+                    {% if mode.is_unlocked %}
+                        <span style="color: green;">UNLOCKED</span>
+                    {% else %}
+                        <span style="color: red;">LOCKED</span>
+                    {% endif %}
+                    (Progress: {{ mode.progress_percentage }}%)
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+        
         <div class="journey-map-container">
             {% if modes %}
                 <div class="journey-timeline">
@@ -63,72 +154,6 @@
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-<script>
-    function handleModeClick(modeName) {
-        if (document.querySelector(`[data-mode="${modeName}"]`).classList.contains('unlocked')) {
-            window.location.href = `/modes/${modeName}/dashboard/`;
-        } else {
-            playLockEffect();
-        }
-    }
-
-    function playLockEffect() {
-        const audio = new Audio("{% static 'sounds/lock.mp3' %}");
-        audio.play();
-        document.querySelector('.locked:hover').classList.add('shake');
-        setTimeout(() => {
-            document.querySelector('.locked:hover').classList.remove('shake');
-        }, 500);
-    }
-
-    function toggleDescriptions() {
-        document.querySelectorAll('.mode-description').forEach(desc => {
-            desc.style.display = desc.style.display === 'none' ? 'block' : 'none';
-        });
-    }
-
-    function toggleHelp() {
-        alert(`LEDGERLINE JOURNEY MAP HELP
-        
-- Click on unlocked modes to access their dashboard
-- Press F2 to toggle mode descriptions
-- Press F5 to refresh your journey progress
-- Hidden Feature: Try pressing Alt+R for a glimpse of reality`);
-    }
-
-    function refreshJourney() {
-        location.reload();
-    }
-
-    // Easter Egg: Reality Glimpse
-    document.addEventListener('keydown', (e) => {
-        if (e.altKey && e.key === 'r') {
-            const glimpse = document.createElement('div');
-            glimpse.className = 'modern-interface-glimpse';
-            document.body.appendChild(glimpse);
-            setTimeout(() => {
-                document.body.removeChild(glimpse);
-            }, 500);
-        }
-    });
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-        // Hide descriptions initially
-        toggleDescriptions();
-        
-        // Add terminal startup effect
-        document.querySelectorAll('.journey-node').forEach((node, index) => {
-            node.style.opacity = '0';
-            setTimeout(() => {
-                node.style.opacity = '1';
-            }, index * 200);
-        });
-    });
-</script>
 {% endblock %}
 
 {% block styles %}
@@ -189,6 +214,31 @@
 
     .shake {
         animation: shake 0.5s ease-in-out;
+    }
+    
+    /* Modern interface glimpse for Alt+R easter egg */
+    .modern-interface-glimpse {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, rgba(0, 128, 255, 0.2), rgba(0, 255, 128, 0.2));
+        z-index: 9999;
+        pointer-events: none;
+        animation: glimpseEffect 0.5s ease-out;
+    }
+    
+    @keyframes glimpseEffect {
+        0% { opacity: 0; }
+        50% { opacity: 1; }
+        100% { opacity: 0; }
+    }
+    
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
     }
 </style>
 {% endblock %}
