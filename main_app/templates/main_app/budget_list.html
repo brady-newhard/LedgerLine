@@ -28,6 +28,7 @@ Loading worksheet...
         <th class="col-label">C</th>
         <th class="col-label">D</th>
         <th class="col-label">E</th>
+        <th class="col-label">F</th>
       </tr>
     </thead>
     <tbody>
@@ -37,6 +38,7 @@ Loading worksheet...
         <td><strong>type</strong></td>
         <td><strong>amount</strong></td>
         <td><strong>dates</strong></td>
+        <td><strong>progress</strong></td>
         <td><strong>status</strong></td>
       </tr>
       {% for budget in budgets %}
@@ -46,6 +48,14 @@ Loading worksheet...
           <td>{{ budget.get_budgeting_type_display }}</td>
           <td class="amount">${{ budget.amount }}</td>
           <td>{{ budget.start_date|date:"Y-m-d" }} to {{ budget.end_date|date:"Y-m-d" }}</td>
+          <td>
+            {% with progress=budget.get_monthly_progress %}
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: {{ progress.percentage }}%"></div>
+                <span class="progress-text">${{ progress.spent|floatformat:2 }} / ${{ progress.remaining|floatformat:2 }}</span>
+              </div>
+            {% endwith %}
+          </td>
           <td>
             {% if budget.end_date < now %}
               <span class="badge badge-warning">expired</span>
@@ -67,9 +77,7 @@ Loading worksheet...
 <div class="function-keys">
   <div class="function-key" onclick="showMessage('Displaying help documentation...')">F1-Help</div>
   <div class="function-key" onclick="window.location.href='{% url 'budget_create' %}'">F2-New</div>
-  <div class="function-key" onclick="showMessage('Delete function not implemented.')">F3-Del</div>
-  <div class="function-key" onclick="showMessage('Sorting budgets...')">F4-Sort</div>
-  <div class="function-key" onclick="calculateBudgetTotals()">F9-Calc</div>
+  <div class="function-key" onclick="showMessage('Calculating monthly totals...')">F9-Calc</div>
   <div class="function-key" onclick="showMenu()">F10-Menu</div>
 </div>
 
@@ -79,6 +87,47 @@ Loading worksheet...
   <span>{% now "m/d/Y" %}</span>
   <span>MEM: 640K</span>
 </div>
+
+<style>
+.progress-bar {
+  width: 100%;
+  height: 20px;
+  background-color: #333;
+  border-radius: 3px;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background-color: #00aa00;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 12px;
+  text-shadow: 1px 1px 1px #000;
+}
+
+.badge-success {
+  background-color: #00aa00;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.badge-warning {
+  background-color: #aa5500;
+  color: #fff;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+</style>
 
 <script>
 function showMessage(message) {
@@ -96,15 +145,6 @@ function showMessage(message) {
   }, 3000);
 }
 
-function calculateBudgetTotals() {
-  // Example of calculating budget totals
-  let totalMonthly = 0;
-  let totalAnnual = 0;
-  
-  // In a real implementation, you would get these from your budgets
-  showMessage('Calculating... Total Monthly: $0.00, Total Annual: $0.00');
-}
-
 function showMenu() {
   const menuElement = document.createElement('div');
   menuElement.className = 'terminal-output';
@@ -120,20 +160,5 @@ function showMenu() {
   });
 }
 </script>
-
-<style>
-.interactive {
-  cursor: pointer;
-}
-
-.interactive:hover {
-  background-color: var(--accent-beige);
-}
-
-.amount {
-  text-align: right;
-  font-family: 'IBM Plex Mono', monospace;
-}
-</style>
 {% endblock %}
 
