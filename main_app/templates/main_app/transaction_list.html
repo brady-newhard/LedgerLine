@@ -18,6 +18,21 @@ C:>FILE IMPORT LEDGER.WKS
 Loading worksheet...
 </div>
 
+<div class="monthly-totals">
+  <div class="total-box income">
+    <span class="total-label">Monthly Income</span>
+    <span class="total-amount">${{ monthly_totals.income|floatformat:2 }}</span>
+  </div>
+  <div class="total-box expense">
+    <span class="total-label">Monthly Expenses</span>
+    <span class="total-amount">${{ monthly_totals.expenses|floatformat:2 }}</span>
+  </div>
+  <div class="total-box net">
+    <span class="total-label">Net Amount</span>
+    <span class="total-amount">${{ monthly_totals.net|floatformat:2 }}</span>
+  </div>
+</div>
+
 {% if transactions %}
   <table>
     <thead>
@@ -28,6 +43,7 @@ Loading worksheet...
         <th class="col-label">C</th>
         <th class="col-label">D</th>
         <th class="col-label">E</th>
+        <th class="col-label">F</th>
       </tr>
     </thead>
     <tbody>
@@ -36,6 +52,7 @@ Loading worksheet...
         <td><strong>date</strong></td>
         <td><strong>description</strong></td>
         <td><strong>type</strong></td>
+        <td><strong>category</strong></td>
         <td class="amount"><strong>amount</strong></td>
         <td><strong>actions</strong></td>
       </tr>
@@ -49,6 +66,15 @@ Loading worksheet...
               <span class="badge">income</span>
             {% else %}
               <span class="badge">expense</span>
+            {% endif %}
+          </td>
+          <td>
+            {% if transaction.category %}
+              <span class="category-badge" style="background-color: {{ transaction.category.color }}">
+                {{ transaction.category.get_category_type_display }}
+              </span>
+            {% else %}
+              <span class="category-badge">uncategorized</span>
             {% endif %}
           </td>
           <td class="amount {% if transaction.transaction_type == 'INCOME' %}income{% else %}expense{% endif %}">
@@ -177,6 +203,73 @@ function showMenu() {
 
 .transaction-row:hover {
   background-color: #222;
+}
+
+.monthly-totals {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #222;
+  border-radius: 5px;
+}
+
+.total-box {
+  flex: 1;
+  text-align: center;
+  padding: 10px;
+  margin: 0 5px;
+  border-radius: 3px;
+}
+
+.total-box.income {
+  background-color: #004400;
+  border: 1px solid #00aa00;
+}
+
+.total-box.expense {
+  background-color: #440000;
+  border: 1px solid #aa0000;
+}
+
+.total-box.net {
+  background-color: #222;
+  border: 1px solid #666;
+}
+
+.total-label {
+  display: block;
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: 5px;
+}
+
+.total-amount {
+  display: block;
+  font-size: 18px;
+  font-weight: bold;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.total-box.income .total-amount {
+  color: #00aa00;
+}
+
+.total-box.expense .total-amount {
+  color: #aa0000;
+}
+
+.total-box.net .total-amount {
+  color: #fff;
+}
+
+.category-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  color: #fff;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
 }
 </style>
 {% endblock %} 
