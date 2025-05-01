@@ -34,6 +34,12 @@ urlpatterns = [
     path('categories/<int:pk>/update/', CategoryUpdate.as_view(), name='category_update'),
     path('categories/<int:pk>/delete/', CategoryDelete.as_view(), name='category_delete'),
     path('journey/', views.journey_map, name='journey_map'),
-    path('modes/<str:mode_name>/dashboard/', views.mode_dashboard, name='mode_dashboard'),
-
+    path('journey/mode/<str:mode_name>/', views.mode_dashboard, name='mode_dashboard'),
+    path('api/critical-spending/', views.save_critical_spending, name='save_critical_spending'),
+    path('api/expense-schedule/', views.save_expense_schedule, name='save_expense_schedule'),
+    path('api/stability-limits/', views.update_stability_limits, name='update_stability_limits'),
+    path('api/savings-goal/', views.save_savings_goal, name='save_savings_goal'),
+    path('api/savings-contribution/', views.save_savings_contribution, name='save_savings_contribution'),
+    path('api/freedom-plan/', views.save_freedom_plan, name='save_freedom_plan'),
+    path('api/freedom-expense/', views.save_freedom_expense, name='save_freedom_expense'),
 ]

@@ -1,13 +1,12 @@
 {% extends 'base.html' %}
-{% load ansi_shadow_tags %}
+{% load ansi_shadow_tags custom_filters %}
 
 {% block content %}
 <div class="terminal-container">
     <div class="terminal-header">
-        {% ansi_shadow "MODE DASHBOARD" %}
+        <h1 class="standard-title">{{ mode.name }}</h1>
         <div class="version-indicator">
-            <span class="version-text">v2.84 Terminal Edition</span>
-            <span class="version-hint">[Emulation active]</span>
+            <span class="version-text">Financial Planning Tool</span>
         </div>
     </div>
     
@@ -16,119 +15,84 @@
     </div>
     
     <div class="mode-header">
-        <div class="mode-icon">{{ mode.icon|default:"💰" }}</div>
+        <div class="mode-icon-placeholder"></div>
         <div class="mode-info">
-            <h1 class="mode-name">{{ mode.name }} <span class="mode-badge">{{ mode.status }}</span></h1>
-            <div class="hidden-mode-trigger" id="secret-mode-trigger" data-clicks="0"></div>
+            <span class="mode-badge">{{ mode.status }}</span>
+            <div class="mode-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ mode.progress_percentage }}%;"></div>
+                </div>
+                <span class="progress-text">Progress: {{ mode.progress_percentage }}%</span>
+            </div>
         </div>
-    </div>
-    
-    <div class="menu-bar">
-        <div class="menu-item" onclick="showOverview()">Overview</div>
-        <div class="menu-item" onclick="showStatus()">Status</div>
-        <div class="menu-item" onclick="showHistory()">History</div>
-        <div class="menu-item" onclick="showTips()">Tips</div>
-        <div class="menu-item hidden" id="advanced-menu-item" onclick="showAdvancedView()">Advanced</div>
     </div>
     
     <div class="terminal-body">
         <div class="dashboard-grid">
-            <div class="grid-item current-status">
-                <h2>Current Status</h2>
-                <div class="status-metrics">
-                    <div class="metric">
-                        <div class="metric-label">Progress</div>
-                        <div class="metric-value">{{ mode.progress_percentage }}%</div>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: {{ mode.progress_percentage }}%;"></div>
-                        </div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-label">Streak</div>
-                        <div class="metric-value">{{ mode.streak_days }} days</div>
-                    </div>
-                    <div class="metric">
-                        <div class="metric-label">Triggered</div>
-                        <div class="metric-value">{{ mode.triggered_date|date:"M d, Y" }}</div>
-                    </div>
+            {% if mode_data.mode.name == 'Lockdown Mode' %}
+            <div class="grid-item lockdown-spending-plan">
+                <h2>Emergency Budget Plan</h2>
+                <div class="plan-description">
+                    <p>Your emergency spending plan for essential categories:</p>
                 </div>
-            </div>
-            
-            <div class="grid-item financial-tips">
-                <h2>Financial Tips</h2>
-                <div class="tips-container">
-                    <div class="tip">
-                        <div class="tip-icon">💡</div>
-                        <div class="tip-content">
-                            <div class="tip-title">Track your expenses regularly</div>
-                            <div class="tip-description">Regular tracking helps you maintain awareness of your spending habits.</div>
+                
+                <div class="critical-categories">
+                    <div class="critical-category">
+                        <div class="category-label">Groceries</div>
+                        <div class="category-details">
+                            <h3>Basic Groceries</h3>
+                            <div class="amount">$<span id="groceries-amount">0</span></div>
+                            <p class="category-description" id="groceries-description">Essential groceries</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="groceries-progress" style="width: 0%"></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="tip">
-                        <div class="tip-icon">📊</div>
-                        <div class="tip-content">
-                            <div class="tip-title">Set clear financial goals</div>
-                            <div class="tip-description">Having specific goals helps guide your financial decisions and measure progress.</div>
+                    
+                    <div class="critical-category">
+                        <div class="category-label">Meals</div>
+                        <div class="category-details">
+                            <h3>Essential Meals</h3>
+                            <div class="amount">$<span id="meals-amount">0</span></div>
+                            <p class="category-description" id="meals-description">Basic meal staples</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="meals-progress" style="width: 0%"></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="tip easter-egg-tip" onclick="revealEasterEgg(event)">
-                        <div class="tip-icon">🔍</div>
-                        <div class="tip-content">
-                            <div class="tip-title">Look deeper</div>
-                            <div class="tip-description">The interface may hide more than it shows. <span class="glitch-text">Curious users are rewarded.</span></div>
+                    
+                    <div class="critical-category">
+                        <div class="category-label">Emergency</div>
+                        <div class="category-details">
+                            <h3>Emergency Food</h3>
+                            <div class="amount">$<span id="emergency-amount">0</span></div>
+                            <p class="category-description" id="emergency-description">Emergency reserves</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="emergency-progress" style="width: 0%"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="grid-item history-table">
-                <h2>Mode History</h2>
-                <div class="history-container">
-                    {% if history %}
-                        <table class="terminal-table">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Status</th>
-                                    <th>Progress</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% for entry in history %}
-                                <tr>
-                                    <td>{{ entry.timestamp|date:"M d, Y" }}</td>
-                                    <td>{{ entry.status_change }}</td>
-                                    <td>{{ entry.progress_percentage }}%</td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    {% else %}
-                        <p>No history available for this mode.</p>
-                        <p class="easter-egg-text">System awaiting sufficient user data for pattern analysis...</p>
-                    {% endif %}
+                
+                <div class="total-budget">
+                    <p>Total Budget: $<span id="total-food-budget">0</span></p>
+                    <p class="budget-note">Budget calculated at 15% of income for essential expenses.</p>
+                </div>
+                
+                <div class="plan-actions">
+                    <button class="terminal-button" onclick="recalculatePlan()">Update Budget</button>
+                    <button class="terminal-button" onclick="trackExpense()">Record Expense</button>
                 </div>
             </div>
-            
-            <div class="grid-item progress-chart">
-                <h2>Progress Chart</h2>
-                <div class="chart-container">
-                    {% if history|length > 1 %}
-                        <canvas id="progressChart"></canvas>
-                    {% else %}
-                        <p>Not enough data to display a progress chart.</p>
-                        <p class="easter-egg-text">Advanced visualization capabilities ready when data threshold is met.</p>
-                    {% endif %}
-                </div>
-            </div>
+            {% endif %}
         </div>
     </div>
     
     <div class="terminal-footer">
         <div class="footer-actions">
-            <a href="{% url 'unlocked_modes' %}" class="terminal-button">View All Modes</a>
+            <a href="{% url 'unlocked_modes' %}" class="terminal-button">All Modes</a>
             <a href="{% url 'journey_map' %}" class="terminal-button">Journey Map</a>
-            <a href="{% url 'home' %}" class="terminal-button">Back to Dashboard</a>
+            <a href="{% url 'home' %}" class="terminal-button">Dashboard</a>
         </div>
     </div>
     
@@ -137,180 +101,22 @@
         <div class="function-key" onclick="window.location.href='{% url 'home' %}'">F2-Home</div>
         <div class="function-key" onclick="window.location.href='{% url 'unlocked_modes' %}'">F3-Modes</div>
         <div class="function-key" onclick="window.location.href='{% url 'transaction_list' %}'">F4-Ledger</div>
-        <div class="function-key hidden" id="advanced-function-key" onclick="showAdvancedView()">F9-Reality</div>
     </div>
     
     <div class="status-bar">
         <span id="status-message">READY.</span>
-        <span class="status-bar-brand">LEDGERLINE: Terminal Edition <span class="glitch-text">[Emulation]</span></span>
+        <span class="status-bar-brand">LEDGERLINE: Financial Planning Tool</span>
         <span>{% now "m/d/Y" %}</span>
     </div>
 </div>
 
-<!-- Hidden Advanced View Container -->
-<div id="advanced-view-container" class="advanced-view-container hidden">
-    <div class="advanced-view-content">
-        <div class="advanced-header">
-            <h1>Advanced Financial Analysis</h1>
-            <div class="close-button" onclick="hideAdvancedView()">×</div>
-        </div>
-        <div class="advanced-body">
-            <p>Access denied. Insufficient privileges.</p>
-            <p>Continue your financial journey to unlock advanced capabilities.</p>
-            <div class="advanced-progress-bar">
-                <div class="advanced-progress-fill" style="width: {{ mode.progress_percentage }}%;"></div>
-            </div>
-            <p class="advanced-progress-text">{{ mode.progress_percentage }}% complete</p>
-        </div>
-    </div>
-</div>
-
 <script>
-let secretProgress = 0;
-const SECRET_THRESHOLD = 7;
-let secretKeySequence = '';
-const SECRET_CODE = 'reality';
-
-// Initialize glitch effects
-document.addEventListener('DOMContentLoaded', function() {
-    // Random micro-glitches
-    setInterval(() => {
-        if (Math.random() < 0.05) { // 5% chance each interval
-            const glitch = document.createElement('div');
-            glitch.className = 'micro-glitch';
-            document.body.appendChild(glitch);
-            
-            setTimeout(() => {
-                document.body.removeChild(glitch);
-            }, 100);
-        }
-    }, 30000); // Check every 30 seconds
-    
-    // Occasional version hint flicker
-    setInterval(() => {
-        const versionHint = document.querySelector('.version-hint');
-        if (versionHint) {
-            versionHint.classList.add('flicker');
-            setTimeout(() => {
-                versionHint.classList.remove('flicker');
-            }, 2000);
-        }
-    }, 60000); // Every minute
-    
-    // Setup secret trigger in mode icon
-    const modeIcon = document.querySelector('.mode-icon');
-    if (modeIcon) {
-        modeIcon.addEventListener('click', () => {
-            secretProgress++;
-            if (secretProgress === 3) {
-                showHint('User exhibits curiosity. Additional system features may be accessible.');
-            }
-            if (secretProgress >= SECRET_THRESHOLD) {
-                document.getElementById('advanced-menu-item').classList.remove('hidden');
-                document.getElementById('advanced-function-key').classList.remove('hidden');
-                showHint('System notice: Advanced features unlocked.');
-            }
-        });
-    }
-    
-    // Setup secret key listener
-    document.addEventListener('keydown', (e) => {
-        secretKeySequence += e.key.toLowerCase();
-        
-        // Only keep the last 7 characters
-        if (secretKeySequence.length > 7) {
-            secretKeySequence = secretKeySequence.substring(secretKeySequence.length - 7);
-        }
-        
-        // Check if the secret code is contained in the current sequence
-        if (secretKeySequence.includes(SECRET_CODE)) {
-            secretKeySequence = ''; // Reset
-            showAdvancedView();
-        }
-    });
-    
-    // Progress chart initialization
-    {% if history|length > 1 %}
-    const ctx = document.getElementById('progressChart').getContext('2d');
-    
-    // Extract data from history
-    const labels = [{% for entry in history %}"{{ entry.timestamp|date:'M d' }}"{% if not forloop.last %}, {% endif %}{% endfor %}];
-    const data = [{% for entry in history %}{{ entry.progress_percentage }}{% if not forloop.last %}, {% endif %}{% endfor %}];
-    
-    // Create chart
-    const progressChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Progress %',
-                data: data,
-                borderColor: '#5f5',
-                backgroundColor: 'rgba(95, 255, 95, 0.1)',
-                tension: 0.2,
-                borderWidth: 2,
-                pointBackgroundColor: '#5f5',
-                pointRadius: 3,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                },
-                tooltip: {
-                    backgroundColor: '#111',
-                    titleColor: '#5f5',
-                    bodyColor: '#fff',
-                    borderColor: '#5f5',
-                    borderWidth: 1,
-                    displayColors: false
-                }
-            },
-            scales: {
-                x: {
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.1)'
-                    },
-                    ticks: {
-                        color: '#aaa',
-                        font: {
-                            family: 'monospace'
-                        }
-                    }
-                },
-                y: {
-                    beginAtZero: true,
-                    max: 100,
-                    grid: {
-                        color: 'rgba(255, 255, 255, 0.1)'
-                    },
-                    ticks: {
-                        color: '#aaa',
-                        font: {
-                            family: 'monospace'
-                        },
-                        callback: function(value) {
-                            return value + '%';
-                        }
-                    }
-                }
-            }
-        }
-    });
-    {% endif %}
-});
-
+// Function to show help information
 function showHelpInfo() {
     const helpText = `MODE DASHBOARD HELP:
 - This dashboard shows your progress in the '{{ mode.name }}' financial mode
-- View your current status, progress, and history
-- Find financial tips related to this mode
-- Track your progress over time with the progress chart
-<span class="glitch-text">[Info: Advanced analytical tools restricted in compatibility mode]</span>`;
+- Track your essential spending in emergency categories
+- Use the buttons below to update your budget or record expenses`;
 
     let output = document.querySelector('.terminal-output');
     if (!output) {
@@ -326,346 +132,253 @@ function showHelpInfo() {
     output.innerHTML = helpText.replace(/\n/g, '<br>');
     document.getElementById('status-message').textContent = "Displaying help information";
     
-    // Increment secret progress
-    secretProgress++;
-    if (secretProgress >= SECRET_THRESHOLD) {
-        document.getElementById('advanced-menu-item').classList.remove('hidden');
-        document.getElementById('advanced-function-key').classList.remove('hidden');
-    }
-}
-
-function showHint(message) {
-    let output = document.querySelector('.terminal-output');
-    if (!output) {
-        output = document.createElement('div');
-        output.className = 'terminal-output';
-        document.querySelector('.terminal-container').insertBefore(
-            output, 
-            document.querySelector('.mode-header')
-        );
-    }
-    
-    output.classList.remove('hidden');
-    output.innerHTML = `<span class="glitch-text">${message}</span>`;
-    
     setTimeout(() => {
-        output.innerHTML = '';
         output.classList.add('hidden');
-    }, 4000);
+    }, 5000);
 }
 
-function showOverview() {
-    document.getElementById('status-message').textContent = "Showing mode overview";
-}
-
-function showStatus() {
-    document.getElementById('status-message').textContent = "Showing mode status";
-}
-
-function showHistory() {
-    document.getElementById('status-message').textContent = "Showing mode history";
-}
-
-function showTips() {
-    document.getElementById('status-message').textContent = "Showing financial tips";
-}
-
-function showAdvancedView() {
-    const advancedContainer = document.getElementById('advanced-view-container');
-    advancedContainer.classList.remove('hidden');
+// Lockdown Mode spending plan initialization
+{% if mode_data.mode.name == 'Lockdown Mode' and mode_data.mode_data.critical_spending %}
+document.addEventListener('DOMContentLoaded', function() {
+    // Critical spending data from backend
+    const criticalSpending = {
+        groceries: { 
+            amount: {{ mode_data.mode_data.critical_spending.basic_groceries.amount }}, 
+            spent: {{ mode_data.mode_data.critical_spending.basic_groceries.spent }},
+            icon: '{{ mode_data.mode_data.critical_spending.basic_groceries.icon }}',
+            description: '{{ mode_data.mode_data.critical_spending.basic_groceries.description }}'
+        },
+        meals: { 
+            amount: {{ mode_data.mode_data.critical_spending.essential_meals.amount }}, 
+            spent: {{ mode_data.mode_data.critical_spending.essential_meals.spent }},
+            icon: '{{ mode_data.mode_data.critical_spending.essential_meals.icon }}',
+            description: '{{ mode_data.mode_data.critical_spending.essential_meals.description }}'
+        },
+        emergency: { 
+            amount: {{ mode_data.mode_data.critical_spending.emergency_food.amount }}, 
+            spent: {{ mode_data.mode_data.critical_spending.emergency_food.spent }},
+            icon: '{{ mode_data.mode_data.critical_spending.emergency_food.icon }}',
+            description: '{{ mode_data.mode_data.critical_spending.emergency_food.description }}'
+        }
+    };
     
-    // Add glitch effect during transition
-    const glitch = document.createElement('div');
-    glitch.className = 'reality-glitch';
-    document.body.appendChild(glitch);
+    // Store in window for other functions to access
+    window.criticalBudget = criticalSpending;
     
+    // Update UI with the provided values
+    document.getElementById('groceries-amount').textContent = criticalSpending.groceries.amount.toFixed(2);
+    document.getElementById('meals-amount').textContent = criticalSpending.meals.amount.toFixed(2);
+    document.getElementById('emergency-amount').textContent = criticalSpending.emergency.amount.toFixed(2);
+    document.getElementById('total-food-budget').textContent = 
+        (criticalSpending.groceries.amount + criticalSpending.meals.amount + criticalSpending.emergency.amount).toFixed(2);
+    
+    // Update descriptions if available
+    if (document.getElementById('groceries-description')) {
+        document.getElementById('groceries-description').textContent = criticalSpending.groceries.description;
+        document.getElementById('meals-description').textContent = criticalSpending.meals.description;
+        document.getElementById('emergency-description').textContent = criticalSpending.emergency.description;
+    }
+    
+    // Calculate and update progress bars
+    updateProgressBars();
+});
+
+// Function to update progress bars based on spending
+function updateProgressBars() {
+    if (!window.criticalBudget) return;
+    
+    const calculatePercentage = (spent, total) => Math.min(100, Math.round((spent / total) * 100));
+    
+    // Update grocery progress
+    const groceryPercentage = calculatePercentage(window.criticalBudget.groceries.spent, window.criticalBudget.groceries.amount);
+    document.getElementById('groceries-progress').style.width = `${groceryPercentage}%`;
+    
+    // Update meals progress
+    const mealsPercentage = calculatePercentage(window.criticalBudget.meals.spent, window.criticalBudget.meals.amount);
+    document.getElementById('meals-progress').style.width = `${mealsPercentage}%`;
+    
+    // Update emergency progress
+    const emergencyPercentage = calculatePercentage(window.criticalBudget.emergency.spent, window.criticalBudget.emergency.amount);
+    document.getElementById('emergency-progress').style.width = `${emergencyPercentage}%`;
+}
+
+// Function to track a spending in a category
+function trackExpense() {
+    // Create tracking form
+    const trackingForm = document.createElement('div');
+    trackingForm.className = 'expense-tracker';
+    trackingForm.innerHTML = `
+        <h3>Record Expense</h3>
+        <select id="expense-category">
+            <option value="groceries">Basic Groceries</option>
+            <option value="meals">Essential Meals</option>
+            <option value="emergency">Emergency Food</option>
+        </select>
+        <input type="number" id="expense-amount" placeholder="Amount" step="0.01" min="0.01">
+        <input type="text" id="expense-notes" placeholder="Notes (optional)">
+        <div class="expense-actions">
+            <button onclick="saveExpense()">Save</button>
+            <button onclick="cancelExpense()">Cancel</button>
+        </div>
+    `;
+    
+    // Find a good place to insert the form
+    const lockdownPlan = document.querySelector('.lockdown-spending-plan');
+    lockdownPlan.appendChild(trackingForm);
+    
+    // Hide the track button while form is open
+    document.querySelector('.plan-actions').style.display = 'none';
+}
+
+// Function to save the expense
+function saveExpense() {
+    const category = document.getElementById('expense-category').value;
+    const amount = parseFloat(document.getElementById('expense-amount').value);
+    const notes = document.getElementById('expense-notes') ? document.getElementById('expense-notes').value : '';
+    
+    if (isNaN(amount) || amount <= 0) {
+        showMessage("Please enter a valid amount");
+        return;
+    }
+    
+    // Update the UI first for quick feedback
+    window.criticalBudget[category].spent += amount;
+    
+    // Calculate and update progress
+    const percentage = Math.min(100, Math.round((window.criticalBudget[category].spent / window.criticalBudget[category].amount) * 100));
+    document.getElementById(`${category}-progress`).style.width = `${percentage}%`;
+    
+    // Change color based on percentage
+    const progressBar = document.getElementById(`${category}-progress`);
+    if (percentage > 90) {
+        progressBar.style.backgroundColor = '#aa0000';
+    } else if (percentage > 75) {
+        progressBar.style.backgroundColor = '#aa5500';
+    }
+    
+    // Submit to backend
+    fetch('/api/critical-spending/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            category: category,
+            amount: amount,
+            notes: notes
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showMessage(`$${amount.toFixed(2)} recorded in ${category}`);
+        } else {
+            showMessage(`Error: ${data.error}`);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showMessage("Failed to save expense. Please try again.");
+    });
+    
+    // Clean up
+    cancelExpense();
+}
+
+// Function to cancel expense tracking
+function cancelExpense() {
+    // Remove the form
+    const form = document.querySelector('.expense-tracker');
+    if (form) {
+        form.parentNode.removeChild(form);
+    }
+    
+    // Show the action buttons again
+    document.querySelector('.plan-actions').style.display = 'flex';
+}
+
+// Helper function to show status messages
+function showMessage(message) {
+    const statusMessage = document.getElementById('status-message');
+    statusMessage.textContent = message;
+    
+    // Fade in and out for a calming effect instead of blinking
+    statusMessage.classList.add('fade-message');
     setTimeout(() => {
-        document.body.removeChild(glitch);
-    }, 200);
-    
-    document.getElementById('status-message').textContent = "ACCESSING ADVANCED SYSTEMS...";
+        statusMessage.classList.remove('fade-message');
+    }, 3000);
 }
 
-function hideAdvancedView() {
-    const advancedContainer = document.getElementById('advanced-view-container');
-    advancedContainer.classList.add('hidden');
-    document.getElementById('status-message').textContent = "RETURNING TO COMPATIBILITY MODE";
+// Helper function to get CSRF cookie for POST requests
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Function to recalculate the spending plan
+function recalculatePlan() {
+    showMessage("Updating budget based on your current financial data...");
     
+    // In a real application, this would call an API endpoint to recalculate
+    // For now, we'll simulate a refresh
     setTimeout(() => {
-        document.getElementById('status-message').textContent = "READY.";
+        showMessage("Budget updated successfully");
+        location.reload();
     }, 2000);
 }
-
-function revealEasterEgg(event) {
-    // Increment the secret progress
-    secretProgress += 2;
-    
-    // Show a brief glitch
-    const glitch = document.createElement('div');
-    glitch.className = 'micro-glitch';
-    document.body.appendChild(glitch);
-    
-    setTimeout(() => {
-        document.body.removeChild(glitch);
-    }, 100);
-    
-    // Create a mysterious message
-    showHint("Curious minds find what others overlook. Keep exploring.");
-    
-    // If threshold reached, reveal advanced options
-    if (secretProgress >= SECRET_THRESHOLD) {
-        document.getElementById('advanced-menu-item').classList.remove('hidden');
-        document.getElementById('advanced-function-key').classList.remove('hidden');
-    }
-    
-    // Apply some visual effect to the clicked element
-    const tipElement = event.currentTarget;
-    tipElement.classList.add('easter-egg-activated');
-    
-    setTimeout(() => {
-        tipElement.classList.remove('easter-egg-activated');
-    }, 1000);
-}
+{% endif %}
 </script>
-{% endblock %}
 
+{% endblock %}
 {% block styles %}
 <style>
+    /* Standard title styling */
+    .standard-title {
+        font-size: 2.2em;
+        font-weight: bold;
+        text-align: center;
+        margin: 0.5em 0;
+        color: #00aa00;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-family: monospace;
+    }
+    
     /* Version indicator */
     .version-indicator {
         font-size: 0.7rem;
         text-align: right;
         margin-top: -10px;
         margin-bottom: 10px;
-        opacity: 0.6;
+        opacity: 0.8;
     }
     
-    .version-hint {
-        color: #ff5555 !important;
-        margin-left: 10px;
-        opacity: 0.5;
-        font-style: italic;
-        cursor: help;
+    /* Calm fade effect for messages instead of blinking */
+    .fade-message {
+        animation: fadeMessage 3s ease;
     }
     
-    .version-hint:hover {
-        opacity: 0.9;
+    @keyframes fadeMessage {
+        0% { opacity: 0.2; }
+        20% { opacity: 1; }
+        80% { opacity: 1; }
+        100% { opacity: 0.2; }
     }
     
-    .flicker {
-        animation: textFlicker 2s;
-    }
-    
-    @keyframes textFlicker {
-        0% { opacity: 0.5; }
-        5% { opacity: 0; }
-        10% { opacity: 0.7; }
-        15% { opacity: 0.2; }
-        20% { opacity: 0.6; }
-        25% { opacity: 0.9; }
-        30% { opacity: 0.2; }
-        35% { opacity: 0.7; }
-        40% { opacity: 0.5; }
-        45% { opacity: 0.2; }
-        50% { opacity: 0.7; }
-        55% { opacity: 0.5; }
-        60% { opacity: 0.7; }
-        100% { opacity: 0.5; }
-    }
-    
-    /* Modern glitch elements */
-    .reality-glitch {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, rgba(0, 136, 255, 0.2), rgba(0, 255, 170, 0.2));
-        z-index: 9999;
-        pointer-events: none;
-        animation: realityGlitch 0.15s;
-    }
-    
-    @keyframes realityGlitch {
-        0% { opacity: 0; }
-        50% { opacity: 1; }
-        100% { opacity: 0; }
-    }
-    
-    .micro-glitch {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 136, 255, 0.05);
-        z-index: 9999;
-        pointer-events: none;
-        animation: microGlitch 0.1s;
-    }
-    
-    @keyframes microGlitch {
-        0% { opacity: 0; }
-        50% { opacity: 0.5; }
-        100% { opacity: 0; }
-    }
-    
-    .glitch-text {
-        animation: glitchText 5s infinite;
-        display: inline-block;
-        color: #ff5555 !important;
-    }
-    
-    @keyframes glitchText {
-        0% { opacity: 1; }
-        0.1% { opacity: 0; transform: translateX(1px); }
-        0.2% { opacity: 1; transform: translateX(0); }
-        25% { opacity: 1; }
-        25.1% { opacity: 0; transform: translateX(-1px); }
-        25.2% { opacity: 1; transform: translateX(0); }
-        85% { opacity: 1; }
-        85.1% { opacity: 0; transform: translateY(1px); }
-        85.2% { opacity: 1; transform: translateY(0); }
-        100% { opacity: 1; }
-    }
-    
-    /* Easter egg text */
-    .easter-egg-text {
-        opacity: 0.5;
-        font-size: 0.85em;
-        color: #555 !important;
-        display: block;
-        margin-top: 5px;
-        cursor: help;
-    }
-    
-    .easter-egg-text:hover {
-        color: #00ffff !important;
-    }
-    
-    /* Advanced view styling */
-    .advanced-view-container {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.9);
-        z-index: 1000;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        opacity: 0;
-        animation: fadeIn 0.5s forwards;
-    }
-    
-    @keyframes fadeIn {
-        0% { opacity: 0; }
-        100% { opacity: 1; }
-    }
-    
-    .advanced-view-content {
-        width: 80%;
-        max-width: 800px;
-        background: linear-gradient(135deg, #001a3a, #003a3a);
-        border-radius: 10px;
-        padding: 20px;
-        color: white !important;
-        box-shadow: 0 0 30px rgba(0, 170, 255, 0.3);
-    }
-    
-    .advanced-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-        padding-bottom: 10px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    
-    .advanced-header h1 {
-        margin: 0;
-        color: white !important;
-        font-size: 1.8rem;
-    }
-    
-    .close-button {
-        font-size: 2rem;
-        cursor: pointer;
-        color: #aaa !important;
-        transition: color 0.3s;
-    }
-    
-    .close-button:hover {
-        color: white !important;
-    }
-    
-    .advanced-body {
-        text-align: center;
-        padding: 20px;
-    }
-    
-    .advanced-progress-bar {
-        height: 20px;
-        background: rgba(0, 0, 0, 0.3);
-        border-radius: 10px;
-        margin: 20px 0;
-        overflow: hidden;
-    }
-    
-    .advanced-progress-fill {
-        height: 100%;
-        background: linear-gradient(90deg, #00aaff, #00ffaa);
-        transition: width 1s ease;
-    }
-    
-    .advanced-progress-text {
-        color: #00aaff !important;
-        font-weight: bold;
-    }
-    
-    /* Easter egg tip styling */
-    .easter-egg-tip {
-        position: relative;
-        overflow: hidden;
-        cursor: pointer;
-    }
-    
-    .easter-egg-tip::after {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(135deg, rgba(0, 170, 255, 0), rgba(0, 170, 255, 0.1));
-        opacity: 0;
-        transition: opacity 0.3s;
-    }
-    
-    .easter-egg-tip:hover::after {
-        opacity: 1;
-    }
-    
-    .easter-egg-activated {
-        animation: easterEggPulse 1s;
-    }
-    
-    @keyframes easterEggPulse {
-        0% { transform: scale(1); box-shadow: none; }
-        50% { transform: scale(1.05); box-shadow: 0 0 15px rgba(0, 170, 255, 0.5); }
-        100% { transform: scale(1); box-shadow: none; }
-    }
-    
-    /* Secret trigger */
-    .hidden-mode-trigger {
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 20px;
-        height: 20px;
-        cursor: pointer;
-        opacity: 0;
+    /* Status bar styling */
+    .status-bar-brand {
+        color: #338833 !important;
     }
     
     /* Keep existing styles below */
@@ -679,20 +392,20 @@ function revealEasterEgg(event) {
         position: relative;
     }
     
-    .mode-icon {
-        font-size: 3em;
-        cursor: pointer;
-        transition: transform 0.3s ease, text-shadow 0.3s ease;
-    }
-    
-    .mode-icon:hover {
-        transform: scale(1.1);
-        text-shadow: 0 0 10px rgba(95, 255, 95, 0.7);
+    .mode-icon-placeholder {
+        width: 40px;
+        height: 40px;
+        background-color: #338833;
+        border-radius: 50%;
+        margin-right: 10px;
     }
     
     .mode-info {
         flex-grow: 1;
-        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding-left: 10px;
     }
     
     .mode-name {
@@ -704,35 +417,25 @@ function revealEasterEgg(event) {
     }
     
     .mode-badge {
-        font-size: 0.6em;
-        background-color: #5f5;
+        font-size: 1em;
+        background-color: #338833;
         color: #000;
-        padding: 2px 8px;
+        padding: 5px 10px;
         border-radius: 10px;
         text-transform: uppercase;
+        letter-spacing: 1px;
+        display: inline-block;
+        margin: 0.5em 0;
     }
     
-    .menu-bar {
-        display: flex;
-        gap: 20px;
-        margin-bottom: 20px;
-        border-bottom: 1px solid #333;
-        padding-bottom: 10px;
-    }
-    
-    .menu-item {
-        cursor: pointer;
-        padding: 5px 10px;
-        transition: color 0.2s ease;
-    }
-    
-    .menu-item:hover {
-        color: #5f5;
+    .mode-progress {
+        width: 100%;
+        margin-top: 10px;
     }
     
     .dashboard-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(1, 1fr);
         gap: 20px;
     }
     
@@ -785,70 +488,6 @@ function revealEasterEgg(event) {
         transition: width 0.5s ease-in-out;
     }
     
-    .tips-container {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-    }
-    
-    .tip {
-        display: flex;
-        gap: 10px;
-        align-items: flex-start;
-        padding: 10px;
-        border-radius: 5px;
-        transition: background-color 0.2s ease;
-    }
-    
-    .tip:hover {
-        background-color: #1a1a1a;
-    }
-    
-    .tip-icon {
-        font-size: 1.5em;
-    }
-    
-    .tip-content {
-        flex-grow: 1;
-    }
-    
-    .tip-title {
-        font-weight: bold;
-        margin-bottom: 5px;
-    }
-    
-    .tip-description {
-        font-size: 0.9em;
-        color: #aaa;
-    }
-    
-    .history-container {
-        max-height: 200px;
-        overflow-y: auto;
-    }
-    
-    .terminal-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    
-    .terminal-table th,
-    .terminal-table td {
-        padding: 8px;
-        text-align: left;
-        border-bottom: 1px solid #333;
-    }
-    
-    .terminal-table th {
-        background-color: #1a1a1a;
-        font-weight: bold;
-    }
-    
-    .chart-container {
-        height: 200px;
-        position: relative;
-    }
-    
     .terminal-footer {
         margin-top: 20px;
         text-align: center;
@@ -878,6 +517,175 @@ function revealEasterEgg(event) {
     
     .hidden {
         display: none !important;
+    }
+
+    .lockdown-spending-plan {
+        margin-top: 2rem;
+        padding: 1rem;
+        border: 2px solid #338833;  /* Green border for a more calming color */
+        background-color: #0a0a0a;
+    }
+
+    .critical-categories {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin: 1.5rem 0;
+    }
+
+    .critical-category {
+        display: flex;
+        align-items: center;
+        background-color: #0a0a0a;
+        padding: 1rem;
+        border: 1px solid #333;
+    }
+
+    .category-label {
+        font-weight: bold;
+        min-width: 80px;
+        text-align: center;
+        color: #338833;
+        margin-right: 1rem;
+    }
+
+    .category-details {
+        flex-grow: 1;
+    }
+
+    .category-details h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1rem;
+    }
+
+    .category-description {
+        font-size: 0.85rem;
+        color: #aaa;
+        margin: 0.25rem 0 0.5rem 0;
+    }
+
+    .amount {
+        font-family: monospace;
+        font-size: 1.2rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .progress-bar {
+        height: 0.5rem;
+        background-color: #333;
+        width: 100%;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background-color: #338833;  /* Calming green color */
+        transition: width 0.3s ease;
+    }
+
+    .plan-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .expense-tracker {
+        background-color: #111;
+        padding: 1rem;
+        margin-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        border: 1px solid #444;
+        border-radius: 4px;
+    }
+
+    .expense-tracker h3 {
+        margin-top: 0;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .expense-tracker select,
+    .expense-tracker input {
+        background-color: #222;
+        color: #eee;
+        border: 1px solid #444;
+        padding: 0.5rem;
+        font-family: monospace;
+    }
+
+    .expense-tracker button {
+        background-color: #333;
+        color: #eee;
+        border: none;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+    }
+
+    .expense-tracker button:hover {
+        background-color: #444;
+    }
+
+    .total-budget {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background-color: rgba(51, 136, 51, 0.1);  /* Calming green */
+        border-left: 3px solid #338833;
+    }
+
+    .total-budget p {
+        margin: 0;
+    }
+
+    .total-budget p:first-child {
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .budget-note {
+        font-size: 0.85rem;
+        color: #aaa;
+    }
+
+    .function-keys {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1rem;
+    }
+    
+    .function-key {
+        background-color: #333;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+        cursor: pointer;
+    }
+    
+    .function-key:hover {
+        background-color: #444;
+    }
+    
+    .expense-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    
+    .expense-actions button {
+        background-color: #222;
+        color: #338833;
+        border: 1px solid #338833;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        flex: 1;
+    }
+    
+    .expense-actions button:last-child {
+        color: #883333;  /* Softer red */
+        border-color: #883333;
+    }
+    
+    .expense-actions button:hover {
+        background-color: #333;
     }
 </style>
 {% endblock %}

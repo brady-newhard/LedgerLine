@@ -2,12 +2,59 @@
 {% load static %}
 
 {% block content %}
+<script>
+    // Define JavaScript functions first
+    function handleModeClick(modeName) {
+        const modeElement = document.querySelector(`[data-mode="${modeName}"]`);
+        
+        if (modeElement && modeElement.classList.contains('unlocked')) {
+            // Properly encode the mode name for the URL
+            const encodedModeName = encodeURIComponent(modeName);
+            window.location.href = `/journey/mode/${encodedModeName}/`;
+        } else {
+            playLockEffect();
+        }
+    }
+
+    function playLockEffect() {
+        const audio = new Audio("{% static 'sounds/lock.mp3' %}");
+        audio.play();
+        document.querySelector('.locked:hover').classList.add('gentle-shake');
+        setTimeout(() => {
+            document.querySelector('.locked:hover').classList.remove('gentle-shake');
+        }, 500);
+    }
+
+    function toggleDescriptions() {
+        document.querySelectorAll('.mode-description').forEach(desc => {
+            desc.style.display = desc.style.display === 'none' ? 'block' : 'none';
+        });
+    }
+
+    function toggleHelp() {
+        alert(`LEDGERLINE JOURNEY MAP HELP
+        
+- Click on unlocked modes to access their dashboard
+- Press F2 to toggle mode descriptions
+- Press F5 to refresh your journey progress`);
+    }
+
+    function refreshJourney() {
+        location.reload();
+    }
+
+    // Add event listeners after page load
+    document.addEventListener('DOMContentLoaded', function() {
+        // Hide descriptions initially
+        toggleDescriptions();
+    });
+</script>
+
 <div class="terminal-container">
     <div class="terminal-header">
-        <h1>FINANCIAL JOURNEY MAP v1.0.3</h1>
+        <h1 class="standard-title">FINANCIAL JOURNEY MAP</h1>
         <div class="version-indicator">
-            <span class="version-text">TERMINAL MODE ACTIVE</span>
-            <span class="version-hint">Reality Glimpse Available: Press Alt+R</span>
+            <span class="version-text">Financial Planning Tool</span>
         </div>
     </div>
 
@@ -20,10 +67,9 @@
                              data-mode="{{ mode.name }}"
                              onclick="handleModeClick('{{ mode.name }}')">
                             <div class="mode-header">
-                                <span class="mode-icon">{{ mode.icon }}</span>
                                 <h2 class="mode-title">{{ mode.name }}</h2>
                                 {% if mode.is_unlocked %}
-                                    <span class="mode-status glitch-text">UNLOCKED</span>
+                                    <span class="mode-status available">AVAILABLE</span>
                                 {% else %}
                                     <span class="mode-status">LOCKED</span>
                                 {% endif %}
@@ -48,7 +94,7 @@
                 </div>
             {% else %}
                 <div class="terminal-message">
-                    <p class="glitch-text">NO MODES AVAILABLE</p>
+                    <p>NO MODES AVAILABLE</p>
                     <p>Begin your journey by completing the initial assessment.</p>
                 </div>
             {% endif %}
@@ -65,78 +111,24 @@
 </div>
 {% endblock %}
 
-{% block scripts %}
-<script>
-    function handleModeClick(modeName) {
-        if (document.querySelector(`[data-mode="${modeName}"]`).classList.contains('unlocked')) {
-            window.location.href = `/modes/${modeName}/dashboard/`;
-        } else {
-            playLockEffect();
-        }
-    }
-
-    function playLockEffect() {
-        const audio = new Audio("{% static 'sounds/lock.mp3' %}");
-        audio.play();
-        document.querySelector('.locked:hover').classList.add('shake');
-        setTimeout(() => {
-            document.querySelector('.locked:hover').classList.remove('shake');
-        }, 500);
-    }
-
-    function toggleDescriptions() {
-        document.querySelectorAll('.mode-description').forEach(desc => {
-            desc.style.display = desc.style.display === 'none' ? 'block' : 'none';
-        });
-    }
-
-    function toggleHelp() {
-        alert(`LEDGERLINE JOURNEY MAP HELP
-        
-- Click on unlocked modes to access their dashboard
-- Press F2 to toggle mode descriptions
-- Press F5 to refresh your journey progress
-- Hidden Feature: Try pressing Alt+R for a glimpse of reality`);
-    }
-
-    function refreshJourney() {
-        location.reload();
-    }
-
-    // Easter Egg: Reality Glimpse
-    document.addEventListener('keydown', (e) => {
-        if (e.altKey && e.key === 'r') {
-            const glimpse = document.createElement('div');
-            glimpse.className = 'modern-interface-glimpse';
-            document.body.appendChild(glimpse);
-            setTimeout(() => {
-                document.body.removeChild(glimpse);
-            }, 500);
-        }
-    });
-
-    // Initialize
-    document.addEventListener('DOMContentLoaded', () => {
-        // Hide descriptions initially
-        toggleDescriptions();
-        
-        // Add terminal startup effect
-        document.querySelectorAll('.journey-node').forEach((node, index) => {
-            node.style.opacity = '0';
-            setTimeout(() => {
-                node.style.opacity = '1';
-            }, index * 200);
-        });
-    });
-</script>
-{% endblock %}
-
 {% block styles %}
 <style>
+    /* Standard title styling */
+    .standard-title {
+        font-size: 2.2em;
+        font-weight: bold;
+        text-align: center;
+        margin: 0.5em 0;
+        color: #00aa00;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-family: monospace;
+    }
+
     .terminal-message {
         text-align: center;
         padding: 2rem;
-        border: 1px dashed #00aa00;
+        border: 1px dashed #338833;
     }
 
     .mode-header {
@@ -144,10 +136,6 @@
         align-items: center;
         gap: 1rem;
         margin-bottom: 1rem;
-    }
-
-    .mode-icon {
-        font-size: 1.5em;
     }
 
     .mode-title {
@@ -159,11 +147,16 @@
         padding: 0.2rem 0.5rem;
         border: 1px solid currentColor;
     }
+    
+    .mode-status.available {
+        color: #338833;
+        border-color: #338833;
+    }
 
     .mode-description {
         margin-top: 1rem;
         padding: 1rem;
-        border-left: 2px solid #00aa00;
+        border-left: 2px solid #338833;
         font-size: 0.9em;
     }
 
@@ -175,20 +168,67 @@
 
     .function-keys button {
         background: none;
-        border: 1px solid #00aa00;
-        color: #00aa00;
+        border: 1px solid #338833;
+        color: #338833;
         padding: 0.5rem 1rem;
         cursor: pointer;
         transition: all 0.3s ease;
     }
 
     .function-keys button:hover {
-        background-color: #00aa00;
+        background-color: #338833;
         color: #000000;
     }
 
-    .shake {
-        animation: shake 0.5s ease-in-out;
+    .gentle-shake {
+        animation: gentleShake 0.5s ease-in-out;
+    }
+    
+    @keyframes gentleShake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-2px); }
+        75% { transform: translateX(2px); }
+    }
+    
+    .progress-fill {
+        background-color: #338833;
+        transition: width 0.5s ease-in-out;
+    }
+    
+    .journey-connector {
+        height: 40px;
+        width: 2px;
+        background-color: #333;
+        margin: 5px auto;
+    }
+    
+    .journey-connector.active {
+        background-color: #338833;
+    }
+    
+    .journey-node {
+        padding: 15px;
+        margin-bottom: 10px;
+        border: 1px solid #333;
+        border-radius: 5px;
+        transition: box-shadow 0.3s ease;
+    }
+    
+    .journey-node.unlocked {
+        cursor: pointer;
+        border-color: #338833;
+    }
+    
+    .journey-node.unlocked:hover {
+        box-shadow: 0 0 10px rgba(51, 136, 51, 0.3);
+    }
+    
+    .version-indicator {
+        font-size: 0.7rem;
+        text-align: right;
+        margin-top: -10px;
+        margin-bottom: 10px;
+        opacity: 0.8;
     }
 </style>
 {% endblock %}
