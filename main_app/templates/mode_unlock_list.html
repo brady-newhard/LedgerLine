@@ -2,18 +2,8 @@
 {% load ansi_shadow_tags %}
 
 {% block content %}
-<div class="menu-bar">
-  File  Edit  View  Format  Options  Range  Data  Help
-</div>
 
-<pre class="ascii-title">
-<div class="ascii-terminal-style">{% ansi_shadow "PREMIUM MODES" %}</div>
-</pre>
-
-<div class="terminal-output">
-C:>ACCESS PREMIUM.DAT
-Reading mode configuration...
-</div>
+<h1 class="standard-title">PREMIUM MODES</h1>
 
 {% if modes %}
   <table>

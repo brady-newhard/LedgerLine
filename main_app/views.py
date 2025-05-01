@@ -34,7 +34,7 @@ def home(request):
     
     # Show notifications for newly unlocked modes
     for mode in newly_unlocked:
-        messages.success(request, f"🎉 Congratulations! You've unlocked {mode.name}: {mode.description}")
+        messages.success(request, f"Alert! You've unlocked {mode.name}: {mode.description}")
     
     return render(request, 'home.html')
 
@@ -138,7 +138,7 @@ class TransactionCreate(LoginRequiredMixin, CreateView):
         
         # Add notifications for newly unlocked modes
         for mode in newly_unlocked:
-            messages.success(self.request, f"🎉 Congratulations! You've unlocked {mode.name}: {mode.description}")
+            messages.success(self.request, f"Alert! You've unlocked {mode.name}: {mode.description}")
         
         return response
 
@@ -166,7 +166,7 @@ class TransactionUpdate(LoginRequiredMixin, UpdateView):
         
         # Add notifications for newly unlocked modes
         for mode in newly_unlocked:
-            messages.success(self.request, f"🎉 Congratulations! You've unlocked {mode.name}: {mode.description}")
+            messages.success(self.request, f"Alert! You've unlocked {mode.name}: {mode.description}")
         
         return response
 
@@ -186,7 +186,7 @@ class TransactionDelete(LoginRequiredMixin, DeleteView):
         
         # Add notifications for newly unlocked modes
         for mode in newly_unlocked:
-            messages.success(self.request, f"🎉 Congratulations! You've unlocked {mode.name}: {mode.description}")
+            messages.success(self.request, f"Alert! You've unlocked {mode.name}: {mode.description}")
         
         return response
 
@@ -235,7 +235,7 @@ def mode_dashboard(request, mode_name):
         'current_tab': 'journey'
     }
     
-    return render(request, 'mode_dashboard.html', context)
+    return render(request, 'main_app/mode_dashboard.html', context)
 
 
 class CategoryList(LoginRequiredMixin, ListView):

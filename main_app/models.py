@@ -303,6 +303,50 @@ class CriticalSpending(models.Model):
     class Meta:
         ordering = ['-date']
 
+class EssentialBill(models.Model):
+    """Model to track essential bills in Lockdown Mode"""
+    CATEGORY_CHOICES = [
+        ('housing', 'Housing (Mortgage/Rent)'),
+        ('utilities', 'Utilities'),
+        ('transportation', 'Transportation'),
+        ('health', 'Healthcare'),
+        ('debt', 'Minimum Debt Payments'),
+        ('insurance', 'Insurance'),
+        ('other', 'Other Essential')
+    ]
+    
+    STATUS_CHOICES = [
+        ('unpaid', 'Unpaid'),
+        ('paid', 'Paid'),
+        ('scheduled', 'Scheduled'),
+        ('deferred', 'Deferred')
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    name = models.CharField(max_length=100)
+    category = models.CharField(max_length=20, choices=CATEGORY_CHOICES)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    due_date = models.DateField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='unpaid')
+    payment_date = models.DateField(null=True, blank=True)
+    is_critical = models.BooleanField(default=True)
+    notes = models.TextField(blank=True, null=True)
+    
+    def __str__(self):
+        return f"{self.user.username} - {self.name} - ${self.amount} - {self.get_status_display()}"
+    
+    def days_until_due(self):
+        """Returns number of days until bill is due"""
+        today = timezone.now().date()
+        return (self.due_date - today).days
+    
+    def is_overdue(self):
+        """Returns True if bill is overdue and not paid"""
+        return self.days_until_due() < 0 and self.status != 'paid'
+    
+    class Meta:
+        ordering = ['due_date']
+
 class SurvivalExpenseSchedule(models.Model):
     """Model to track essential bill schedule for Survival Mode"""
     PRIORITY_CHOICES = [
