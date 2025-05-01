@@ -59,7 +59,7 @@ Loading worksheet...
       {% for transaction in transactions %}
         <tr class="transaction-row" data-id="{{ transaction.pk }}">
           <td class="row-label">{{ forloop.counter|add:"1" }}</td>
-          <td>{{ transaction.date|date:"Y-m-d" }}</td>
+          <td>{{ transaction.date|date:"M d, Y h:i A" }}</td>
           <td>{{ transaction.description }}</td>
           <td>
             {% if transaction.transaction_type == 'INCOME' %}

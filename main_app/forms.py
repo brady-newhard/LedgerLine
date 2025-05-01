@@ -3,6 +3,7 @@ from .models import Budget, BudgetItem
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Category, Transaction
+from django.utils import timezone
 
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -54,9 +55,15 @@ class TransactionForm(forms.ModelForm):
             'amount': forms.NumberInput(attrs={'class': 'form-control'}),
             'description': forms.TextInput(attrs={'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-control'}),
-            'date': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'date': forms.DateTimeInput(attrs={
+                'class': 'form-control',
+                'type': 'datetime-local',
+                'format': '%Y-%m-%dT%H:%M'
+            }),
         }
 
     def __init__(self, user, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['category'].queryset = Category.objects.filter(user=user) 
+        self.fields['category'].queryset = Category.objects.filter(user=user)
+        # Set initial date to current time in local timezone
+        self.initial['date'] = timezone.localtime(timezone.now()) 

@@ -70,6 +70,12 @@ class Transaction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def save(self, *args, **kwargs):
+        # Ensure the date is timezone-aware
+        if self.date and not timezone.is_aware(self.date):
+            self.date = timezone.make_aware(self.date)
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return f"{self.get_transaction_type_display()} - ${self.amount} - {self.description[:30]}"
 
