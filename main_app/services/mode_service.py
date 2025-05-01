@@ -3,6 +3,7 @@ from datetime import timedelta
 from decimal import Decimal
 from django.db.models import Sum, Count, Avg, Q
 import math
+import calendar
 
 class ModeService:
     """
@@ -402,8 +403,21 @@ class ModeService:
         """
         Get detailed data for a specific mode's dashboard
         """
-        from main_app.models import ModeUnlock, Transaction, CriticalSpending
+        from main_app.models import ModeUnlock, Transaction, CriticalSpending, EssentialBill
         from django.db.models import Sum
+        from datetime import datetime, timedelta
+        from decimal import Decimal
+        
+        # Helper function to convert Decimal to float recursively
+        def decimal_to_float(obj):
+            if isinstance(obj, Decimal):
+                return float(obj)
+            elif isinstance(obj, dict):
+                return {k: decimal_to_float(v) for k, v in obj.items()}
+            elif isinstance(obj, list):
+                return [decimal_to_float(i) for i in obj]
+            else:
+                return obj
         
         # Get the mode data
         mode = ModeUnlock.objects.filter(user=user, name=mode_name).first()
@@ -422,13 +436,60 @@ class ModeService:
         if mode_name == "Lockdown Mode":
             mode_data = cls.check_lockdown_mode(user, transactions)
             
-            # Add critical spending calculations for Lockdown Mode
+            # Get today's date and calculate days left in month
+            today = timezone.now().date()
+            last_day_of_month = calendar.monthrange(today.year, today.month)[1]
+            last_date_of_month = today.replace(day=last_day_of_month)
+            days_left_in_month = (last_date_of_month - today).days + 1
+            
             # Calculate basic food budget based on 15% of income (or minimum amount if no income)
             base_amount = total_income * Decimal('0.15') if total_income > 0 else Decimal('100')
             
-            # Get existing critical spending entries
-            first_day = timezone.now().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+            # Get month start date
+            first_day = today.replace(day=1)
             
+            # Get all critical spending categories
+            critical_categories = {
+                'food': {
+                    'basic_groceries': {
+                        'amount': round(base_amount * Decimal('0.6'), 2),
+                        'spent': Decimal('0'),
+                        'icon': '🛒',
+                        'description': 'Essential groceries like bread, milk, eggs, rice, beans',
+                        'priority': 1
+                    },
+                    'essential_meals': {
+                        'amount': round(base_amount * Decimal('0.3'), 2),
+                        'spent': Decimal('0'),
+                        'icon': '🍚',
+                        'description': 'Basic meal essentials and staples',
+                        'priority': 1
+                    },
+                    'emergency_food': {
+                        'amount': round(base_amount * Decimal('0.1'), 2),
+                        'spent': Decimal('0'),
+                        'icon': '🥫',
+                        'description': 'Emergency food reserves',
+                        'priority': 1
+                    }
+                },
+                'transportation': {
+                    'amount': round(base_amount * Decimal('0.5'), 2),
+                    'spent': Decimal('0'),
+                    'icon': '🚌',
+                    'description': 'Essential transportation costs',
+                    'priority': 2
+                },
+                'health': {
+                    'amount': round(base_amount * Decimal('0.35'), 2),
+                    'spent': Decimal('0'),
+                    'icon': '💊',
+                    'description': 'Healthcare needs and medicine',
+                    'priority': 2
+                }
+            }
+            
+            # Get spending for food categories
             basic_groceries_spent = CriticalSpending.objects.filter(
                 user=user,
                 category='basic_groceries',
@@ -447,30 +508,88 @@ class ModeService:
                 date__gte=first_day
             ).aggregate(total=Sum('amount'))['total'] or Decimal('0')
             
-            # Allocate to three critical food categories
-            mode_data['critical_spending'] = {
-                'basic_groceries': {
-                    'amount': round(base_amount * Decimal('0.6'), 2),
-                    'spent': basic_groceries_spent,
-                    'icon': '🛒',
-                    'description': 'Essential groceries like bread, milk, eggs, rice, beans'
-                },
-                'essential_meals': {
-                    'amount': round(base_amount * Decimal('0.3'), 2),
-                    'spent': essential_meals_spent,
-                    'icon': '🍚',
-                    'description': 'Basic meal essentials and staples'
-                },
-                'emergency_food': {
-                    'amount': round(base_amount * Decimal('0.1'), 2),
-                    'spent': emergency_food_spent,
-                    'icon': '🥫',
-                    'description': 'Emergency food reserves'
-                },
-                'total_amount': round(base_amount, 2)
+            # Update spent values
+            critical_categories['food']['basic_groceries']['spent'] = basic_groceries_spent
+            critical_categories['food']['essential_meals']['spent'] = essential_meals_spent
+            critical_categories['food']['emergency_food']['spent'] = emergency_food_spent
+            
+            # Calculate other categories spending from transactions
+            transportation_spent = Transaction.objects.filter(
+                user=user,
+                transaction_type='EXPENSE',
+                category__category_type='transportation',
+                date__gte=first_day
+            ).aggregate(total=Sum('amount'))['total'] or Decimal('0')
+            
+            health_spent = Transaction.objects.filter(
+                user=user,
+                transaction_type='EXPENSE',
+                category__category_type__in=['healthcare', 'health'],
+                date__gte=first_day
+            ).aggregate(total=Sum('amount'))['total'] or Decimal('0')
+            
+            critical_categories['transportation']['spent'] = transportation_spent
+            critical_categories['health']['spent'] = health_spent
+            
+            # Calculate totals first
+            food_total_amount = sum(cat['amount'] for cat in critical_categories['food'].values())
+            food_total_spent = sum(cat['spent'] for cat in critical_categories['food'].values())
+            
+            # Prepare data for template
+            mode_data['critical_spending'] = critical_categories['food']
+            mode_data['critical_spending']['total_amount'] = food_total_amount
+            mode_data['critical_spending']['total_spent'] = food_total_spent
+            
+            mode_data['critical_categories'] = {
+                'transportation': critical_categories['transportation'],
+                'health': critical_categories['health']
             }
             
-            # Get recent grocery/food expenses to estimate current spending
+            mode_data['days_left_in_month'] = days_left_in_month
+            mode_data['total_critical_budget'] = food_total_amount
+            mode_data['total_critical_spent'] = food_total_spent
+            mode_data['money_left_to_spend'] = food_total_amount - food_total_spent
+            mode_data['daily_allowance'] = (food_total_amount - food_total_spent) / days_left_in_month if days_left_in_month > 0 else Decimal('0')
+            
+            # Get essential bills status
+            essential_bills = EssentialBill.objects.filter(user=user)
+            
+            # If no essential bills exist yet, create some default ones
+            if not essential_bills.exists():
+                # This can be moved to a separate method for initializing bills
+                pass
+            
+            # Get bills by category
+            bills_by_category = {}
+            for category in EssentialBill.CATEGORY_CHOICES:
+                cat_code = category[0]
+                bills = essential_bills.filter(category=cat_code)
+                bills_paid = bills.filter(status='paid').aggregate(total=Sum('amount'))['total'] or Decimal('0')
+                bills_unpaid = bills.filter(status__in=['unpaid', 'scheduled']).aggregate(total=Sum('amount'))['total'] or Decimal('0')
+                
+                bills_by_category[cat_code] = {
+                    'name': category[1],
+                    'paid': bills_paid,
+                    'unpaid': bills_unpaid,
+                    'total': bills_paid + bills_unpaid,
+                    'percent_paid': int((bills_paid / (bills_paid + bills_unpaid)) * 100) if (bills_paid + bills_unpaid) > 0 else 0,
+                    'bills': list(bills.values('id', 'name', 'amount', 'due_date', 'status'))
+                }
+            
+            # Check if critical bills (housing, utilities) are paid
+            housing_paid = bills_by_category.get('housing', {}).get('percent_paid', 0) == 100
+            utilities_paid = bills_by_category.get('utilities', {}).get('percent_paid', 0) == 100
+            transportation_paid = bills_by_category.get('transportation', {}).get('percent_paid', 0) == 100
+            
+            mode_data['essential_bills'] = bills_by_category
+            mode_data['critical_bills_status'] = {
+                'housing_paid': housing_paid,
+                'utilities_paid': utilities_paid,
+                'transportation_paid': transportation_paid,
+                'all_critical_paid': housing_paid and utilities_paid and transportation_paid
+            }
+            
+            # Get recent food expenses to estimate current spending
             recent_food_expenses = transactions.filter(
                 transaction_type='EXPENSE',
                 description__icontains='food', 
@@ -517,6 +636,9 @@ class ModeService:
             # Add freedom fund planner data for Vacay Mode
             freedom_fund_data = cls.get_vacay_freedom_fund_data(user)
             mode_data['freedom_fund'] = freedom_fund_data
+        
+        # Convert Decimal objects to float in mode_data
+        mode_data = decimal_to_float(mode_data)
         
         return {
             'mode': mode,
