@@ -22,13 +22,6 @@
             {% endif %}
         </div>
         <div class="form-group">
-            <label for="id_icon">Category Icon</label>
-            {{ form.icon }}
-            {% if form.icon.errors %}
-                <div class="error">{{ form.icon.errors }}</div>
-            {% endif %}
-        </div>
-        <div class="form-group">
             <label for="id_is_income">Income Category?</label>
             {{ form.is_income }}
             {% if form.is_income.errors %}
@@ -36,10 +29,10 @@
             {% endif %}
         </div>
         <div class="form-group">
-            <label for="id_color">Category Color</label>
-            {{ form.color }}
-            {% if form.color.errors %}
-                <div class="error">{{ form.color.errors }}</div>
+            <label for="id_allocation">Allocation Amount ($)</label>
+            {{ form.allocation }}
+            {% if form.allocation.errors %}
+                <div class="error">{{ form.allocation.errors }}</div>
             {% endif %}
         </div>
         <div class="function-keys">

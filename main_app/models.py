@@ -232,6 +232,10 @@ class BudgetItem(models.Model):
         
 class Category(models.Model):
     CATEGORY_TYPE_CHOICES = [
+        ("salary", "Salary"),
+        ("freelance", "Freelance"),
+        ("investments", "Investments"),
+        ("bonus", "Bonus"),
         ("utilities", "Utilities"),
         ("gas", "Gas"),
         ("mortgage", "Mortgage"),
@@ -240,25 +244,15 @@ class Category(models.Model):
         ("transportation", "Transportation"),
         ("dining_out", "Dining Out"),
         ("groceries", "Groceries"),
+        ("savings", "Savings"),
         ("other", "Other"),
     ]
-    ICON_CHOICES = [
-        ("fa-bolt", "Utilities ⚡"),
-        ("fa-gas-pump", "Gas ⛽"),
-        ("fa-home", "Mortgage 🏠"),
-        ("fa-building", "Rent 🏢"),
-        ("fa-film", "Entertainment 🎬"),
-        ("fa-bus", "Transportation 🚌"),
-        ("fa-utensils", "Dining Out 🍽️"),
-        ("fa-shopping-cart", "Groceries 🛒"),
-        ("fa-question", "Other ❓"),
-    ]
+    
     category_type = models.CharField(max_length=20, choices=CATEGORY_TYPE_CHOICES, default="other")
     custom_name = models.CharField(max_length=100, blank=True, null=True)
-    icon = models.CharField(max_length=32, choices=ICON_CHOICES, default="fa-question")
     is_income = models.BooleanField(default=False)
-    color = models.CharField(max_length=7, default="#00ff00")
     user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    allocation = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
     def __str__(self):
         return f"{self.custom_name if self.custom_name else self.get_category_type_display()}"

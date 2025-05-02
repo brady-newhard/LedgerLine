@@ -38,12 +38,9 @@ class BudgetItemForm(forms.ModelForm):
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
-        fields = ['category_type', 'custom_name', 'icon', 'is_income', 'color']
+        fields = ['category_type', 'custom_name', 'is_income', 'allocation']
         widgets = {
-            'category_type': forms.Select(),
-            'custom_name': forms.TextInput(attrs={'placeholder': 'Enter custom category name (optional)'}),
-            'icon': forms.Select(),
-            'color': forms.TextInput(attrs={'type': 'color'}),
+            'allocation': forms.NumberInput(attrs={'placeholder': 'Enter allocation amount', 'step': '0.01'}),
         }
 
 class TransactionForm(forms.ModelForm):

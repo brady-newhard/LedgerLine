@@ -21,6 +21,7 @@
                 <tr>
                     <th>NAME</th>
                     <th>TYPE</th>
+                    <th>ALLOCATION</th>
                     <th>ACTIONS</th>
                 </tr>
             </thead>
@@ -28,19 +29,24 @@
                 {% for category in categories %}
                 <tr>
                     <td>
-                        <span class="badge" style="background-color: {{ category.color }}; color: var(--text-green);">
-                            {% if category.custom_name %}
-                                {{ category.custom_name|upper }}
-                            {% else %}
-                                {{ category.get_category_type_display|upper }}
-                            {% endif %}
-                        </span>
+                        {% if category.custom_name %}
+                            {{ category.custom_name|upper }}
+                        {% else %}
+                            {{ category.get_category_type_display|upper }}
+                        {% endif %}
                     </td>
                     <td>
                         {% if category.is_income %}
                             <span class="badge badge-success">INCOME</span>
                         {% else %}
                             <span class="badge badge-danger">EXPENSE</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if category.allocation %}
+                            ${{ category.allocation }}
+                        {% else %}
+                            --
                         {% endif %}
                     </td>
                     <td>
