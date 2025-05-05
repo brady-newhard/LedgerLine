@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% load ansi_shadow_tags %}
+
+{% block content %}
+<div class="menu-bar">
+  File  Edit  View  Format  Options  Range  Data  Help
+</div>
+
+<pre class="ascii-title">
+{% ansi_shadow "DELETE TRANSACTION" %}
+</pre>
+
+<div class="terminal-output">
+C:>TRANSACTION DELETE
+Are you sure you want to delete this transaction?
+------------------------------------
+</div>
+
+<div class="transaction-details">
+  <p><strong>Date:</strong> {{ object.date|date:"Y-m-d" }}</p>
+  <p><strong>Type:</strong> {{ object.get_transaction_type_display }}</p>
+  <p><strong>Amount:</strong> ${{ object.amount }}</p>
+  <p><strong>Description:</strong> {{ object.description }}</p>
+</div>
+
+<form method="post">
+  {% csrf_token %}
+  <div class="function-keys">
+    <button type="submit" class="function-key">
+      <i class="fas fa-trash"></i> Yes, delete it
+    </button>
+    <a href="{% url 'transaction_list' %}" class="function-key">
+      <i class="fas fa-times"></i> No, take me back
+    </a>
+  </div>
+</form>
+
+<div class="status-bar">
+  <span>DELETE MODE</span>
+  <span class="status-bar-brand">LEDGERLINE: Beige Edition</span>
+  <span>PRESS ENTER TO CONFIRM</span>
+</div>
+{% endblock %} 

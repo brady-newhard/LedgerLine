@@ -18,6 +18,21 @@ C:>FILE IMPORT LEDGER.WKS
 Loading worksheet...
 </div>
 
+<div class="monthly-totals">
+  <div class="total-box income">
+    <span class="total-label">Monthly Income</span>
+    <span class="total-amount">${{ monthly_totals.income|floatformat:2 }}</span>
+  </div>
+  <div class="total-box expense">
+    <span class="total-label">Monthly Expenses</span>
+    <span class="total-amount">${{ monthly_totals.expenses|floatformat:2 }}</span>
+  </div>
+  <div class="total-box net">
+    <span class="total-label">Net Amount</span>
+    <span class="total-amount">${{ monthly_totals.net|floatformat:2 }}</span>
+  </div>
+</div>
+
 {% if transactions %}
   <table>
     <thead>
@@ -27,6 +42,8 @@ Loading worksheet...
         <th class="col-label">B</th>
         <th class="col-label">C</th>
         <th class="col-label">D</th>
+        <th class="col-label">E</th>
+        <th class="col-label">F</th>
       </tr>
     </thead>
     <tbody>
@@ -35,12 +52,14 @@ Loading worksheet...
         <td><strong>date</strong></td>
         <td><strong>description</strong></td>
         <td><strong>type</strong></td>
+        <td><strong>category</strong></td>
         <td class="amount"><strong>amount</strong></td>
+        <td><strong>actions</strong></td>
       </tr>
       {% for transaction in transactions %}
-        <tr>
+        <tr class="transaction-row" data-id="{{ transaction.pk }}">
           <td class="row-label">{{ forloop.counter|add:"1" }}</td>
-          <td>{{ transaction.date|date:"Y-m-d" }}</td>
+          <td>{{ transaction.date|date:"M d, Y h:i A" }}</td>
           <td>{{ transaction.description }}</td>
           <td>
             {% if transaction.transaction_type == 'INCOME' %}
@@ -49,8 +68,21 @@ Loading worksheet...
               <span class="badge">expense</span>
             {% endif %}
           </td>
+          <td>
+            {% if transaction.category %}
+              <span class="category-badge" style="background-color: {{ transaction.category.color }}">
+                {{ transaction.category.get_category_type_display }}
+              </span>
+            {% else %}
+              <span class="category-badge">uncategorized</span>
+            {% endif %}
+          </td>
           <td class="amount {% if transaction.transaction_type == 'INCOME' %}income{% else %}expense{% endif %}">
             ${{ transaction.amount }}
+          </td>
+          <td class="actions">
+            <a href="{% url 'transaction_update' transaction.pk %}" class="button small">edit</a>
+            <a href="{% url 'transaction_delete' transaction.pk %}" class="button small danger">delete</a>
           </td>
         </tr>
       {% endfor %}
@@ -65,9 +97,9 @@ Loading worksheet...
 
 <div class="function-keys">
   <div class="function-key" onclick="showMessage('Displaying help documentation...')">F1-Help</div>
-  <div class="function-key" onclick="goToCreateTransaction()">F2-Edit</div>
-  <div class="function-key" onclick="showMessage('Delete function not implemented.')">F3-Del</div>
-  <div class="function-key" onclick="showMessage('Sorting transactions...')">F4-Sort</div>
+  <div class="function-key" onclick="goToCreateTransaction()">F2-New</div>
+  <div class="function-key" onclick="handleSelectedTransaction('delete')">F3-Del</div>
+  <div class="function-key" onclick="handleSelectedTransaction('edit')">F4-Edit</div>
   <div class="function-key" onclick="calculateTotals()">F9-Calc</div>
   <div class="function-key" onclick="showMenu()">F10-Menu</div>
 </div>
@@ -80,8 +112,36 @@ Loading worksheet...
 </div>
 
 <script>
+let selectedTransactionId = null;
+
+// Add click handler to transaction rows
+document.querySelectorAll('.transaction-row').forEach(row => {
+  row.addEventListener('click', function() {
+    // Remove selected class from all rows
+    document.querySelectorAll('.transaction-row').forEach(r => {
+      r.classList.remove('selected');
+    });
+    // Add selected class to clicked row
+    this.classList.add('selected');
+    selectedTransactionId = this.dataset.id;
+  });
+});
+
 function goToCreateTransaction() {
   window.location.href = "{% url 'transaction_create' %}";
+}
+
+function handleSelectedTransaction(action) {
+  if (!selectedTransactionId) {
+    showMessage('Please select a transaction first');
+    return;
+  }
+  
+  if (action === 'edit') {
+    window.location.href = `/transactions/${selectedTransactionId}/update/`;
+  } else if (action === 'delete') {
+    window.location.href = `/transactions/${selectedTransactionId}/delete/`;
+  }
 }
 
 function showMessage(message) {
@@ -100,12 +160,19 @@ function showMessage(message) {
 }
 
 function calculateTotals() {
-  // Example of calculating totals
   let totalIncome = 0;
   let totalExpense = 0;
   
-  // In a real implementation, you would get these from your transactions
-  showMessage('Calculating... Total Income: $0.00, Total Expenses: $0.00');
+  document.querySelectorAll('.transaction-row').forEach(row => {
+    const amount = parseFloat(row.querySelector('.amount').textContent.replace('$', ''));
+    if (row.querySelector('.badge').textContent === 'income') {
+      totalIncome += amount;
+    } else {
+      totalExpense += amount;
+    }
+  });
+  
+  showMessage(`Calculating... Total Income: $${totalIncome.toFixed(2)}, Total Expenses: $${totalExpense.toFixed(2)}`);
 }
 
 function showMenu() {
@@ -123,4 +190,86 @@ function showMenu() {
   });
 }
 </script>
+
+<style>
+.transaction-row {
+  cursor: pointer;
+}
+
+.transaction-row.selected {
+  background-color: #333;
+  color: #fff;
+}
+
+.transaction-row:hover {
+  background-color: #222;
+}
+
+.monthly-totals {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+  padding: 15px;
+  background-color: #222;
+  border-radius: 5px;
+}
+
+.total-box {
+  flex: 1;
+  text-align: center;
+  padding: 10px;
+  margin: 0 5px;
+  border-radius: 3px;
+}
+
+.total-box.income {
+  background-color: #004400;
+  border: 1px solid #00aa00;
+}
+
+.total-box.expense {
+  background-color: #440000;
+  border: 1px solid #aa0000;
+}
+
+.total-box.net {
+  background-color: #222;
+  border: 1px solid #666;
+}
+
+.total-label {
+  display: block;
+  font-size: 12px;
+  color: #aaa;
+  margin-bottom: 5px;
+}
+
+.total-amount {
+  display: block;
+  font-size: 18px;
+  font-weight: bold;
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.total-box.income .total-amount {
+  color: #00aa00;
+}
+
+.total-box.expense .total-amount {
+  color: #aa0000;
+}
+
+.total-box.net .total-amount {
+  color: #fff;
+}
+
+.category-badge {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 12px;
+  color: #fff;
+  text-shadow: 1px 1px 1px rgba(0,0,0,0.3);
+}
+</style>
 {% endblock %} 

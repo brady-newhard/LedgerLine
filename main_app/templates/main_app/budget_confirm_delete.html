@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load ansi_shadow_tags %}
+
+{% block content %}
+<div class="menu-bar">
+  File  Edit  View  Format  Options  Range  Data  Help
+</div>
+<pre class="ascii-title">
+<div class="ascii-terminal-style">{% ansi_shadow "DELETE BUDGET" %}</div>
+</pre>
+
+<div class="terminal-output">
+C:>FILE DELETE BUDGET.WKS
+Warning: This action cannot be undone.
+</div>
+
+<div class="delete-confirmation">
+  <h2>Delete Budget: {{ budget.budget_name }}</h2>
+  
+  <div class="warning-message">
+    <p>Are you sure you want to delete this budget?</p>
+    <p class="text-muted">This action cannot be undone.</p>
+  </div>
+
+  <form method="POST">
+    {% csrf_token %}
+    <div class="form-controls">
+      <button type="submit" class="button">confirm delete</button>
+      <a href="{% url 'budget_detail' budget.id %}" class="button">cancel</a>
+    </div>
+  </form>
+</div>
+
+<div class="function-keys">
+  <div class="function-key" onclick="showMessage('Displaying help documentation...')">F1-Help</div>
+  <div class="function-key" onclick="document.querySelector('form').submit()">F2-Delete</div>
+  <div class="function-key" onclick="window.location.href='{% url 'budget_detail' budget.id %}'">F3-Cancel</div>
+  <div class="function-key" onclick="window.location.href='{% url 'budget_list' %}'">F4-Back</div>
+  <div class="function-key" onclick="showMessage('Calculate not implemented.')">F9-Calc</div>
+  <div class="function-key" onclick="showMenu()">F10-Menu</div>
+</div>
+
+<div class="status-bar">
+  <span>READY.</span>
+  <span class="status-bar-brand">LEDGERLINE: Beige Edition</span>
+  <span>{% now "m/d/Y" %}</span>
+  <span>MEM: 640K</span>
+</div>
+
+<script>
+function showMessage(message) {
+  const msgElement = document.createElement('div');
+  msgElement.className = 'terminal-output';
+  msgElement.textContent = message;
+  
+  // Insert before the status bar
+  const statusBar = document.querySelector('.status-bar');
+  statusBar.parentNode.insertBefore(msgElement, statusBar);
+  
+  // Remove after 3 seconds
+  setTimeout(() => {
+    msgElement.remove();
+  }, 3000);
+}
+
+function showMenu() {
+  const menuElement = document.createElement('div');
+  menuElement.className = 'terminal-output';
+  menuElement.innerHTML = 'MENU OPTIONS:<br>1. Confirm Delete<br>2. Cancel<br>3. Back to Detail<br>4. Exit';
+  
+  // Insert before the status bar
+  const statusBar = document.querySelector('.status-bar');
+  statusBar.parentNode.insertBefore(menuElement, statusBar);
+  
+  // Add click event to remove
+  menuElement.addEventListener('click', function() {
+    this.remove();
+  });
+}
+</script>
+
+<style>
+.delete-confirmation {
+  background-color: var(--bg-beige);
+  padding: 1rem;
+  border: 1px solid var(--border-gray);
+  margin-bottom: 1rem;
+}
+
+.warning-message {
+  margin: 1.5rem 0;
+  padding: 1rem;
+  background-color: var(--accent-beige);
+  border: 1px solid var(--border-gray);
+}
+
+.warning-message p {
+  margin: 0;
+}
+
+.warning-message p.text-muted {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+.form-controls {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 1rem;
+}
+</style>
+{% endblock %} 

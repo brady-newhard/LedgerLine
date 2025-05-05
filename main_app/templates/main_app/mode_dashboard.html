@@ -1,0 +1,1287 @@
+{% extends 'base.html' %}
+{% load ansi_shadow_tags custom_filters %}
+
+{% block content %}
+<div class="terminal-container">
+    <div class="terminal-header">
+        <h1 class="standard-title">{{ mode.name }}</h1>
+        <div class="version-indicator">
+            <span class="version-text">Financial Planning Tool</span>
+        </div>
+    </div>
+    
+    <div class="terminal-output hidden">
+        <!-- Will be populated by JavaScript -->
+    </div>
+    
+    <div class="mode-header">
+        <div class="mode-icon-placeholder"></div>
+        <div class="mode-info">
+            <span class="mode-badge">{{ mode.status }}</span>
+            <div class="mode-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ mode.progress_percentage }}%;"></div>
+                </div>
+                <span class="progress-text">Progress: {{ mode.progress_percentage }}%</span>
+            </div>
+        </div>
+    </div>
+    
+    <div class="terminal-body">
+        <div class="dashboard-grid">
+            {% if mode_data.mode.name == 'Lockdown Mode' %}
+            <div class="grid-item lockdown-spending-plan">
+                <h2>Emergency Budget Plan</h2>
+                <div class="plan-description">
+                    <p>Your emergency spending plan for essential categories:</p>
+                </div>
+                
+                <!-- Month Overview -->
+                <div class="month-overview">
+                    <div class="month-stats">
+                        <div class="stat-item">
+                            <div class="stat-icon-placeholder">D</div>
+                            <div class="stat-details">
+                                <h3>Days Remaining</h3>
+                                <div class="stat-value">{{ mode_data.mode_data.days_left_in_month }}</div>
+                                <p class="stat-description">Days left in current month</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-icon-placeholder">$</div>
+                            <div class="stat-details">
+                                <h3>Budget Remaining</h3>
+                                <div class="stat-value">${{ mode_data.mode_data.money_left_to_spend|floatformat:2 }}</div>
+                                <p class="stat-description">Left to spend in critical categories</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-item">
+                            <div class="stat-icon-placeholder">A</div>
+                            <div class="stat-details">
+                                <h3>Daily Allowance</h3>
+                                <div class="stat-value">${{ mode_data.mode_data.daily_allowance|floatformat:2 }}</div>
+                                <p class="stat-description">Recommended daily spending</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Essential Bills Status -->
+                <div class="essential-bills">
+                    <h3 class="section-title">Essential Bills Status</h3>
+                    <div class="bills-status-indicators">
+                        <div class="bill-status {% if mode_data.mode_data.critical_bills_status.housing_paid %}paid{% else %}unpaid{% endif %}">
+                            <div class="status-label-large">Housing</div>
+                            <div class="status-label">Housing</div>
+                            <div class="status-badge">
+                                {% if mode_data.mode_data.critical_bills_status.housing_paid %}PAID{% else %}UNPAID{% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="bill-status {% if mode_data.mode_data.critical_bills_status.utilities_paid %}paid{% else %}unpaid{% endif %}">
+                            <div class="status-label-large">Utilities</div>
+                            <div class="status-label">Utilities</div>
+                            <div class="status-badge">
+                                {% if mode_data.mode_data.critical_bills_status.utilities_paid %}PAID{% else %}UNPAID{% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="bill-status {% if mode_data.mode_data.critical_bills_status.transportation_paid %}paid{% else %}unpaid{% endif %}">
+                            <div class="status-label-large">Transit</div>
+                            <div class="status-label">Transport</div>
+                            <div class="status-badge">
+                                {% if mode_data.mode_data.critical_bills_status.transportation_paid %}PAID{% else %}UNPAID{% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="lockdown-status-message">
+                        {% if mode_data.mode_data.critical_bills_status.all_critical_paid %}
+                        <p class="status-message paid">✅ All critical bills are paid for this month!</p>
+                        {% else %}
+                        <p class="status-message unpaid">⚠️ You have unpaid critical bills. Pay these before other expenses.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Critical Budget Categories -->
+                <h3 class="section-title">Top 3 Critical Budget Areas</h3>
+                <div class="critical-categories">
+                    <!-- Food Categories -->
+                    <div class="critical-category">
+                        <div class="category-label">Groceries</div>
+                        <div class="category-details">
+                            <h3>Basic Groceries</h3>
+                            <div class="amount">$<span id="groceries-amount">0</span></div>
+                            <p class="category-description" id="groceries-description">Essential groceries</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="groceries-progress" style="width: 0%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="critical-category">
+                        <div class="category-label">Transit</div>
+                        <div class="category-details">
+                            <h3>Transportation</h3>
+                            <div class="amount">$<span id="transportation-amount">{{ mode_data.mode_data.critical_categories.transportation.amount|floatformat:2 }}</span></div>
+                            <p class="category-description">{{ mode_data.mode_data.critical_categories.transportation.description }}</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="transportation-progress" style="width: {{ mode_data.mode_data.critical_categories.transportation.spent|divided_by:mode_data.mode_data.critical_categories.transportation.amount|multiply:100|floatformat:0 }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="critical-category">
+                        <div class="category-label">Health</div>
+                        <div class="category-details">
+                            <h3>Healthcare</h3>
+                            <div class="amount">$<span id="health-amount">{{ mode_data.mode_data.critical_categories.health.amount|floatformat:2 }}</span></div>
+                            <p class="category-description">{{ mode_data.mode_data.critical_categories.health.description }}</p>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="health-progress" style="width: {{ mode_data.mode_data.critical_categories.health.spent|divided_by:mode_data.mode_data.critical_categories.health.amount|multiply:100|floatformat:0 }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="total-budget">
+                    <p>Total Critical Budget: $<span id="total-critical-budget">{{ mode_data.mode_data.total_critical_budget|floatformat:2 }}</span></p>
+                    <p>Total Spent: $<span id="total-critical-spent">{{ mode_data.mode_data.total_critical_spent|floatformat:2 }}</span></p>
+                    <p class="budget-note">Budget priorities: 1) Housing/Utilities 2) Food 3) Transportation 4) Healthcare</p>
+                </div>
+                
+                <!-- Unlock Other Budget Areas -->
+                <div class="unlock-categories">
+                    <h3 class="section-title">Unlock Additional Budget Areas</h3>
+                    <p class="unlock-description">Meet your critical budget goals to unlock these areas:</p>
+                    
+                    <div class="unlockable-categories">
+                        <div class="unlockable-category {% if mode_data.mode_data.critical_bills_status.all_critical_paid %}unlocked{% else %}locked{% endif %}">
+                            <div class="category-label-large">Entertainment</div>
+                            <div class="category-name">Entertainment</div>
+                            <div class="unlock-condition">Pay all critical bills first</div>
+                            <div class="unlock-status">
+                                {% if mode_data.mode_data.critical_bills_status.all_critical_paid %}Unlocked{% else %}Locked{% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="unlockable-category locked">
+                            <div class="category-label-large">Shopping</div>
+                            <div class="category-name">Discretionary</div>
+                            <div class="unlock-condition">Stay under budget for 3 critical areas</div>
+                            <div class="unlock-status">Locked</div>
+                        </div>
+                        
+                        <div class="unlockable-category locked">
+                            <div class="category-label-large">Personal</div>
+                            <div class="category-name">Gifts/Personal</div>
+                            <div class="unlock-condition">Save 5% of income this month</div>
+                            <div class="unlock-status">Locked</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="plan-actions">
+                    <button class="terminal-button" onclick="recalculatePlan()">Update Budget</button>
+                    <button class="terminal-button" onclick="trackExpense()">Record Expense</button>
+                    <button class="terminal-button" onclick="manageEssentialBills()">Manage Bills</button>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="terminal-footer">
+        <div class="footer-actions">
+            <a href="{% url 'unlocked_modes' %}" class="terminal-button">All Modes</a>
+            <a href="{% url 'journey_map' %}" class="terminal-button">Journey Map</a>
+            <a href="{% url 'home' %}" class="terminal-button">Dashboard</a>
+        </div>
+    </div>
+    
+    <div class="function-keys">
+        <div class="function-key" onclick="showHelpInfo()">F1-Help</div>
+        <div class="function-key" onclick="window.location.href='{% url 'home' %}'">F2-Home</div>
+        <div class="function-key" onclick="window.location.href='{% url 'unlocked_modes' %}'">F3-Modes</div>
+        <div class="function-key" onclick="window.location.href='{% url 'transaction_list' %}'">F4-Ledger</div>
+    </div>
+    
+    <div class="status-bar">
+        <span id="status-message">READY.</span>
+        <span class="status-bar-brand">LEDGERLINE: Financial Planning Tool</span>
+        <span>{% now "m/d/Y" %}</span>
+    </div>
+</div>
+
+<script>
+// Function to show help information
+function showHelpInfo() {
+    const helpText = `MODE DASHBOARD HELP:
+- This dashboard shows your progress in the '{{ mode.name }}' financial mode
+- Track your essential spending in emergency categories
+- Use the buttons below to update your budget or record expenses`;
+
+    let output = document.querySelector('.terminal-output');
+    if (!output) {
+        output = document.createElement('div');
+        output.className = 'terminal-output';
+        document.querySelector('.terminal-container').insertBefore(
+            output, 
+            document.querySelector('.mode-header')
+        );
+    }
+    
+    output.classList.remove('hidden');
+    output.innerHTML = helpText.replace(/\n/g, '<br>');
+    document.getElementById('status-message').textContent = "Displaying help information";
+    
+    setTimeout(() => {
+        output.classList.add('hidden');
+    }, 5000);
+}
+
+// Lockdown Mode spending plan initialization
+{% if mode_data.mode.name == 'Lockdown Mode' and mode_data.mode_data.critical_spending %}
+document.addEventListener('DOMContentLoaded', function() {
+    // Critical spending data from backend
+    const criticalSpending = {
+        groceries: { 
+            amount: {{ mode_data.mode_data.critical_spending.basic_groceries.amount }}, 
+            spent: {{ mode_data.mode_data.critical_spending.basic_groceries.spent }},
+            description: '{{ mode_data.mode_data.critical_spending.basic_groceries.description }}'
+        },
+        meals: { 
+            amount: {{ mode_data.mode_data.critical_spending.essential_meals.amount }}, 
+            spent: {{ mode_data.mode_data.critical_spending.essential_meals.spent }},
+            description: '{{ mode_data.mode_data.critical_spending.essential_meals.description }}'
+        },
+        emergency: { 
+            amount: {{ mode_data.mode_data.critical_spending.emergency_food.amount }}, 
+            spent: {{ mode_data.mode_data.critical_spending.emergency_food.spent }},
+            description: '{{ mode_data.mode_data.critical_spending.emergency_food.description }}'
+        }
+    };
+    
+    // Store in window for other functions to access
+    window.criticalBudget = criticalSpending;
+    
+    // Update UI with the provided values
+    document.getElementById('groceries-amount').textContent = criticalSpending.groceries.amount.toFixed(2);
+    
+    // Update descriptions if available
+    if (document.getElementById('groceries-description')) {
+        document.getElementById('groceries-description').textContent = criticalSpending.groceries.description;
+    }
+    
+    // Calculate and update progress bars
+    updateProgressBars();
+    
+    // Transportation and healthcare are handled through template rendering
+});
+
+// Function to update progress bars based on spending
+function updateProgressBars() {
+    if (!window.criticalBudget) return;
+    
+    const calculatePercentage = (spent, total) => Math.min(100, Math.round((spent / total) * 100));
+    
+    // Update grocery progress
+    const groceryPercentage = calculatePercentage(window.criticalBudget.groceries.spent, window.criticalBudget.groceries.amount);
+    document.getElementById('groceries-progress').style.width = `${groceryPercentage}%`;
+}
+
+// Function to recalculate the lockdown budget plan
+function recalculatePlan() {
+    showStatusMessage("Recalculating budget plan...");
+    
+    // Simulate calculation (would be a backend call in production)
+    setTimeout(() => {
+        showStatusMessage("Budget plan updated with current income data.");
+        // In a real app, this would reload the data from the server
+        // Or send an AJAX request to update the budget
+    }, 1500);
+}
+
+// Function to track a new expense
+function trackExpense() {
+    // Create expense form modal
+    const modalHTML = `
+    <div class="modal-overlay">
+        <div class="modal-content">
+            <h2>Record Expense</h2>
+            <form id="expense-form">
+                <div class="form-group">
+                    <label for="expense-category">Category</label>
+                    <select id="expense-category" required>
+                        <option value="basic_groceries">Basic Groceries</option>
+                        <option value="essential_meals">Essential Meals</option>
+                        <option value="emergency_food">Emergency Food</option>
+                        <option value="transportation">Transportation</option>
+                        <option value="health">Healthcare</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="expense-amount">Amount ($)</label>
+                    <input type="number" id="expense-amount" min="0.01" step="0.01" required>
+                </div>
+                <div class="form-group">
+                    <label for="expense-notes">Notes</label>
+                    <textarea id="expense-notes"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" onclick="closeModal()">Cancel</button>
+                    <button type="submit">Save Expense</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    `;
+    
+    // Add modal to the DOM
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Add event listener for form submission
+    document.getElementById('expense-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        saveExpense();
+    });
+    
+    // Add modal overlay styles if they don't exist
+    if (!document.getElementById('modal-styles')) {
+        const modalStyles = document.createElement('style');
+        modalStyles.id = 'modal-styles';
+        modalStyles.textContent = `
+            .modal-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.7);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+            }
+            .modal-content {
+                background-color: #1a1a1a;
+                padding: 20px;
+                border-radius: 5px;
+                border: 1px solid #333;
+                width: 90%;
+                max-width: 500px;
+            }
+            .form-group {
+                margin-bottom: 15px;
+            }
+            .form-group label {
+                display: block;
+                margin-bottom: 5px;
+                color: #aaa;
+            }
+            .form-group input, .form-group select, .form-group textarea {
+                width: 100%;
+                padding: 8px;
+                background-color: #222;
+                border: 1px solid #444;
+                color: #eee;
+                border-radius: 3px;
+            }
+            .form-group textarea {
+                height: 80px;
+            }
+            .form-actions {
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+                margin-top: 20px;
+            }
+            .form-actions button {
+                padding: 8px 16px;
+                background-color: #333;
+                border: none;
+                color: white;
+                border-radius: 3px;
+                cursor: pointer;
+            }
+            .form-actions button[type="submit"] {
+                background-color: #337733;
+            }
+        `;
+        document.head.appendChild(modalStyles);
+    }
+}
+
+// Function to close the modal
+function closeModal() {
+    const modal = document.querySelector('.modal-overlay');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Function to save expense
+function saveExpense() {
+    const category = document.getElementById('expense-category').value;
+    const amount = parseFloat(document.getElementById('expense-amount').value);
+    const notes = document.getElementById('expense-notes').value;
+    
+    if (isNaN(amount) || amount <= 0) {
+        showStatusMessage("Invalid amount. Please enter a positive number.");
+        return;
+    }
+    
+    showStatusMessage("Saving expense...");
+    
+    // In a real app, this would be an AJAX call to save the expense
+    // For demo purposes, we'll just simulate it
+    setTimeout(() => {
+        closeModal();
+        showStatusMessage(`$${amount.toFixed(2)} expense recorded for ${category.replace('_', ' ')}.`);
+        
+        // In a real app, this would refresh the data from the server
+        // For demo, update local data
+        if (category in window.criticalBudget) {
+            window.criticalBudget[category].spent += amount;
+            updateProgressBars();
+        }
+    }, 1000);
+}
+
+// Function to manage essential bills
+function manageEssentialBills() {
+    // Create bills management modal
+    const modalHTML = `
+    <div class="modal-overlay">
+        <div class="modal-content bills-modal">
+            <h2>Manage Essential Bills</h2>
+            <div class="bills-tabs">
+                <button class="tab-button active" onclick="showBillsTab('unpaid')">Unpaid</button>
+                <button class="tab-button" onclick="showBillsTab('paid')">Paid</button>
+                <button class="tab-button" onclick="showBillsTab('all')">All</button>
+            </div>
+            <div class="bills-list" id="bills-list">
+                <div class="loading-indicator">Loading bills...</div>
+            </div>
+            <div class="form-actions">
+                <button type="button" onclick="addNewBill()">Add Bill</button>
+                <button type="button" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+    `;
+    
+    // Add modal to the DOM
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // Add additional styles for bills management
+    if (!document.getElementById('bills-modal-styles')) {
+        const billsStyles = document.createElement('style');
+        billsStyles.id = 'bills-modal-styles';
+        billsStyles.textContent = `
+            .bills-modal {
+                max-width: 700px;
+            }
+            .bills-tabs {
+                display: flex;
+                margin-bottom: 15px;
+                border-bottom: 1px solid #333;
+            }
+            .tab-button {
+                padding: 8px 16px;
+                background: none;
+                border: none;
+                color: #aaa;
+                cursor: pointer;
+                margin-right: 10px;
+            }
+            .tab-button.active {
+                color: #00aa00;
+                border-bottom: 2px solid #00aa00;
+            }
+            .bills-list {
+                max-height: 400px;
+                overflow-y: auto;
+                margin-bottom: 15px;
+            }
+            .bill-item {
+                display: flex;
+                padding: 10px;
+                border-bottom: 1px solid #333;
+                align-items: center;
+            }
+            .bill-details {
+                flex-grow: 1;
+            }
+            .bill-name {
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+            .bill-info {
+                display: flex;
+                gap: 15px;
+                font-size: 0.8em;
+                color: #aaa;
+            }
+            .bill-actions {
+                display: flex;
+                gap: 5px;
+            }
+            .bill-actions button {
+                padding: 5px 10px;
+                background-color: #333;
+                border: none;
+                color: white;
+                border-radius: 3px;
+                cursor: pointer;
+                font-size: 0.8em;
+            }
+            .bill-status-badge {
+                padding: 3px 8px;
+                border-radius: 10px;
+                font-size: 0.7em;
+                font-weight: bold;
+                background-color: #333;
+                margin-left: 10px;
+            }
+            .status-paid {
+                background-color: #00aa00;
+                color: #000;
+            }
+            .status-unpaid {
+                background-color: #aa0000;
+                color: #fff;
+            }
+            .loading-indicator {
+                text-align: center;
+                padding: 20px;
+                color: #aaa;
+            }
+            .no-bills {
+                text-align: center;
+                padding: 20px;
+                color: #aaa;
+            }
+        `;
+        document.head.appendChild(billsStyles);
+    }
+    
+    // Load bills data
+    loadBillsData('unpaid');
+}
+
+// Function to load bills data
+function loadBillsData(tab) {
+    const billsList = document.getElementById('bills-list');
+    
+    // In a real app, this would be an AJAX call to get the bills
+    // For demo purposes, we'll simulate it with sample data
+    setTimeout(() => {
+        // Sample data - would come from server in real app
+        const bills = [
+            { id: 1, name: 'Rent', category: 'housing', amount: 1200, due_date: '2023-06-01', status: 'unpaid' },
+            { id: 2, name: 'Electricity', category: 'utilities', amount: 85, due_date: '2023-06-05', status: 'unpaid' },
+            { id: 3, name: 'Water', category: 'utilities', amount: 45, due_date: '2023-06-10', status: 'paid' },
+            { id: 4, name: 'Internet', category: 'utilities', amount: 70, due_date: '2023-06-15', status: 'paid' },
+            { id: 5, name: 'Car Payment', category: 'transportation', amount: 350, due_date: '2023-06-20', status: 'unpaid' },
+            { id: 6, name: 'Health Insurance', category: 'health', amount: 200, due_date: '2023-06-25', status: 'paid' }
+        ];
+        
+        // Filter bills based on selected tab
+        let filteredBills = bills;
+        if (tab === 'unpaid') {
+            filteredBills = bills.filter(bill => bill.status === 'unpaid');
+        } else if (tab === 'paid') {
+            filteredBills = bills.filter(bill => bill.status === 'paid');
+        }
+        
+        if (filteredBills.length === 0) {
+            billsList.innerHTML = '<div class="no-bills">No bills found in this category.</div>';
+            return;
+        }
+        
+        // Generate HTML for bills
+        const billsHTML = filteredBills.map(bill => `
+            <div class="bill-item">
+                <div class="bill-details">
+                    <div class="bill-name">
+                        ${bill.name}
+                        <span class="bill-status-badge status-${bill.status}">${bill.status.toUpperCase()}</span>
+                    </div>
+                    <div class="bill-info">
+                        <span>$${bill.amount}</span>
+                        <span>Due: ${bill.due_date}</span>
+                        <span>Category: ${bill.category}</span>
+                    </div>
+                </div>
+                <div class="bill-actions">
+                    ${bill.status === 'unpaid' ? 
+                        '<button onclick="markBillPaid(' + bill.id + ')">Mark Paid</button>' : 
+                        '<button onclick="markBillUnpaid(' + bill.id + ')">Mark Unpaid</button>'}
+                    <button onclick="editBill(${bill.id})">Edit</button>
+                </div>
+            </div>
+        `).join('');
+        
+        billsList.innerHTML = billsHTML;
+    }, 1000);
+}
+
+// Function to show a specific tab in bills management
+function showBillsTab(tab) {
+    // Update active tab button
+    const tabButtons = document.querySelectorAll('.tab-button');
+    tabButtons.forEach(button => {
+        button.classList.remove('active');
+        if (button.textContent.toLowerCase() === tab) {
+            button.classList.add('active');
+        }
+    });
+    
+    // Load bills for the selected tab
+    loadBillsData(tab);
+}
+
+// Function to add a new bill
+function addNewBill() {
+    // In a real app, this would open a form to add a new bill
+    alert('This feature would allow adding a new essential bill.');
+}
+
+// Function to mark a bill as paid
+function markBillPaid(billId) {
+    // In a real app, this would update the bill status via AJAX
+    showStatusMessage(`Bill #${billId} marked as paid.`);
+    
+    // Reload the bills list
+    loadBillsData('unpaid');
+}
+
+// Function to mark a bill as unpaid
+function markBillUnpaid(billId) {
+    // In a real app, this would update the bill status via AJAX
+    showStatusMessage(`Bill #${billId} marked as unpaid.`);
+    
+    // Reload the bills list
+    loadBillsData('paid');
+}
+
+// Function to edit a bill
+function editBill(billId) {
+    // In a real app, this would open a form to edit the bill
+    alert(`This feature would allow editing bill #${billId}.`);
+}
+
+// Function to show a status message
+function showStatusMessage(message, duration = 3000) {
+    document.getElementById('status-message').textContent = message;
+    
+    // Clear previous timeout if exists
+    if (window.statusTimeout) {
+        clearTimeout(window.statusTimeout);
+    }
+    
+    // Set timeout to clear the message
+    window.statusTimeout = setTimeout(() => {
+        document.getElementById('status-message').textContent = 'READY.';
+    }, duration);
+}
+{% endif %}
+</script>
+
+{% endblock %}
+{% block styles %}
+<style>
+    /* Standard title styling */
+    .standard-title {
+        font-size: 2.2em;
+        font-weight: bold;
+        text-align: center;
+        margin: 0.5em 0;
+        color: #00aa00;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-family: monospace;
+    }
+    
+    /* Version indicator */
+    .version-indicator {
+        font-size: 0.7rem;
+        text-align: right;
+        margin-top: -10px;
+        margin-bottom: 10px;
+        opacity: 0.8;
+    }
+    
+    /* Calm fade effect for messages instead of blinking */
+    .fade-message {
+        animation: fadeMessage 3s ease;
+    }
+    
+    @keyframes fadeMessage {
+        0% { opacity: 0.2; }
+        20% { opacity: 1; }
+        80% { opacity: 1; }
+        100% { opacity: 0.2; }
+    }
+    
+    /* Status bar styling */
+    .status-bar-brand {
+        color: #338833 !important;
+    }
+    
+    /* Keep existing styles below */
+    .mode-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #333;
+        position: relative;
+    }
+    
+    .mode-icon-placeholder {
+        width: 40px;
+        height: 40px;
+        background-color: #338833;
+        border-radius: 50%;
+        margin-right: 10px;
+    }
+    
+    .mode-info {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding-left: 10px;
+    }
+    
+    .mode-name {
+        margin: 0;
+        font-size: 1.8em;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .mode-badge {
+        font-size: 1em;
+        background-color: #338833;
+        color: #000;
+        padding: 5px 10px;
+        border-radius: 10px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        display: inline-block;
+        margin: 0.5em 0;
+    }
+    
+    .mode-progress {
+        width: 100%;
+        margin-top: 10px;
+    }
+    
+    .dashboard-grid {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 20px;
+    }
+    
+    .grid-item {
+        background-color: #111;
+        border: 1px solid #333;
+        border-radius: 5px;
+        padding: 15px;
+    }
+    
+    .grid-item h2 {
+        margin-top: 0;
+        border-bottom: 1px solid #333;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
+    
+    .status-metrics {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .metric {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+    
+    .metric-label {
+        font-size: 0.9em;
+        color: #aaa;
+    }
+    
+    .metric-value {
+        font-size: 1.2em;
+        font-weight: bold;
+    }
+    
+    .progress-bar {
+        background-color: #222;
+        height: 10px;
+        border-radius: 5px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        background-color: #5f5;
+        height: 100%;
+        transition: width 0.5s ease-in-out;
+    }
+    
+    .terminal-footer {
+        margin-top: 20px;
+        text-align: center;
+    }
+    
+    .footer-actions {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+    }
+    
+    .terminal-button {
+        background-color: #333;
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s ease;
+    }
+    
+    .terminal-button:hover {
+        background-color: #555;
+        box-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+    }
+    
+    .hidden {
+        display: none !important;
+    }
+
+    .lockdown-spending-plan {
+        margin-top: 2rem;
+        padding: 1rem;
+        border: 2px solid #338833;  /* Green border for a more calming color */
+        background-color: #0a0a0a;
+    }
+
+    .critical-categories {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        margin: 1.5rem 0;
+    }
+
+    .critical-category {
+        display: flex;
+        align-items: center;
+        background-color: #0a0a0a;
+        padding: 1rem;
+        border: 1px solid #333;
+    }
+
+    .category-label {
+        font-weight: bold;
+        min-width: 80px;
+        text-align: center;
+        color: #338833;
+        margin-right: 1rem;
+        border: 1px solid #338833;
+        padding: 0.5rem;
+        border-radius: 4px;
+    }
+
+    .category-details {
+        flex-grow: 1;
+    }
+
+    .category-details h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1rem;
+    }
+
+    .category-description {
+        font-size: 0.85rem;
+        color: #aaa;
+        margin: 0.25rem 0 0.5rem 0;
+    }
+
+    .amount {
+        font-family: monospace;
+        font-size: 1.2rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .progress-bar {
+        height: 0.5rem;
+        background-color: #333;
+        width: 100%;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background-color: #338833;  /* Calming green color */
+        transition: width 0.3s ease;
+    }
+
+    .plan-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .expense-tracker {
+        background-color: #111;
+        padding: 1rem;
+        margin-top: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        border: 1px solid #444;
+        border-radius: 4px;
+    }
+
+    .expense-tracker h3 {
+        margin-top: 0;
+        font-size: 1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .expense-tracker select,
+    .expense-tracker input {
+        background-color: #222;
+        color: #eee;
+        border: 1px solid #444;
+        padding: 0.5rem;
+        font-family: monospace;
+    }
+
+    .expense-tracker button {
+        background-color: #333;
+        color: #eee;
+        border: none;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+    }
+
+    .expense-tracker button:hover {
+        background-color: #444;
+    }
+
+    .total-budget {
+        margin-top: 1.5rem;
+        padding: 1rem;
+        background-color: rgba(51, 136, 51, 0.1);  /* Calming green */
+        border-left: 3px solid #338833;
+    }
+
+    .total-budget p {
+        margin: 0;
+    }
+
+    .total-budget p:first-child {
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+    }
+
+    .budget-note {
+        font-size: 0.85rem;
+        color: #aaa;
+    }
+
+    .function-keys {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 1rem;
+    }
+    
+    .function-key {
+        background-color: #333;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.8rem;
+        cursor: pointer;
+    }
+    
+    .function-key:hover {
+        background-color: #444;
+    }
+    
+    .expense-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    
+    .expense-actions button {
+        background-color: #222;
+        color: #338833;
+        border: 1px solid #338833;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        flex: 1;
+    }
+    
+    .expense-actions button:last-child {
+        color: #883333;  /* Softer red */
+        border-color: #883333;
+    }
+    
+    .expense-actions button:hover {
+        background-color: #333;
+    }
+
+    /* Month Overview */
+    .month-overview {
+        margin: 20px 0;
+        padding: 15px;
+        background-color: #111;
+        border: 1px solid #333;
+        border-radius: 5px;
+    }
+    
+    .month-stats {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background-color: #1a1a1a;
+        padding: 10px;
+        border-radius: 5px;
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    .stat-icon-placeholder {
+        width: 40px;
+        height: 40px;
+        background-color: #1d1d1d;
+        border: 1px solid #338833;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        color: #338833;
+        font-weight: bold;
+    }
+    
+    .stat-details {
+        flex-grow: 1;
+    }
+    
+    .stat-details h3 {
+        margin: 0;
+        font-size: 0.9em;
+        color: #999;
+    }
+    
+    .stat-value {
+        font-size: 1.6em;
+        font-weight: bold;
+        color: #00aa00;
+        margin: 5px 0;
+    }
+    
+    .stat-description {
+        font-size: 0.8em;
+        color: #777;
+        margin: 0;
+    }
+    
+    /* Essential Bills */
+    .essential-bills {
+        margin: 20px 0;
+        padding: 15px;
+        background-color: #111;
+        border: 1px solid #333;
+        border-radius: 5px;
+    }
+    
+    .section-title {
+        color: #00aa00;
+        border-bottom: 1px solid #333;
+        padding-bottom: 10px;
+        margin-top: 0;
+    }
+    
+    .bills-status-indicators {
+        display: flex;
+        justify-content: space-between;
+        gap: 15px;
+        margin: 15px 0;
+    }
+    
+    .bill-status {
+        text-align: center;
+        padding: 15px;
+        border-radius: 5px;
+        flex: 1;
+        background-color: #1a1a1a;
+        border: 1px solid #333;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .bill-status.paid {
+        background-color: rgba(0, 170, 0, 0.2);
+        border-color: #00aa00;
+    }
+    
+    .bill-status.unpaid {
+        background-color: rgba(170, 0, 0, 0.2);
+        border-color: #aa0000;
+    }
+    
+    .status-label-large {
+        font-size: 1.2rem;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    
+    .status-badge {
+        background-color: #222;
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 10px;
+        font-size: 0.8em;
+        font-weight: bold;
+    }
+    
+    .bill-status.paid .status-badge {
+        background-color: #00aa00;
+        color: #000;
+    }
+    
+    .bill-status.unpaid .status-badge {
+        background-color: #aa0000;
+        color: #fff;
+    }
+    
+    .lockdown-status-message {
+        text-align: center;
+        margin: 15px 0 5px;
+    }
+    
+    .status-message {
+        display: inline-block;
+        padding: 10px 15px;
+        border-radius: 5px;
+        font-weight: bold;
+    }
+    
+    .status-message.paid {
+        background-color: rgba(0, 170, 0, 0.2);
+        color: #00aa00;
+    }
+    
+    .status-message.unpaid {
+        background-color: rgba(170, 0, 0, 0.2);
+        color: #aa5555;
+    }
+    
+    /* Unlockable Categories */
+    .unlock-categories {
+        margin: 25px 0;
+        padding: 15px;
+        background-color: #111;
+        border: 1px solid #333;
+        border-radius: 5px;
+    }
+    
+    .unlock-description {
+        color: #777;
+        margin-bottom: 15px;
+    }
+    
+    .unlockable-categories {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .unlockable-category {
+        flex: 1;
+        min-width: 150px;
+        background-color: #1a1a1a;
+        padding: 15px;
+        border-radius: 5px;
+        text-align: center;
+        border: 1px solid #333;
+        position: relative;
+    }
+    
+    .unlockable-category.locked {
+        opacity: 0.7;
+    }
+    
+    .unlockable-category.unlocked {
+        background-color: rgba(0, 170, 0, 0.2);
+        border-color: #00aa00;
+    }
+    
+    .category-name {
+        font-weight: bold;
+        margin: 10px 0;
+    }
+    
+    .unlock-condition {
+        font-size: 0.8em;
+        color: #777;
+        margin-bottom: 10px;
+    }
+    
+    .unlock-status {
+        background-color: #222;
+        display: inline-block;
+        padding: 3px 8px;
+        border-radius: 10px;
+        font-size: 0.8em;
+        font-weight: bold;
+    }
+    
+    .unlockable-category.unlocked .unlock-status {
+        background-color: #00aa00;
+        color: #000;
+    }
+    
+    .unlockable-category.locked .unlock-status {
+        background-color: #aa0000;
+        color: #fff;
+    }
+    
+    .unlockable-category.locked::before {
+        content: '🔒';
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 1.2em;
+    }
+    
+    .unlockable-category.unlocked::before {
+        content: '🔓';
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 1.2em;
+    }
+</style>
+{% endblock %}
