@@ -1,3 +1,3 @@
-web: gunicorn ledgerline.wsgi
+web: gunicorn LedgerLine.wsgi
 
 release: python manage.py migrate
