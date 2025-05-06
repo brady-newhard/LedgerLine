@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Select Year</h2>
+<ul>
+  {% for y in years %}
+    <li><a href="{% url 'month_list' y %}">{{ y }}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}

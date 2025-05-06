@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+{% load month_extras %}
+<h2>Select Month for {{ year }}</h2>
+<ul>
+  {% for m in months %}
+    <li>
+      <a href="{% url 'budget_list' year m %}">
+        {{ m|month_name }}
+      </a>
+    </li>
+  {% endfor %}
+</ul>
+{% endblock %}
