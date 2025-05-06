@@ -1,0 +1,22 @@
+<h2>Your Budget Periods</h2>
+<a href="{% url 'calendar_create' %}">Add New Period</a>
+<table>
+  <thead>
+    <tr>
+      <th>Year</th>
+      <th>Month</th>
+      <th>View Budgets</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for cal in calendars %}
+      <tr>
+        <td>{{ cal.year }}</td>
+        <td>{{ cal.month|month_name }}</td>
+        <td>
+          <a href="{% url 'budget_list' cal.year cal.month %}">View Budgets</a>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

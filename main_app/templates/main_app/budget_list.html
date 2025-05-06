@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load ansi_shadow_tags %}
+{% load month_extras %}
 
 {% block content %}
 <div class="menu-bar">
@@ -10,15 +11,19 @@
 </pre>
 
 <div class="transaction-controls">
-  <a href="{% url 'budget_create' %}" class="button">add budget</a>
+  <a href="{% url 'budget_create' calendar.year calendar.month %}" class="button">add budget</a>
+  <a href="{% url 'income_create' calendar.year calendar.month %}" class="button">add income</a>
+  <a href="{% url 'year_list' %}" class="button">Choose Year</a>
 </div>
 
 <div class="terminal-output">
 C:>FILE IMPORT BUDGET.WKS
 Loading worksheet...
-</div>
 
-{% if budgets %}
+
+<h2>Income for {{ calendar.year }}-{{ calendar.month|month_name }}</h2>
+
+{% if incomes %}
   <table>
     <thead>
       <tr>
@@ -27,42 +32,70 @@ Loading worksheet...
         <th class="col-label">B</th>
         <th class="col-label">C</th>
         <th class="col-label">D</th>
-        <th class="col-label">E</th>
-        <th class="col-label">F</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td class="row-label">1</td>
-        <td><strong>name</strong></td>
-        <td><strong>type</strong></td>
-        <td><strong>amount</strong></td>
-        <td><strong>dates</strong></td>
-        <td><strong>progress</strong></td>
-        <td><strong>status</strong></td>
+        <td><strong>Type</strong></td>
+        <td><strong>Amount</strong></td>
+        <td><strong>Date</strong></td>
+        <td><strong>Actions</strong></td>
+        
+      </tr>
+      {% for income in incomes %}
+        <tr class="interactive">
+          <td class="row-label">{{ forloop.counter|add:"1" }}</td>
+          <td>{{ income.get_income_type_display }}</td>
+          <td class="amount">${{ income.amount }}</td>
+          <td>{{ income.created_at|date:"Y-m-d" }}</td>
+          <td>
+            <a href="{% url 'income_update' income.id %}" class="button small">edit</a>
+            <a href="{% url 'income_delete' income.id %}" class="button small">delete</a>
+          </td>
+        </tr>
+      {% endfor %}
+     
+    </tbody>
+  </table>
+  <h3>Total Income: ${{ total_incomes }}</h3>
+{% else %}
+  <div class="alert">
+    <p>no income entries yet.</p>
+    <p class="text-muted">add your first income entry to start tracking your earnings.</p>
+  </div>
+{% endif %}
+
+<h2>Budgets for {{ calendar.year }}-{{ calendar.month|month_name }}</h2>
+
+{% if budgets %}
+  <table>
+    <thead>
+      <tr>
+        <th class="col-label"></th>
+        <th class="col-label">A</th>
+        <th class="col-label">B</th>
+        
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td class="row-label">1</td>
+        <td><strong>Category</strong></td>
+        <td><strong>Amount</strong></td>
       </tr>
       {% for budget in budgets %}
-        <tr class="interactive" onclick="window.location.href='{% url 'budget_detail' budget.id %}'">
+        <tr class="interactive" onclick="window.location.href='{% url 'budget_detail' calendar.year calendar.month budget.id %}'"
+        role="button"
+        aria-label="View details for {{budget.category.get_category_type_display|title}}"
+        >
           <td class="row-label">{{ forloop.counter|add:"1" }}</td>
-          <td>{{ budget.budget_name }}</td>
-          <td>{{ budget.get_budgeting_type_display }}</td>
-          <td class="amount">${{ budget.amount }}</td>
-          <td>{{ budget.start_date|date:"Y-m-d" }} to {{ budget.end_date|date:"Y-m-d" }}</td>
           <td>
-            {% with progress=budget.get_monthly_progress %}
-              <div class="progress-bar">
-                <div class="progress-fill" style="width: {{ progress.percentage }}%"></div>
-                <span class="progress-text">${{ progress.spent|floatformat:2 }} / ${{ progress.remaining|floatformat:2 }}</span>
-              </div>
-            {% endwith %}
+            <a href="{% url 'budget_detail' calendar.year calendar.month budget.id %}">
+              {{ budget.category.get_category_type_display|title }}
+            </a>
           </td>
-          <td>
-            {% if budget.end_date < now %}
-              <span class="badge badge-warning">expired</span>
-            {% else %}
-              <span class="badge badge-success">active</span>
-            {% endif %}
-          </td>
+           <td class="amount">${{ budget.amount }}</td>
         </tr>
       {% endfor %}
     </tbody>
@@ -76,8 +109,10 @@ Loading worksheet...
 
 <div class="function-keys">
   <div class="function-key" onclick="showMessage('Displaying help documentation...')">F1-Help</div>
-  <div class="function-key" onclick="window.location.href='{% url 'budget_create' %}'">F2-New</div>
-  <div class="function-key" onclick="showMessage('Calculating monthly totals...')">F9-Calc</div>
+  <div class="function-key" onclick="window.location.href='{% url 'income_create' calendar.year  calendar.month %}'">F3-New</div>
+  <div class="function-key" onclick="showMessage('Delete function not implemented.')">F3-Del</div>
+  <div class="function-key" onclick="showMessage('Sorting budgets...')">F4-Sort</div>
+  <div class="function-key" onclick="calculateBudgetTotals()">F9-Calc</div>
   <div class="function-key" onclick="showMenu()">F10-Menu</div>
 </div>
 
@@ -160,5 +195,23 @@ function showMenu() {
   });
 }
 </script>
+
+<style>
+.interactive {
+  cursor: pointer;
+}
+
+.interactive:hover {
+  background-color: var(--accent-beige);
+}
+
+.amount {
+  text-align: right;
+  font-family: 'IBM Plex Mono', monospace;
+}
+</style>
+
 {% endblock %}
+
+
 

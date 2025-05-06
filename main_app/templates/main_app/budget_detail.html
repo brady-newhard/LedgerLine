@@ -18,8 +18,8 @@ Loading worksheet...
   <div class="detail-header">
     <h2>{{ budget.budget_name }}</h2>
     <div class="detail-actions">
-      <a href="{% url 'budget_update' budget.id %}" class="button">edit budget</a>
-      <a href="{% url 'budget_delete' budget.id %}" class="button">delete budget</a>
+      <a href="{% url 'budget_update' budget.id %}" class="button">Edit Budget</a>
+      <a href="{% url 'budget_delete' budget.id %}" class="button">Delete Budget</a>
     </div>
   </div>
 
@@ -40,18 +40,11 @@ Loading worksheet...
       <span class="detail-label">Remaining:</span>
       <span class="detail-value amount {% if budget.get_remaining < 0 %}expense{% else %}income{% endif %}">${{ budget.get_remaining }}</span>
     </div>
-    <div class="detail-row">
-      <span class="detail-label">Start Date:</span>
-      <span class="detail-value">{{ budget.start_date|date:"Y-m-d" }}</span>
-    </div>
-    <div class="detail-row">
-      <span class="detail-label">End Date:</span>
-      <span class="detail-value">{{ budget.end_date|date:"Y-m-d" }}</span>
-    </div>
+   
     <div class="detail-row">
       <span class="detail-label">Status:</span>
       <span class="detail-value">
-        {% if budget.end_date < now %}
+        {% if budget.is_expired %}
           <span class="badge badge-warning">expired</span>
         {% else %}
           <span class="badge badge-success">active</span>
@@ -63,7 +56,6 @@ Loading worksheet...
 
 <div class="budget-items">
   <h3>Budget Items</h3>
-  
   <form method="POST" class="item-form">
     {% csrf_token %}
     <div class="form-group">
@@ -83,32 +75,23 @@ Loading worksheet...
     <button type="submit" class="button">add item</button>
   </form>
 
-  {% if budget.budgetitem_set.all %}
+  {% if budget.items.exists %}
     <table>
       <thead>
         <tr>
-          <th class="col-label"></th>
-          <th class="col-label">A</th>
-          <th class="col-label">B</th>
-          <th class="col-label">C</th>
-          <th class="col-label">D</th>
+          <th>Name</th>
+          <th>Amount</th>
+          <th>Date</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td class="row-label">1</td>
-          <td><strong>name</strong></td>
-          <td><strong>amount</strong></td>
-          <td><strong>date</strong></td>
-          <td><strong>actions</strong></td>
-        </tr>
-        {% for item in budget.budgetitem_set.all %}
+        {% for item in budget.items.all %}
           <tr>
-            <td class="row-label">{{ forloop.counter|add:"1" }}</td>
             <td>{{ item.name }}</td>
-            <td class="amount">${{ item.amount }}</td>
+            <td>${{ item.amount }}</td>
             <td>{{ item.created_at|date:"Y-m-d" }}</td>
-            <td class="item-actions">
+            <td>
               <a href="{% url 'budgetitem_update' item.id %}" class="button small">edit</a>
               <a href="{% url 'budgetitem_delete' item.id %}" class="button small">delete</a>
             </td>
@@ -118,17 +101,30 @@ Loading worksheet...
     </table>
   {% else %}
     <div class="alert">
-      <p>no items yet.</p>
-      <p class="text-muted">add your first item to start tracking expenses.</p>
+      <p>No items yet.</p>
+      <p class="text-muted">Add your first item to start tracking expenses.</p>
     </div>
   {% endif %}
 </div>
+
+<!-- <h2>Budget Details: {{ budget.category }} ({{ budget.calendar.year }}-{{ budget.calendar.month }})</h2>
+<ul>
+  {% for item in budget.items.all %}
+    <li>{{ item.name }}: ${{ item.amount }}</li>
+  {% empty %}
+    <li>No items yet.</li>
+  {% endfor %}
+</ul> -->
 
 <div class="function-keys">
   <div class="function-key" onclick="showMessage('Displaying help documentation...')">F1-Help</div>
   <div class="function-key" onclick="window.location.href='{% url 'budget_update' budget.id %}'">F2-Edit</div>
   <div class="function-key" onclick="window.location.href='{% url 'budget_delete' budget.id %}'">F3-Delete</div>
-  <div class="function-key" onclick="window.location.href='{% url 'budget_list' %}'">F4-Back</div>
+  {% if year and month %}
+    <div class="function-key" onclick="window.location.href='{% url 'budget_list' year month %}'">F4-Back</div>
+  {% else %}
+    <div class="function-key" onclick="window.location.href='{% url 'year_list' %}'">F4-Back</div>
+  {% endif %}
   <div class="function-key" onclick="showMessage('Calculate not implemented.')">F9-Calc</div>
   <div class="function-key" onclick="showMenu()">F10-Menu</div>
 </div>
