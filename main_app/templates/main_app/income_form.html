@@ -6,11 +6,11 @@
   File  Edit  View  Format  Options  Range  Data  Help
 </div>
 <pre class="ascii-title">
-<div class="ascii-terminal-style">{% ansi_shadow "NEW BUDGET" %}</div>
+<div class="ascii-terminal-style">{% ansi_shadow "NEW INCOME" %}</div>
 </pre>
 
 <div class="terminal-output">
-C:>FILE NEW BUDGET.WKS
+C:>FILE NEW INCOME.WKS
 Loading worksheet...
 </div>
 
@@ -21,13 +21,14 @@ Loading worksheet...
     Please correct the following errors:
     {{ form.errors }}
   </div>
-{% endif %}
+  {% endif %}
+
   <div class="form-group">
-    <label for="{{ form.category.id_for_label }}">Category:</label>
-    {{ form.category }}
-    {% if form.category.errors %}
-      <div class="error">{{form.category.errors}} </div>
-    {%endif%}
+    <label for="{{ form.income_type.id_for_label }}">Income Type:</label>
+    {{ form.income_type }}
+    {% if form.income_type.errors %}
+      <div class="error">{{ form.income_type.errors }}</div>
+    {% endif %}
   </div>
 
   <div class="form-group">
@@ -38,13 +39,12 @@ Loading worksheet...
     {% endif %}
   </div>
 
-  
   <div class="form-controls">
-    <button type="submit" class="button">save budget</button>
+    <button type="submit" class="button">save income</button>
     {% if year and month %}
-      <a href="{% url 'budget_list' year month %}" class="button">cancel</a>
+      <a href="{% url 'budget_list' year month %}">View Budgets</a>
     {% else %}
-      <a href="{% url 'year_list' %}" class="button">cancel</a>
+      <a href="{% url 'year_list' %}">View Budgets</a>
     {% endif %}
   </div>
 </form>
@@ -53,9 +53,9 @@ Loading worksheet...
   <div class="function-key" onclick="showMessage('Displaying help documentation...')">F1-Help</div>
   <div class="function-key" onclick="document.querySelector('form').submit()">F2-Save</div>
   {% if year and month %}
-    <div class="function-key" onclick="window.location.href = '{% url 'budget_list' year month %}'">F3-Cancel</div>
+    <div class="function-key" onclick="window.location.href='{% url 'budget_list' year month %}'">F3-Cancel</div>
   {% else %}
-    <div class="function-key" onclick="window.location.href = '{% url 'year_list' %}'">F3-Cancel</div>
+    <div class="function-key" onclick="window.location.href='{% url 'year_list' %}'">F3-Cancel</div>
   {% endif %}
   <div class="function-key" onclick="showMessage('Clear form not implemented.')">F4-Clear</div>
   <div class="function-key" onclick="showMessage('Calculate not implemented.')">F9-Calc</div>
@@ -75,11 +75,9 @@ function showMessage(message) {
   msgElement.className = 'terminal-output';
   msgElement.textContent = message;
   
-  // Insert before the status bar
   const statusBar = document.querySelector('.status-bar');
   statusBar.parentNode.insertBefore(msgElement, statusBar);
   
-  // Remove after 3 seconds
   setTimeout(() => {
     msgElement.remove();
   }, 3000);
@@ -88,59 +86,15 @@ function showMessage(message) {
 function showMenu() {
   const menuElement = document.createElement('div');
   menuElement.className = 'terminal-output';
-  menuElement.innerHTML = 'MENU OPTIONS:<br>1. Save Budget<br>2. Cancel<br>3. Clear Form<br>4. Exit';
+  menuElement.innerHTML = 'MENU OPTIONS:<br>1. Save Income<br>2. Cancel<br>3. Clear Form<br>4. Exit';
   
-  // Insert before the status bar
   const statusBar = document.querySelector('.status-bar');
   statusBar.parentNode.insertBefore(menuElement, statusBar);
   
-  // Add click event to remove
   menuElement.addEventListener('click', function() {
     this.remove();
   });
 }
-
-document.addEventListener("DOMContentLoaded", function () {
-    const budgetingType = document.getElementById("id_budgeting_type");
-    const dateField = document.getElementById("id_month_year");
-
-    function updateDateField() {
-        const type = budgetingType.value;
-        if (!dateField) return; // Add safety check
-
-        dateField.type = 'text';
-        dateField.placeholder = '';
-        dateField.min = '';
-        dateField.max = '';
-
-        if (type === "ANNUALLY") {
-            dateField.type = "number";
-            dateField.min = "1990";
-            dateField.max = "2100";
-            dateField.placeholder = "e.g. 2025";
-        } else if (type === "MONTHLY") {
-            dateField.type = "month";
-            dateField.placeholder = "e.g. 2025-04";
-        } else if (type === "WEEKLY") {
-            dateField.type = "week";
-            dateField.placeholder = "e.g. 2025-W14";
-        }
-        
-        // Add this console log to help debug
-        console.log('Updated date field type to:', dateField.type);
-    }
-
-    if (budgetingType && dateField) {
-        console.log('Found both budgeting type and date field');
-        budgetingType.addEventListener("change", updateDateField);
-        updateDateField(); // Call initially to set the correct state
-    } else {
-        console.log('Missing elements:', {
-            budgetingType: !!budgetingType,
-            dateField: !!dateField
-        });
-    }
-});
 </script>
 
 <style>
@@ -158,12 +112,11 @@ document.addEventListener("DOMContentLoaded", function () {
 .form-group label {
   display: block;
   margin-bottom: 0.25rem;
-  color: var(--text-primary);
+  color: var(--text-muted);
   font-weight: 500;
 }
 
-.form-group input,
-.form-group select {
+.form-group input {
   width: 100%;
   padding: 0.5rem;
   border: 1px solid var(--border-gray);
@@ -183,4 +136,4 @@ document.addEventListener("DOMContentLoaded", function () {
   margin-top: 0.25rem;
 }
 </style>
-{% endblock %}
+{% endblock %} 

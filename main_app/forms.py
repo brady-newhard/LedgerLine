@@ -1,9 +1,14 @@
 from django import forms
-from .models import Budget, BudgetItem
+from .utils import get_month_year_choices  
+from .utils import validate_date_based_on_type
+from .models import Budget, BudgetItem, Income, Calendar
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from .models import Category, Transaction
 from django.utils import timezone
+from datetime import datetime
+import re
+from django.core.exceptions import ValidationError
 
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -18,23 +23,39 @@ class UserRegistrationForm(UserCreationForm):
         if commit:
             user.save()
         return user
+    
+
+class CalendarForm(forms.ModelForm):
+    class Meta:
+        model = Calendar
+        fields = ['year', 'month']
 
 class BudgetForm(forms.ModelForm):
     class Meta:
         model = Budget
-        fields = ['budget_name', 'budgeting_type', 'amount', 'start_date', 'end_date']
-        widgets = {
-            'start_date': forms.DateInput(attrs={'type': 'date'}),
-            'end_date': forms.DateInput(attrs={'type': 'date'}),
-        }
+        fields = ['category', 'amount']
 
 class BudgetItemForm(forms.ModelForm):
     class Meta:
         model = BudgetItem
         fields = ['name', 'amount']
+
+INCOME_TYPES = [
+    ('SALARY', 'Salary'),
+    ('BONUS', 'Bonus'),
+    ('SIDE_HUSTLE', 'Side Hustle'),
+    ('OTHER', 'Other'),
+]
+
+class IncomeForm(forms.ModelForm):
+    class Meta:
+        model = Income
+        fields = ['income_type', 'amount']
         widgets = {
-            'amount': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
-        } 
+            'income_type': forms.Select(choices=INCOME_TYPES, attrs={'class': 'form-control'}),
+            'amount': forms.NumberInput(attrs={'step': '0.01', 'class': 'form-control', 'min': '0'}),
+        }
+   
 class CategoryForm(forms.ModelForm):
     class Meta:
         model = Category
@@ -52,11 +73,7 @@ class TransactionForm(forms.ModelForm):
             'amount': forms.NumberInput(attrs={'class': 'form-control'}),
             'description': forms.TextInput(attrs={'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-control'}),
-            'date': forms.DateTimeInput(attrs={
-                'class': 'form-control',
-                'type': 'datetime-local',
-                'format': '%Y-%m-%dT%H:%M'
-            }),
+            'date': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
     def __init__(self, user, *args, **kwargs):
@@ -64,3 +81,6 @@ class TransactionForm(forms.ModelForm):
         self.fields['category'].queryset = Category.objects.filter(user=user)
         # Set initial date to current time in local timezone
         self.initial['date'] = timezone.localtime(timezone.now()) 
+        self.fields['category'].queryset = Category.objects.filter(user=user) 
+
+

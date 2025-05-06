@@ -35,7 +35,7 @@ Loading worksheet...
 
   <div class="form-controls">
     <button type="submit" class="button">save changes</button>
-    <a href="{% url 'budget_detail' object.budget.id %}" class="button">cancel</a>
+    <a href="{% url 'budget_detail' object.budget.calendar.year object.budget.calendar.month object.budget.id %}" class="button">cancel</a>
   </div>
 </form>
 
@@ -43,7 +43,11 @@ Loading worksheet...
   <div class="function-key" onclick="showMessage('Displaying help documentation...')">F1-Help</div>
   <div class="function-key" onclick="document.querySelector('form').submit()">F2-Save</div>
   <div class="function-key" onclick="window.location.href='{% url 'budget_detail' object.budget.id %}'">F3-Cancel</div>
-  <div class="function-key" onclick="window.location.href='{% url 'budget_list' %}'">F4-Back</div>
+  {% if year and month %}
+    <div class="function-key" onclick="window.location.href='{% url 'budget_list' year month %}'">F4-Back</div>
+  {% else %}
+    <div class="function-key" onclick="window.location.href='{% url 'year_list' %}'">F4-Back</div>
+  {% endif %}
   <div class="function-key" onclick="showMessage('Calculate not implemented.')">F9-Calc</div>
   <div class="function-key" onclick="showMenu()">F10-Menu</div>
 </div>
