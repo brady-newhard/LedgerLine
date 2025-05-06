@@ -1,20 +1,24 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, JsonResponse
-from .models import ModeUnlock, Transaction, Category, Budget, BudgetItem, ModeHistory, CriticalSpending
+from .models import ModeUnlock, Transaction, Category, Budget, BudgetItem, Income, ModeHistory, Calendar, CriticalSpending, SurvivalExpenseSchedule, CategorySpendingLimit, SavingsGoal, FreedomFundPlan, FreedomExpense, SavingsContribution
 from django.contrib.auth.decorators import login_required
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.contrib.auth import login
-from .forms import UserRegistrationForm, CategoryForm, TransactionForm, BudgetForm, BudgetItemForm
+from .forms import UserRegistrationForm, CategoryForm, TransactionForm, BudgetForm, BudgetItemForm, IncomeForm, CalendarForm
 from django.contrib import messages
 from .services.mode_service import ModeService
 from django.utils import timezone
 from django.views.decorators.http import require_POST
 from django.db import models
 import json
+from django.db.models import Sum
+from django.views.generic import TemplateView
+from datetime import datetime
+from decimal import Decimal
 
 def register(request):
     if request.method == 'POST':
@@ -257,91 +261,7 @@ class CategoryCreate(LoginRequiredMixin, CreateView):
         messages.success(self.request, 'Category created successfully!')
         return super().form_valid(form)
 
-class BudgetList(LoginRequiredMixin, ListView):
-    model = Budget
-    template_name = 'main_app/budget_list.html'
-    context_object_name = 'budgets'
-    
-    def get_queryset(self):
-        return Budget.objects.filter(user=self.request.user).order_by('-start_date')
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['now'] = timezone.now()
-        return context
 
-class BudgetCreate(LoginRequiredMixin, CreateView):
-    model = Budget
-    form_class = BudgetForm
-    template_name = 'main_app/budget_form.html'
-    success_url = reverse_lazy('budget_list')
-    
-    def form_valid(self, form):
-        form.instance.user = self.request.user
-        return super().form_valid(form)
-
-class BudgetDetail(LoginRequiredMixin, DetailView):
-    model = Budget
-    template_name = 'main_app/budget_detail.html'
-    context_object_name = 'budget'
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['now'] = timezone.now()
-        context['form'] = BudgetItemForm()
-        return context
-    
-    def get_queryset(self):
-        return Budget.objects.filter(user=self.request.user)
-    
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        form = BudgetItemForm(request.POST)
-        if form.is_valid():
-            item = form.save(commit=False)
-            item.budget = self.object
-            item.save()
-            return redirect('budget_detail', pk=self.object.pk)
-        context = self.get_context_data(form=form)
-        return self.render_to_response(context)
-
-class BudgetUpdate(LoginRequiredMixin, UpdateView):
-    model = Budget
-    form_class = BudgetForm
-    template_name = 'main_app/budget_form.html'
-    success_url = reverse_lazy('budget_list')
-    
-    def get_queryset(self):
-        return Budget.objects.filter(user=self.request.user)
-
-class BudgetDelete(LoginRequiredMixin, DeleteView):
-    model = Budget
-    template_name = 'main_app/budget_confirm_delete.html'
-    success_url = reverse_lazy('budget_list')
-    
-    def get_queryset(self):
-        return Budget.objects.filter(user=self.request.user)
-
-class BudgetItemUpdate(LoginRequiredMixin, UpdateView):
-    model = BudgetItem
-    form_class = BudgetItemForm
-    template_name = 'main_app/budgetitem_form.html'
-    
-    def get_success_url(self):
-        return reverse_lazy('budget_detail', kwargs={'pk': self.object.budget.pk})
-    
-    def get_queryset(self):
-        return BudgetItem.objects.filter(budget__user=self.request.user)
-
-class BudgetItemDelete(LoginRequiredMixin, DeleteView):
-    model = BudgetItem
-    template_name = 'main_app/budgetitem_confirm_delete.html'
-    
-    def get_success_url(self):
-        return reverse_lazy('budget_detail', kwargs={'pk': self.object.budget.pk})
-    
-    def get_queryset(self):
-        return BudgetItem.objects.filter(budget__user=self.request.user)
 class CategoryUpdate(LoginRequiredMixin, UpdateView):
     model = Category
     form_class = CategoryForm
@@ -831,3 +751,284 @@ def save_freedom_expense(request):
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)
 
+class CategoryDetailView(LoginRequiredMixin, DetailView):
+    model = Category
+    template_name = 'main_app/category_detail.html'
+    context_object_name = 'category'
+
+    def get_queryset(self):
+        return Category.objects.filter(user=self.request.user)
+
+class IncomeCreate(LoginRequiredMixin, CreateView):
+    model = Income
+    form_class = IncomeForm
+    template_name = 'main_app/income_form.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.year = self.kwargs['year']
+        self.month = self.kwargs['month']
+        self.calendar = get_object_or_404(
+            Calendar, user=self.request.user, year=self.year, month=self.month
+        )
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        form.instance.calendar = self.calendar
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('budget_list', args=[self.year, self.month])
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['year'] = self.year
+        context['month'] = self.month
+        return context
+
+class IncomeUpdate(LoginRequiredMixin, UpdateView):
+    model = Income
+    form_class = IncomeForm
+    template_name = 'main_app/income_form.html'
+
+    def get_queryset(self):
+        return Income.objects.filter(user=self.request.user)
+
+    def get_success_url(self):
+        # Redirect to the correct budget list after editing
+        return reverse('budget_list', args=[self.object.calendar.year, self.object.calendar.month])
+
+class IncomeDelete(LoginRequiredMixin, DeleteView):
+    model = Income
+    template_name = 'main_app/income_confirm_delete.html'
+
+    def get_queryset(self):
+        return Income.objects.filter(user=self.request.user)
+
+    def get_success_url(self):
+        # Redirect to the correct budget list after deleting
+        return reverse('budget_list', args=[self.object.calendar.year, self.object.calendar.month])
+
+class IncomeList(LoginRequiredMixin, ListView):
+    model = Income
+    template_name = 'main_app/budget_list.html'
+    context_object_name = 'incomes'
+    
+    def get_queryset(self):
+        return Income.objects.filter(user=self.request.user).order_by('-created_at')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['now'] = timezone.now()
+        return context
+
+class BudgetIncomeCreate(LoginRequiredMixin, CreateView):
+    model = Income
+    form_class = IncomeForm
+    template_name = 'main_app/income_form.html'
+
+    def get_success_url(self):
+        return reverse('budget_list', args=[self.object.budget.year, self.object.budget.month])
+
+    def form_valid(self, form):
+        budget = get_object_or_404(Budget, pk=self.kwargs['budget_pk'], user=self.request.user)
+        form.instance.user = self.request.user
+        form.instance.budget = budget
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['budget'] = get_object_or_404(Budget, pk=self.kwargs['budget_pk'], user=self.request.user)
+        return context
+
+class YearListView(TemplateView):
+    template_name = 'main_app/year_list.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['years'] = range(2022, 2036)
+        return context
+
+class MonthListView(TemplateView):
+    template_name = 'main_app/month_list.html'
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['year'] = self.kwargs['year']
+        context['months'] = range(1, 13)
+        return context
+
+class BudgetListView(ListView):
+    model = Budget
+    template_name = 'main_app/budget_list.html'
+    context_object_name = 'budgets'
+
+    def get_queryset(self):
+        year = self.kwargs['year']
+        month = self.kwargs['month']
+        calendar, created = Calendar.objects.get_or_create(
+            user=self.request.user,
+            year=year,
+            month=month
+        )
+        if calendar:
+            return Budget.objects.filter(calendar=calendar)
+        return Budget.objects.none()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        year = self.kwargs['year']
+        month = self.kwargs['month']
+        calendar = get_object_or_404(Calendar, user=self.request.user, year=year, month=month)
+        context['calendar'] = calendar
+        context['budgets'] = Budget.objects.filter(calendar=calendar)
+        context['incomes'] = Income.objects.filter(calendar=calendar)
+        context['total_incomes'] = context['incomes'].aggregate(Sum('amount'))['amount__sum'] or 0
+        return context
+
+class BudgetDetailView(DetailView):
+    model = Budget
+    template_name = 'main_app/budget_detail.html'
+    context_object_name = 'budget'
+
+    def get_object(self):
+        year = self.kwargs['year']
+        month = self.kwargs['month']
+        budget_id = self.kwargs['budget_id']
+        return get_object_or_404(
+            Budget,
+            id=budget_id,
+            calendar__year=year,
+            calendar__month=month,
+            calendar__user=self.request.user
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = kwargs.get('form', BudgetItemForm())
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = BudgetItemForm(request.POST)
+        if form.is_valid():
+            item = form.save(commit=False)
+            item.budget = self.object
+            item.save()
+            return redirect('budget_detail', year=self.object.calendar.year, month=self.object.calendar.month, budget_id=self.object.id)
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
+
+class BudgetItemListView(LoginRequiredMixin, DetailView):
+    model = Budget
+    template_name = 'main_app/budgetitem_list.html'
+    context_object_name = 'budget'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['items'] = self.object.items.all()
+        context['form'] = BudgetItemForm()
+        return context
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = BudgetItemForm(request.POST)
+        if form.is_valid():
+            item = form.save(commit=False)
+            item.budget = self.object
+            item.save()
+            return redirect('budgetitem_list', pk=self.object.id)
+        context = self.get_context_data(form=form)
+        return self.render_to_response(context)
+
+class BudgetCreate(LoginRequiredMixin, CreateView):
+    model = Budget
+    form_class = BudgetForm
+    template_name = 'main_app/budget_form.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        self.year = self.kwargs['year']
+        self.month = self.kwargs['month']
+        self.calendar = get_object_or_404(
+            Calendar, user=self.request.user, year=self.year, month=self.month
+        )
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        form.instance.calendar = self.calendar
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('budget_list', args=[self.year, self.month])
+
+class CalendarListView(LoginRequiredMixin, ListView):
+    model = Calendar
+    template_name = 'main_app/calendar_list.html'
+    context_object_name = 'calendars'
+
+    def get_queryset(self):
+        return Calendar.objects.filter(user=self.request.user).order_by('-year', '-month')
+
+class CalendarCreateView(LoginRequiredMixin, CreateView):
+    model = Calendar
+    form_class = CalendarForm
+    template_name = 'main_app/calendar_form.html'
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('budget_list', args=[self.object.id])
+
+class BudgetUpdate(LoginRequiredMixin, UpdateView):
+    model = Budget
+    form_class = BudgetForm
+    template_name = 'main_app/budget_form.html'
+
+    def get_success_url(self):
+        # Redirect to the budget detail page after editing
+        return reverse('budget_detail', args=[self.object.calendar.year, self.object.calendar.month, self.object.id])
+
+class BudgetDelete(LoginRequiredMixin, DeleteView):
+    model = Budget
+    template_name = 'main_app/budget_confirm_delete.html'
+
+    def get_success_url(self):
+        # Redirect to the budget list for the same year/month after deletion
+        return reverse('budget_list', args=[self.object.calendar.year, self.object.calendar.month])
+
+class BudgetItemUpdate(LoginRequiredMixin, UpdateView):
+    model = BudgetItem
+    form_class = BudgetItemForm
+    template_name = 'main_app/budgetitem_form.html'
+
+    def get_queryset(self):
+        # Only allow editing items belonging to budgets owned by the user
+        return BudgetItem.objects.filter(budget__calendar__user=self.request.user)
+
+    def get_success_url(self):
+        # Redirect to the budget detail page after editing
+        return reverse(
+            'budget_detail',
+            args=[
+                self.object.budget.calendar.year,
+                self.object.budget.calendar.month,
+                self.object.budget.id
+            ]
+        )
+
+class BudgetItemDelete(LoginRequiredMixin, DeleteView):
+    model = BudgetItem
+    template_name = 'main_app/budgetitem_confirm_delete.html'
+
+    def get_queryset(self):
+        return BudgetItem.objects.filter(budget__calendar__user=self.request.user)
+
+    def get_success_url(self):
+        return reverse(
+            'budget_detail',
+            args=[
+                self.object.budget.calendar.year,
+                self.object.budget.calendar.month,
+                self.object.budget.id
+            ]
+        )

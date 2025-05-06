@@ -1,7 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.utils import timezone
+from datetime import datetime
+import calendar
 from django.db.models import Sum
+import isoweek
+
 
 class ModeUnlock(models.Model):
     """
@@ -151,13 +156,9 @@ class Transaction(models.Model):
     class Meta:
         ordering = ['-date']
 
-class Budget(models.Model):
-    BUDGETING_TYPES = [
-        ('MONTHLY', 'Monthly'),
-        ('ANNUALLY', 'Annually'),
-        ('WEEKLY', 'Weekly'),
-    ]
+class Calendar(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+<<<<<<< HEAD
     budget_name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     budgeting_type = models.CharField(max_length=10, choices=BUDGETING_TYPES, default='MONTHLY')
@@ -212,24 +213,64 @@ class Budget(models.Model):
                 'percentage': (spent / monthly_budget * 100) if monthly_budget > 0 else 0
             }
     
+=======
+    year = models.IntegerField()
+    month = models.IntegerField()
+
+    class Meta:
+        unique_together = ('user', 'year', 'month')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.year}-{self.month:02d}"
+
+class Budget(models.Model):
+    calendar = models.ForeignKey(Calendar, on_delete=models.CASCADE, related_name='budgets')
+    category = models.ForeignKey('Category', on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.category} - {self.amount} ({self.calendar.year}-{self.calendar.month:02d})"
+
+>>>>>>> a310664 (fix routes, database and migrations)
     def get_total_spent(self):
-        return sum(item.amount for item in self.budgetitem_set.all())
-    
+        # Sum all amounts of items for this budget
+        return self.items.aggregate(total=models.Sum('amount'))['total'] or 0
+
     def get_remaining(self):
+        # Remaining = budgeted amount - total spent
         return self.amount - self.get_total_spent()
 
 class BudgetItem(models.Model):
-    budget = models.ForeignKey(Budget, on_delete=models.CASCADE)
+    budget = models.ForeignKey(Budget, on_delete=models.CASCADE, related_name='items')
     name = models.CharField(max_length=100)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    created_at = models.DateTimeField(auto_now_add=True)
-    
+    created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
+
     def __str__(self):
         return f"{self.name} - ${self.amount}"
-    
+
     class Meta:
         ordering = ['-created_at']
-        
+
+class Income(models.Model):
+    INCOME_TYPES = [
+        ('SALARY', 'Salary'),
+        ('BONUS', 'Bonus'),
+        ('SIDE_HUSTLE', 'Side Hustle'),
+        ('OTHER', 'Other'),
+    ] 
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    calendar = models.ForeignKey(Calendar, on_delete=models.CASCADE, related_name='incomes')
+    income_type = models.CharField(max_length=15, choices=INCOME_TYPES, default='SALARY')
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.get_income_type_display()} - ${self.amount}"
+
+    class Meta:
+        ordering = ['-created_at']
+
 class Category(models.Model):
     CATEGORY_TYPE_CHOICES = [
         ("salary", "Salary"),

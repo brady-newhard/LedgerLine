@@ -35,7 +35,7 @@ Loading worksheet...
 
   <div class="form-controls">
     <button type="submit" class="button">save changes</button>
-    <a href="{% url 'budget_detail' object.budget.calendar.year object.budget.calendar.month object.budget.id %}" class="button">cancel</a>
+    <a href="{% url 'budget_detail' object.budget.id %}" class="button">cancel</a>
   </div>
 </form>
 
