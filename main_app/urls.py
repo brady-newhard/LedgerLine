@@ -2,13 +2,10 @@ from django.urls import path, include
 from . import views
 from .views import (
     unlocked_modes_view, TransactionList, TransactionCreate,
-<<<<<<< HEAD
     TransactionUpdate, TransactionDelete,
-    BudgetList, BudgetCreate, BudgetDetail, BudgetUpdate, BudgetDelete,
+    BudgetListView, BudgetCreate, BudgetDetailView, BudgetUpdate, BudgetDelete,
     BudgetItemUpdate, BudgetItemDelete,
-=======
-    YearListView, MonthListView, BudgetDetailView,
->>>>>>> a310664 (fix routes, database and migrations)
+    YearListView, MonthListView,
     CategoryList,
     CategoryCreate,
     CategoryUpdate,
@@ -18,7 +15,6 @@ from .views import (
     IncomeUpdate,
     IncomeDelete,
     BudgetIncomeCreate,
-    BudgetListView,
     BudgetItemListView,
     BudgetItemUpdate,
     BudgetItemDelete,
@@ -36,14 +32,13 @@ urlpatterns = [
     path('calendar/', views.YearListView.as_view(), name='year_list'),
     path('calendar/<int:year>/', views.MonthListView.as_view(), name='month_list'),
     path('calendar/<int:year>/<int:month>/', BudgetListView.as_view(), name='budget_list'),
-    path('calendar/<int:year>/<int:month>/<int:budget_id>/', views.BudgetDetailView.as_view(), name='budget_detail'),
+    path('calendar/<int:year>/<int:month>/<int:budget_id>/', BudgetDetailView.as_view(), name='budget_detail'),
     path('categories/', CategoryList.as_view(), name='category_list'),
     path('categories/create/', CategoryCreate.as_view(), name='category_create'),
     path('categories/<int:pk>/update/', CategoryUpdate.as_view(), name='category_update'),
     path('categories/<int:pk>/delete/', CategoryDelete.as_view(), name='category_delete'),
     path('categories/<int:pk>/', views.CategoryDetailView.as_view(), name='category_detail'),
     path('journey/', views.journey_map, name='journey_map'),
-<<<<<<< HEAD
     path('journey/mode/<str:mode_name>/', views.mode_dashboard, name='mode_dashboard'),
     path('api/critical-spending/', views.save_critical_spending, name='save_critical_spending'),
     path('api/expense-schedule/', views.save_expense_schedule, name='save_expense_schedule'),
@@ -52,7 +47,6 @@ urlpatterns = [
     path('api/savings-contribution/', views.save_savings_contribution, name='save_savings_contribution'),
     path('api/freedom-plan/', views.save_freedom_plan, name='save_freedom_plan'),
     path('api/freedom-expense/', views.save_freedom_expense, name='save_freedom_expense'),
-=======
     path('modes/<str:mode_name>/dashboard/', views.mode_dashboard, name='mode_dashboard'),
     path('incomes/', IncomeList.as_view(), name='income_list'),
     path('budgets/<int:year>/<int:month>/income/add/', views.IncomeCreate.as_view(), name='income_create'),
@@ -65,5 +59,4 @@ urlpatterns = [
     path('budgets/<int:pk>/items/', BudgetItemListView.as_view(), name='budgetitem_list'),
     path('budgetitem/<int:pk>/edit/', BudgetItemUpdate.as_view(), name='budgetitem_update'),
     path('budgetitem/<int:pk>/delete/', BudgetItemDelete.as_view(), name='budgetitem_delete'),
->>>>>>> a310664 (fix routes, database and migrations)
 ]

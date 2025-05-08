@@ -158,62 +158,6 @@ class Transaction(models.Model):
 
 class Calendar(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-<<<<<<< HEAD
-    budget_name = models.CharField(max_length=100)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    budgeting_type = models.CharField(max_length=10, choices=BUDGETING_TYPES, default='MONTHLY')
-    category = models.ForeignKey('Category', on_delete=models.SET_NULL, null=True, blank=True)
-    start_date = models.DateField()
-    end_date = models.DateField()
-    
-    def __str__(self):
-        return f"{self.get_budgeting_type_display()} Budget: ${self.amount}"
-    
-    def get_monthly_progress(self):
-        """
-        Get progress for the current month's budget
-        """
-        from django.utils import timezone
-        
-        # Get current month's totals
-        now = timezone.now()
-        monthly_totals = Transaction.get_monthly_totals(self.user, now.year, now.month)
-        
-        # Calculate progress
-        if self.budgeting_type == 'MONTHLY':
-            if self.category:
-                # Category-specific budget
-                category_totals = Transaction.get_monthly_category_totals(self.user, now.year, now.month)
-                spent = sum(t['total'] for t in category_totals if t['category__category_type'] == self.category.category_type)
-            else:
-                # Overall budget
-                spent = monthly_totals['expenses']
-            
-            return {
-                'spent': spent,
-                'remaining': self.amount - spent,
-                'percentage': (spent / self.amount * 100) if self.amount > 0 else 0
-            }
-        else:
-            # For weekly or annual budgets, we need to calculate the portion for the current month
-            if self.budgeting_type == 'WEEKLY':
-                monthly_budget = self.amount * 4  # Approximate monthly budget
-            else:  # ANNUALLY
-                monthly_budget = self.amount / 12
-                
-            if self.category:
-                category_totals = Transaction.get_monthly_category_totals(self.user, now.year, now.month)
-                spent = sum(t['total'] for t in category_totals if t['category__category_type'] == self.category.category_type)
-            else:
-                spent = monthly_totals['expenses']
-                
-            return {
-                'spent': spent,
-                'remaining': monthly_budget - spent,
-                'percentage': (spent / monthly_budget * 100) if monthly_budget > 0 else 0
-            }
-    
-=======
     year = models.IntegerField()
     month = models.IntegerField()
 
@@ -231,7 +175,6 @@ class Budget(models.Model):
     def __str__(self):
         return f"{self.category} - {self.amount} ({self.calendar.year}-{self.calendar.month:02d})"
 
->>>>>>> a310664 (fix routes, database and migrations)
     def get_total_spent(self):
         # Sum all amounts of items for this budget
         return self.items.aggregate(total=models.Sum('amount'))['total'] or 0
