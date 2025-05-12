@@ -1,8 +1,6 @@
 <p align="center">
   <img src="https://raw.githubusercontent.com/brady-newhard/LedgerLine/main/main_app/static/images/LedgerLine-logo.png" alt="Logo" width="500">
 </p>
-<h2 align="center">LedgerLine</h2>
-
 <p>LedgerLine is a minimalist finance app built on Django, 
 thoughtfully crafted for individuals, LLCs, and solo operators. 
 Inspired by the clarity and calm of mid-century accounting, LedgerLine 
