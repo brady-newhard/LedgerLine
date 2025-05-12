@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./main_app/static/images/LedgerLine-Logo.png" alt="Logo" width="500">
+  <img src="https://raw.githubusercontent.com/brady-newhard/LedgerLine/main/main_app/static/images/LedgerLine-Logo.png" alt="Logo" width="500">
 </p>
 <h2 align="center">LedgerLine</h2>
 
